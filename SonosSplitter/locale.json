@@ -1,0 +1,29 @@
+{
+	"translations": {
+		"de": {
+			"Album Art Hight in WebFront": "Album Art Höhe im WebFront",
+			"Update Grouping Frequency": "Update Grouping Frequenz",
+			"Update Status Frequency": "Update Status Frequenz",
+			"Import Playlists": "Import Playlists",
+			"none": "keine",
+			"saved": "gespeicherte",
+			"imported": "importierte",
+			"saved & imported": "gespeicherte & importierte",
+			"favorites": "Favoriten",
+			"saved & favorites": "gespeicherte & Favoriten",
+			"imported & favorites": "importierte &Favoriten",
+			"saved, imported & favorites": "gespeicherte, importierte & Favoriten",
+			"update playlists": "Playlisten neu einlesen",
+			"Radio Stations": "Radiosender",
+			"Name": "Name",
+			"URL": "URL",
+			"Image URL": "Bild URL",
+			"Off": "Aus",
+			"On": "An",
+			"Coordinator is not configured as Symcon instance. This cannot work.": "Der Koordinator ist nicht als Symcon Instanz konfiguriert. Das kann nicht funktionieren.",
+			"Radio station \"%s\" not found": "Der Radiosender \"%s\" konnte nicht gefunden werden",
+			"Unable to access any Sonos Instance": "Keine Sonos Instanz konnte erreicht werden",
+			"unknown type in ForwardData": "unbekannter type in ForwardData"
+		}
+	}
+}

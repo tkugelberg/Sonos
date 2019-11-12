@@ -1,0 +1,13 @@
+{
+	"id": "{8EFB4FEB-32D6-CB96-EA58-32CD86260774}",
+	"name": "Sonos Discovery",
+	"type": 5,
+	"vendor": "Sonos",
+	"aliases": [
+		"Sonos Discovery"
+	],
+	"parentRequirements": [],
+	"childRequirements": [],
+	"implemented": [],
+	"prefix": "SNS"
+}

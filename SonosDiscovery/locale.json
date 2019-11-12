@@ -1,0 +1,10 @@
+{
+  "translations": {
+    "de": {
+      "Name": "Name",
+      "IP Address": "IP Adresse",
+      "Type": "Typ",
+      "RINCON": "RINCON"
+    }
+  }
+}
