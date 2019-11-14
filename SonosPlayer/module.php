@@ -287,13 +287,10 @@ class SonosPlayer extends IPSModule
                     @IPS_SetHidden($this->GetIDForIdent("Details"),    $hidden);
                     if (count($input['data'][$RINCON]['GroupMember'])) {
                         @IPS_SetHidden($this->GetIDForIdent("GroupVolume"), false);
+                        @IPS_SetHidden($this->GetIDForIdent("MemberOfGroup"), true);
                     } else {
                         @IPS_SetHidden($this->GetIDForIdent("GroupVolume"), true);
-                    }
-                    if ($input['data'][$RINCON]['Coordinator']) {
                         @IPS_SetHidden($this->GetIDForIdent("MemberOfGroup"), false);
-                    } else {
-                        @IPS_SetHidden($this->GetIDForIdent("MemberOfGroup"), true);
                     }
                 }
                 break;
