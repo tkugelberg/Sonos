@@ -148,7 +148,10 @@ class SonosDiscovery extends ipsmodule
         if (strtoupper(array_shift($tmp)) === 'LOCATION') {
           $value = (count($tmp) > 0 ? trim(join(':', $tmp)) : null);
           if (preg_match('/\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}/', $value, $ip_match)) {
-            $ip = $ip_match[0];
+            if (Sys_ping($ip_match[0], 1000) == true) {
+              $ip = $ip_match[0];
+              break;
+            }
           }
         }
       }
