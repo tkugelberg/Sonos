@@ -78,22 +78,25 @@ class SonosSplitter extends IPSModule
     $this->updateGroupingProfile();
 
     $this->SetTimerInterval('Sonos Update Grouping', $this->ReadPropertyInteger('UpdateGroupingFrequency') * 1000);
-    // Send different propeties to player instances
-    $this->SendDataToChildren(json_encode([
-      "DataID" => '{36EA4430-7047-C11D-0854-43391B14E0D7}',
-      'type'   => 'updateStatus',
-      'data'   => $this->ReadPropertyInteger('UpdateStatusFrequency')
-    ]));
-    $this->SendDataToChildren(json_encode([
-      "DataID" => '{36EA4430-7047-C11D-0854-43391B14E0D7}',
-      'type'   => 'RadioStations',
-      'data'   => $this->ReadPropertyString('RadioStations')
-    ]));
-    $this->SendDataToChildren(json_encode([
-      "DataID" => '{36EA4430-7047-C11D-0854-43391B14E0D7}',
-      'type'   => 'AlbumArtHight',
-      'data'   => $this->ReadPropertyInteger('AlbumArtHeight')
-    ]));
+
+    // Send different propeties to player instances, in case IPS is already started
+    if (IPS_GetKernelRunlevel == KR_READY) {
+      $this->SendDataToChildren(json_encode([
+        "DataID" => '{36EA4430-7047-C11D-0854-43391B14E0D7}',
+        'type'   => 'updateStatus',
+        'data'   => $this->ReadPropertyInteger('UpdateStatusFrequency')
+      ]));
+      $this->SendDataToChildren(json_encode([
+        "DataID" => '{36EA4430-7047-C11D-0854-43391B14E0D7}',
+        'type'   => 'RadioStations',
+        'data'   => $this->ReadPropertyString('RadioStations')
+      ]));
+      $this->SendDataToChildren(json_encode([
+        "DataID" => '{36EA4430-7047-C11D-0854-43391B14E0D7}',
+        'type'   => 'AlbumArtHight',
+        'data'   => $this->ReadPropertyInteger('AlbumArtHeight')
+      ]));
+    }
   } // End ApplyChanges
 
 
@@ -106,6 +109,16 @@ class SonosSplitter extends IPSModule
           "DataID" => '{36EA4430-7047-C11D-0854-43391B14E0D7}',
           'type'   => 'updateStatus',
           'data'   => $this->ReadPropertyInteger('UpdateStatusFrequency')
+        ]));
+        $this->SendDataToChildren(json_encode([
+          "DataID" => '{36EA4430-7047-C11D-0854-43391B14E0D7}',
+          'type'   => 'RadioStations',
+          'data'   => $this->ReadPropertyString('RadioStations')
+        ]));
+        $this->SendDataToChildren(json_encode([
+          "DataID" => '{36EA4430-7047-C11D-0854-43391B14E0D7}',
+          'type'   => 'AlbumArtHight',
+          'data'   => $this->ReadPropertyInteger('AlbumArtHeight')
         ]));
         break;
     }

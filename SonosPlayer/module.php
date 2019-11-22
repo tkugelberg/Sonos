@@ -172,25 +172,30 @@ class SonosPlayer extends IPSModule
             }
         }
 
-        if ($this->ReadAttributeInteger("AlbumArtHeight") == -1) {
-            $this->SendDataToParent(json_encode([
-                "DataID" => '{731D7808-F7C4-FA98-2132-0FAB19A802C1}',
-                'type'   => 'AlbumArtRequest'
-            ]));
-        }
+        // Only if IPS is running, check if parameters sould be requested
+        // This is required if an instance is newly created, not during startup.
+        // During startup this will be handeled by Splitter instance utilizing MessageSink
+        if (IPS_GetKernelRunlevel == KR_READY) {
+            if ($this->ReadAttributeInteger("AlbumArtHeight") == -1) {
+                $this->SendDataToParent(json_encode([
+                    "DataID" => '{731D7808-F7C4-FA98-2132-0FAB19A802C1}',
+                    'type'   => 'AlbumArtRequest'
+                ]));
+            }
 
-        if ($this->ReadAttributeInteger("UpdateStatusFrequency") == -1) {
-            $this->SendDataToParent(json_encode([
-                "DataID" => '{731D7808-F7C4-FA98-2132-0FAB19A802C1}',
-                'type'   => 'UpdateStatusFrequencyRequest'
-            ]));
-        }
+            if ($this->ReadAttributeInteger("UpdateStatusFrequency") == -1) {
+                $this->SendDataToParent(json_encode([
+                    "DataID" => '{731D7808-F7C4-FA98-2132-0FAB19A802C1}',
+                    'type'   => 'UpdateStatusFrequencyRequest'
+                ]));
+            }
 
-        if ($this->ReadAttributeString("RadioStations") == '<undefined>') {
-            $this->SendDataToParent(json_encode([
-                "DataID" => '{731D7808-F7C4-FA98-2132-0FAB19A802C1}',
-                'type'   => 'RadioStationsRequest'
-            ]));
+            if ($this->ReadAttributeString("RadioStations") == '<undefined>') {
+                $this->SendDataToParent(json_encode([
+                    "DataID" => '{731D7808-F7C4-FA98-2132-0FAB19A802C1}',
+                    'type'   => 'RadioStationsRequest'
+                ]));
+            }
         }
     } // End ApplyChanges
 
