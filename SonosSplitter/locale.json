@@ -24,7 +24,21 @@
 			"Radio station \"%s\" not found": "Der Radiosender \"%s\" konnte nicht gefunden werden",
 			"Unable to access any Sonos Instance": "Keine Sonos Instanz konnte erreicht werden",
 			"unknown type in ForwardData": "unbekannter type in ForwardData",
-			"none": "keine"
+			"read TuneIn favorites": "TuneIn Favoriten auslesen",
+			"Read parameters from \"My Radio Stations\" in TuneIn and add them to \"Radio Stations\" above": "Lese die Einstellungen aus \"Meine Radiosender\" bei TuneIn aus, und füge sie der Liste \"Radiosender\" hinzu",
+			"no playlist available": "Keine Playlisten vorhanden",
+			"previous": "Zurück",
+			"play": "Wiedergabe",
+			"pause": "Pause",
+			"stop": "Stop",
+			"next": "Vor",
+			"transition": "Übergang",
+			"Normal": "Normal",
+			"Repeat all": "Repeat all",
+			"Repeat one": "Repeat one",
+			"Shuffle no repeat": "Shuffle no repeat",
+			"Shuffle": "Shuffle",
+			"Shuffle repeat one": "Shuffle repeat one"
 		}
 	}
 }

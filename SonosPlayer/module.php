@@ -57,12 +57,12 @@ class SonosPlayer extends IPSModule
         $this->RegisterVariableInteger("Status", $this->Translate("Status"), "SONOS.Status", $positions['Status']);
         $this->RegisterVariableInteger("Volume", $this->Translate("Volume"), "SONOS.Volume", $positions['Volume']);
         $this->RegisterVariableInteger("Playlist", $this->Translate("Playlist"), "SONOS.Playlist", $positions['Playlist']);
-        $this->EnableAction("Playlist");
         $this->EnableAction("GroupVolume");
         $this->EnableAction("MemberOfGroup");
         $this->EnableAction("Radio");
         $this->EnableAction("Status");
         $this->EnableAction("Volume");
+        $this->checkPlaylistAction();
 
         // 2) Add/Remove according to feature activation
         // create link list for deletion of liks if target is deleted
@@ -175,7 +175,7 @@ class SonosPlayer extends IPSModule
         // Only if IPS is running, check if parameters sould be requested
         // This is required if an instance is newly created, not during startup.
         // During startup this will be handeled by Splitter instance utilizing MessageSink
-        if (IPS_GetKernelRunlevel == KR_READY) {
+        if (IPS_GetKernelRunlevel() == KR_READY) {
             if ($this->ReadAttributeInteger("AlbumArtHeight") == -1) {
                 $this->SendDataToParent(json_encode([
                     "DataID" => '{731D7808-F7C4-FA98-2132-0FAB19A802C1}',
@@ -308,6 +308,9 @@ class SonosPlayer extends IPSModule
                 break;
             case 'AlbumArtHight':
                 $this->WriteAttributeInteger("AlbumArtHeight", $input['data']);
+                break;
+            case 'checkPlaylistAction':
+                $this->checkPlaylistAction();
                 break;
             default:
                 throw new Exception($this->Translate("unknown type in ReceiveData"));
@@ -1525,6 +1528,21 @@ class SonosPlayer extends IPSModule
             $this->UpdateFormField('rinconMessage', 'caption', 'RINCON could not be read from "' . $ip . '"');
         }
     }
+
+    private function checkPlaylistAction()
+    {
+        $Associations = IPS_GetVariableProfile("SONOS.Playlist")['Associations'];
+        if (isset($Associations[0])) {
+            if ($Associations[0]['Value'] == 0) {
+                $this->DisableAction("Playlist");
+            } else {
+                $this->EnableAction("Playlist");
+            }
+        } else {
+            $this->DisableAction("Playlist");
+        }
+    }
+
     private function getPositions(): array
     {
         return [

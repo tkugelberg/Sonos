@@ -37,20 +37,20 @@ class SonosSplitter extends IPSModule
 
     // create profiles
     $this->RegisterProfileIntegerEx("SONOS.Status", "Information", "", "",   array(
-      array(0, "prev",       "", -1),
-      array(1, "play",       "", -1),
-      array(2, "pause",      "", -1),
-      array(3, "stop",       "", -1),
-      array(4, "next",       "", -1),
-      array(5, "transition", "", -1)
+      array(0, $this->Translate("previous"),   "", -1),
+      array(1, $this->Translate("play"),       "", -1),
+      array(2, $this->Translate("pause"),      "", -1),
+      array(3, $this->Translate("stop"),       "", -1),
+      array(4, $this->Translate("next"),       "", -1),
+      array(5, $this->Translate("transition"), "", -1)
     ));
     $this->RegisterProfileIntegerEx("SONOS.PlayMode", "Information", "", "",   array(
-      array(0, "Normal",             "", -1),
-      array(1, "Repeat all",         "", -1),
-      array(2, "Repeat one",         "", -1),
-      array(3, "Shuffle no repeat",  "", -1),
-      array(4, "Shuffle",            "", -1),
-      array(5, "Shuffle repeat one", "", -1)
+      array(0, $this->Translate("Normal"),             "", -1),
+      array(1, $this->Translate("Repeat all"),         "", -1),
+      array(2, $this->Translate("Repeat one"),         "", -1),
+      array(3, $this->Translate("Shuffle no repeat"),  "", -1),
+      array(4, $this->Translate("Shuffle"),            "", -1),
+      array(5, $this->Translate("Shuffle repeat one"), "", -1)
     ));
     $this->RegisterProfileInteger("SONOS.Volume",   "Intensity",   "", " %",    0, 100, 1);
     $this->RegisterProfileInteger("SONOS.Tone",     "Intensity",   "", " %",  -10,  10, 1);
@@ -67,8 +67,8 @@ class SonosSplitter extends IPSModule
 
     foreach ($radioStations as $radioStation) {
       $Associations[] = array($Value++, $radioStation['name'], "", -1);
-      // associations only support up to 32 variables
-      if ($Value === 33) break;
+      // associations only support up to 128 variables
+      if ($Value === 129) break;
     }
 
     if (IPS_VariableProfileExists("SONOS.Radio")) IPS_DeleteVariableProfile("SONOS.Radio");
@@ -80,7 +80,7 @@ class SonosSplitter extends IPSModule
     $this->SetTimerInterval('Sonos Update Grouping', $this->ReadPropertyInteger('UpdateGroupingFrequency') * 1000);
 
     // Send different propeties to player instances, in case IPS is already started
-    if (IPS_GetKernelRunlevel == KR_READY) {
+    if (IPS_GetKernelRunlevel() == KR_READY) {
       $this->SendDataToChildren(json_encode([
         "DataID" => '{36EA4430-7047-C11D-0854-43391B14E0D7}',
         'type'   => 'updateStatus',
@@ -119,6 +119,11 @@ class SonosSplitter extends IPSModule
           "DataID" => '{36EA4430-7047-C11D-0854-43391B14E0D7}',
           'type'   => 'AlbumArtHight',
           'data'   => $this->ReadPropertyInteger('AlbumArtHeight')
+        ]));
+        $this->SendDataToChildren(json_encode([
+          "DataID" => '{36EA4430-7047-C11D-0854-43391B14E0D7}',
+          'type'   => 'checkPlaylistAction',
+          'data'   => ''
         ]));
         break;
     }
@@ -237,7 +242,23 @@ class SonosSplitter extends IPSModule
           ]
         ]
       ],
-      'actions' => [['name' => 'readTunein', 'type' => 'Button', 'caption' => 'read Tunein', 'onClick'  => 'SNS_ReadTunein($id);']]
+      'actions' => [
+        [
+          'type' => 'RowLayout', 'items' => [
+            [
+              'name'     => 'readTunein',
+              'type'     => 'Button',
+              'caption'  => 'read TuneIn favorites',
+              'onClick'  => 'SNS_ReadTunein($id);'
+            ],
+            [
+              'name'     => 'readTuneinLable',
+              'type'     => 'Label',
+              'caption'  => 'Read parameters from "My Radio Stations" in TuneIn and add them to "Radio Stations" above'
+            ]
+          ]
+        ]
+      ]
     ];
     return json_encode($Form);
   } // End GetConfigurationForm
@@ -359,39 +380,44 @@ class SonosSplitter extends IPSModule
 
     if (!isset($sonos)) throw new Exception($this->Translate("Unable to access any Sonos Instance"));
 
-    $tuneinStations = new SimpleXMLElement($sonos->BrowseContentDirectory('R:0/0')['Result']);
+    $answer = new SimpleXMLElement($sonos->BrowseContentDirectory('R:0/0'));
+    if (isset($answer['Result'])) {
+      $tuneinStations = ['Result'];
 
-    $radioStations = json_decode($this->ReadPropertyString("RadioStations"), true);
 
-    foreach ($tuneinStations as $tuneinStation) {
-      $name = strval($tuneinStation->xpath('dc:title')[0]);
-      $url  = strval($tuneinStation->res);
-      preg_match('/s\d{3,}/', $url, $station);
-      $imageurl = "http://cdn-radiotime-logos.tunein.com/" . $station[0] . "q.png";
-      $alreadyIn = false;
-      foreach ($radioStations as $radioStation) {
-        if ($radioStation['name'] == $name &&  $radioStation['URL'] == $url && $radioStation['imageURL'] == $imageurl) {
-          $alreadyIn = true;
-          break;
+      $radioStations = json_decode($this->ReadPropertyString("RadioStations"), true);
+
+      foreach ($tuneinStations as $tuneinStation) {
+        $name = strval($tuneinStation->xpath('dc:title')[0]);
+        $url  = strval($tuneinStation->res);
+        preg_match('/s\d{3,}/', $url, $station);
+        $imageurl = "http://cdn-radiotime-logos.tunein.com/" . $station[0] . "q.png";
+        $alreadyIn = false;
+        foreach ($radioStations as $radioStation) {
+          if ($radioStation['name'] == $name &&  $radioStation['URL'] == $url && $radioStation['imageURL'] == $imageurl) {
+            $alreadyIn = true;
+            break;
+          }
+        }
+        if ($alreadyIn == false) {
+          $radioStations[] = [
+            'name' => $name,
+            'URL'  => $url,
+            'imageURL' =>  $imageurl
+          ];
         }
       }
-      if ($alreadyIn == false) {
-        $radioStations[] = [
-          'name' => $name,
-          'URL'  => $url,
-          'imageURL' =>  $imageurl
-        ];
-      }
-    }
 
-    $this->UpdateFormField('RadioStations', 'values', json_encode($radioStations));
+      $this->UpdateFormField('RadioStations', 'values', json_encode($radioStations));
+    }
   }
 
   public function UpdatePlaylists()
   {
 
-    $Associations          = array();
-    $PlaylistImport        = $this->ReadPropertyInteger("PlaylistImport");
+    $Associations   = array();
+    $PlaylistImport = $this->ReadPropertyInteger("PlaylistImport");
+    $Value          = 1;
 
     if ($PlaylistImport != 0) {
       // get all Player instances, including IP/Host and InstanceID
@@ -414,14 +440,12 @@ class SonosSplitter extends IPSModule
 
       if (!isset($sonos)) throw new Exception($this->Translate("Unable to access any Sonos Instance"));
 
-      $Value = 1;
-
       // saved
       if ($PlaylistImport === 1 || $PlaylistImport === 3 || $PlaylistImport === 5  || $PlaylistImport === 7) {
         foreach ((new SimpleXMLElement($sonos->BrowseContentDirectory('SQ:')['Result']))->container as $container) {
           $Associations[] = array($Value++, (string) $container->xpath('dc:title')[0], "", -1);
-          // associations only support up to 32 variables
-          if ($Value === 33) break;
+          // associations only support up to 128 variables
+          if ($Value === 129) break;
         }
       }
 
@@ -429,8 +453,8 @@ class SonosSplitter extends IPSModule
       if (($PlaylistImport === 2 || $PlaylistImport === 3 || $PlaylistImport === 6  || $PlaylistImport === 7) && $Value < 33) {
         foreach ((new SimpleXMLElement($sonos->BrowseContentDirectory('A:PLAYLISTS')['Result']))->container as $container) {
           $Associations[] = array($Value++, (string) preg_replace($this->getPlaylistReplacementFrom(), $this->getPlaylistReplacementTo(), $container->xpath('dc:title')[0]), "", -1);
-          // associations only support up to 32 variables
-          if ($Value === 33) break;
+          // associations only support up to 128 variables
+          if ($Value === 129) break;
         }
       }
 
@@ -439,16 +463,27 @@ class SonosSplitter extends IPSModule
       {
         foreach ((new SimpleXMLElement($sonos->BrowseContentDirectory('FV:2')['Result']))->item as $item) {
           $Associations[] = array($Value++, (string) preg_replace($this->getPlaylistReplacementFrom(), $this->getPlaylistReplacementTo(), $item->xpath('dc:title')[0]), "", -1);
-          // associations only support up to 32 variables
-          if ($Value === 33) break;
+          // associations only support up to 128 variables
+          if ($Value === 129) break;
         }
       }
     }
+
+    if ($Value === 1)
+      $Associations[] = array(0, $this->Translate("no playlist available"), "", -1);
 
     if (IPS_VariableProfileExists("SONOS.Playlist"))
       IPS_DeleteVariableProfile("SONOS.Playlist");
 
     $this->RegisterProfileIntegerEx("SONOS.Playlist", "Database", "", "", $Associations);
+
+    if (IPS_GetKernelRunlevel() == KR_READY) {
+      $this->SendDataToChildren(json_encode([
+        "DataID" => '{36EA4430-7047-C11D-0854-43391B14E0D7}',
+        'type'   => 'checkPlaylistAction',
+        'data'   => ''
+      ]));
+    }
   } // End UpdatePlaylists
 
 
@@ -456,7 +491,7 @@ class SonosSplitter extends IPSModule
   {
     if (IPS_VariableProfileExists("SONOS.Groups")) IPS_DeleteVariableProfile("SONOS.Groups");
     $allSonosPlayers = IPS_GetInstanceListByModuleID("{52F6586D-A1C7-AAC6-309B-E12A70F6EEF6}");
-    $GroupAssociations = array(array(0, "none", "", -1));
+    $GroupAssociations = array(array(0, $this->Translate("none"), "", -1));
 
     foreach ($allSonosPlayers as $InstanceID) {
       if (@GetValueBoolean(IPS_GetVariableIDByName("Coordinator", $InstanceID)))

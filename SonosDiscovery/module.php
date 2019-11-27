@@ -94,7 +94,7 @@ class SonosDiscovery extends ipsmodule
         'direction' => 'ascending'
       ],
       'columns' => [
-        ['caption' => 'Name',       'name' => 'name',      'width' => '200px'],
+        ['caption' => 'Name',       'name' => 'name',      'width' => 'auto'],
         ['caption' => 'IP Address', 'name' => 'IPAddress', 'width' => '160px'],
         ['caption' => 'Type',       'name' => 'Type',      'width' => '100px'],
         ['caption' => 'RINCON',     'name' => 'RINCON',    'width' => '250px']
@@ -121,39 +121,14 @@ class SonosDiscovery extends ipsmodule
   {
     $SonosDevices = [];
 
-    $msg  = 'M-SEARCH * HTTP/1.1' . "\r\n";
-    $msg .= 'HOST: 239.255.255.250:1900' . "\r\n";
-    $msg .= 'MAN: "ssdp:discover"' . "\r\n";
-    $msg .= "MX: 3\r\n";
-    $msg .= "ST: urn:schemas-upnp-org:device:ZonePlayer:1\r\n";
-    $msg .= '' . "\r\n";
+    $SSDPInstance = IPS_GetInstanceListByModuleID('{FFFFA648-B296-E785-96ED-065F7CEE6F29}')[0];
 
-    $socket = socket_create(AF_INET, SOCK_DGRAM, SOL_UDP);
-    socket_set_option($socket, SOL_SOCKET, SO_BROADCAST, 1);
-    socket_sendto($socket, $msg, strlen($msg), 0, '239.255.255.250', 1900);
-    socket_set_option($socket, SOL_SOCKET, SO_RCVTIMEO, array('sec' => 2, 'usec' => 0));
+    $discoveredDevices = YC_SearchDevices($SSDPInstance, 'urn:schemas-upnp-org:device:ZonePlayer:1');
 
-    $res = null;
-    @socket_recvfrom($socket, $res, 1024, 0, $from, $port);
-
-    if (!is_null($res)) {
-      $lines  = explode("\n", trim($res));
-
-      if (trim($lines[0]) == 'HTTP/1.1 200 OK') {
-        array_shift($lines);
-      }
-
-      foreach ($lines as $line) {
-        $tmp = explode(':', trim($line));
-        if (strtoupper(array_shift($tmp)) === 'LOCATION') {
-          $value = (count($tmp) > 0 ? trim(join(':', $tmp)) : null);
-          if (preg_match('/\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}/', $value, $ip_match)) {
-            if (Sys_ping($ip_match[0], 1000) == true) {
-              $ip = $ip_match[0];
-              break;
-            }
-          }
-        }
+    foreach ($discoveredDevices as $discoveredDevice) {
+      if (Sys_ping($discoveredDevice['IPv4'], 1000) == true) {
+        $ip = $discoveredDevice['IPv4'];
+        break;
       }
     }
 
