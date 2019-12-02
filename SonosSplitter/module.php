@@ -270,7 +270,7 @@ class SonosSplitter extends IPSModule
     $InstanceList   = [];
     foreach ($InstanceIDList as $InstanceID) {
       $InstanceList[IPS_GetProperty($InstanceID, "RINCON")] = [
-        "IPAddress"     => IPS_GetProperty($InstanceID, "IPAddress"),
+        "IPAddress"     => gethostbyname(IPS_GetProperty($InstanceID, "IPAddress")),
         "TimeOut"       => 500,
         "InstanceID"    => $InstanceID,
       ];
@@ -282,11 +282,14 @@ class SonosSplitter extends IPSModule
 
         $sonos    = new SonosAccess($Instance["IPAddress"]);
         $SonosGrouping = new SimpleXMLElement($sonos->GetZoneGroupState());
-        // Some of my speakers moved ZoneGroup to ZoneGroups->ZoneGroup what leads to an error - this should solve it
         if ($SonosGrouping) {
           break;
         }
       }
+    }
+
+    if (!$SonosGrouping) {
+      return;
     }
 
     $Grouping = [];
@@ -365,7 +368,7 @@ class SonosSplitter extends IPSModule
     $InstanceList   = [];
     foreach ($InstanceIDList as $InstanceID) {
       $InstanceList[$InstanceID] = [
-        "IPAddress"  => IPS_GetProperty($InstanceID, "IPAddress"),
+        "IPAddress"  => gethostbyname(IPS_GetProperty($InstanceID, "IPAddress")),
         "TimeOut"    => IPS_GetProperty($InstanceID, "TimeOut"),
       ];
     }
@@ -380,10 +383,9 @@ class SonosSplitter extends IPSModule
 
     if (!isset($sonos)) throw new Exception($this->Translate("Unable to access any Sonos Instance"));
 
-    $answer = new SimpleXMLElement($sonos->BrowseContentDirectory('R:0/0'));
+    $answer = $sonos->BrowseContentDirectory('R:0/0');
     if (isset($answer['Result'])) {
-      $tuneinStations = ['Result'];
-
+      $tuneinStations = new SimpleXMLElement($answer['Result']);
 
       $radioStations = json_decode($this->ReadPropertyString("RadioStations"), true);
 
@@ -425,7 +427,7 @@ class SonosSplitter extends IPSModule
       $InstanceList   = [];
       foreach ($InstanceIDList as $InstanceID) {
         $InstanceList[$InstanceID] = [
-          "IPAddress"  => IPS_GetProperty($InstanceID, "IPAddress"),
+          "IPAddress"  => gethostbyname(IPS_GetProperty($InstanceID, "IPAddress")),
           "TimeOut"    => IPS_GetProperty($InstanceID, "TimeOut"),
         ];
       }

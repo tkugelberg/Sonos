@@ -65,18 +65,13 @@ class SonosPlayer extends IPSModule
         $this->checkPlaylistAction();
 
         // 2) Add/Remove according to feature activation
-        // create link list for deletion of liks if target is deleted
-        $links = array();
-        foreach (IPS_GetLinkList() as $key => $LinkID) {
-            $links[] =  array(('LinkID') => $LinkID, ('TargetID') =>  IPS_GetLink($LinkID)['TargetID']);
-        }
 
         // Bass
         if ($this->ReadPropertyBoolean("BassControl")) {
             $this->RegisterVariableInteger("Bass", $this->Translate("Bass"), "SONOS.Tone", $positions['Bass']);
             $this->EnableAction("Bass");
         } else {
-            $this->removeVariableAction("Bass", $links);
+            $this->removeVariableAction("Bass");
         }
 
         // Treble
@@ -84,7 +79,7 @@ class SonosPlayer extends IPSModule
             $this->RegisterVariableInteger("Treble", $this->Translate("Treble"), "SONOS.Tone", $positions['Treble']);
             $this->EnableAction("Treble");
         } else {
-            $this->removeVariableAction("Treble", $links);
+            $this->removeVariableAction("Treble");
         }
 
         // Mute
@@ -92,7 +87,7 @@ class SonosPlayer extends IPSModule
             $this->RegisterVariableInteger("Mute", $this->Translate("Mute"), "SONOS.Switch", $positions['Mute']);
             $this->EnableAction("Mute");
         } else {
-            $this->removeVariableAction("Mute", $links);
+            $this->removeVariableAction("Mute");
         }
 
         // Loudness
@@ -100,7 +95,7 @@ class SonosPlayer extends IPSModule
             $this->RegisterVariableInteger("Loudness", $this->Translate("Loudness"), "SONOS.Switch", $positions['Loudness']);
             $this->EnableAction("Loudness");
         } else {
-            $this->removeVariableAction("Loudness", $links);
+            $this->removeVariableAction("Loudness");
         }
 
         // Balance
@@ -108,14 +103,14 @@ class SonosPlayer extends IPSModule
             $this->RegisterVariableInteger("Balance", $this->Translate("Balance"), "SONOS.Balance", $positions['Balance']);
             $this->EnableAction("Balance");
         } else {
-            $this->removeVariableAction("Balance", $links);
+            $this->removeVariableAction("Balance");
         }
 
         // Sleeptimer
         if ($this->ReadPropertyBoolean("SleeptimerControl")) {
             $this->RegisterVariableInteger("Sleeptimer", $this->Translate("Sleeptimer"), "", $positions['Sleeptimer']);
         } else {
-            $this->removeVariable("Sleeptimer", $links);
+            $this->removeVariable("Sleeptimer");
         }
 
         // PlayMode + Crossfade
@@ -125,8 +120,8 @@ class SonosPlayer extends IPSModule
             $this->EnableAction("PlayMode");
             $this->EnableAction("Crossfade");
         } else {
-            $this->removeVariableAction("PlayMode", $links);
-            $this->removeVariableAction("Crossfade", $links);
+            $this->removeVariableAction("PlayMode");
+            $this->removeVariableAction("Crossfade");
         }
 
         // Detailed Now Playing informtion
@@ -142,24 +137,18 @@ class SonosPlayer extends IPSModule
             if (!@IPS_GetObjectIDByIdent("StationID", $this->InstanceID)) {
                 $vidStationID = $this->RegisterVariableString("StationID", $this->Translate("Station ID"), "", $positions['StationID']);
                 IPS_SetHidden($vidStationID, true);
-                //clear it 5 past the hour 
-                $eid = IPS_CreateEvent(1);
-                IPS_SetParent($eid, $vidStationID);
-                IPS_SetEventCyclicTimeFrom($eid, 0, 5, 0);
-                IPS_SetEventCyclic($eid, 0, 0, 0, 3, 3, 1);
-                IPS_SetEventScript($eid, "SetValueString($vidStationID,'');");
-                IPS_SetEventActive($eid, true);
+                // in version 1 of sonos StationID was cleared once an hour, but nor sure why. Lets see...
             }
         } else {
-            $this->removeVariable("Details",       $links);
-            $this->removeVariable("CoverURL",      $links);
-            $this->removeVariable("ContentStream", $links);
-            $this->removeVariable("Artist",        $links);
-            $this->removeVariable("Title",         $links);
-            $this->removeVariable("Album",         $links);
-            $this->removeVariable("TrackDuration", $links);
-            $this->removeVariable("Position",      $links);
-            $this->removeVariable("StationID",     $links);
+            $this->removeVariable("Details");
+            $this->removeVariable("CoverURL");
+            $this->removeVariable("ContentStream");
+            $this->removeVariable("Artist");
+            $this->removeVariable("Title");
+            $this->removeVariable("Album");
+            $this->removeVariable("TrackDuration");
+            $this->removeVariable("Position");
+            $this->removeVariable("StationID");
         }
         // End Register variables and Actions
 

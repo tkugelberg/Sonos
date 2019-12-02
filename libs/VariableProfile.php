@@ -36,36 +36,20 @@ trait VariableProfile
         }
     }
 
-    private function removeVariable($name, $links)
+    private function removeVariable($ident)
     {
-        $vid = @$this->GetIDForIdent($name);
+        $vid = @$this->GetIDForIdent($ident);
         if ($vid) {
-            // delete links to Variable
-            foreach ($links as $key => $value) {
-                if ($value['TargetID'] === $vid)
-                    IPS_DeleteLink($value['LinkID']);
-            }
-            foreach (IPS_GetChildrenIDs($vid) as $key => $cid) {
-                if (IPS_EventExists($cid)) IPS_DeleteEvent($cid);
-            }
-            $this->UnregisterVariable($name);
+            $this->UnregisterVariable($ident);
         }
     }
 
-    private function removeVariableAction($name, $links)
+    private function removeVariableAction($ident)
     {
-        $vid = @$this->GetIDForIdent($name);
+        $vid = @$this->GetIDForIdent($ident);
         if ($vid) {
-            // delete links to Variable
-            foreach ($links as $key => $value) {
-                if ($value['TargetID'] === $vid)
-                    IPS_DeleteLink($value['LinkID']);
-            }
-            foreach (IPS_GetChildrenIDs($vid) as $key => $cid) {
-                if (IPS_EventExists($cid)) IPS_DeleteEvent($cid);
-            }
-            $this->DisableAction($name);
-            $this->UnregisterVariable($name);
+            $this->DisableAction($ident);
+            $this->UnregisterVariable($ident);
         }
     }
 }
