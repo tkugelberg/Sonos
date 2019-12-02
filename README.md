@@ -345,12 +345,12 @@ SNS_PlayFilesGrouping(46954 , json_encode( array( 11774 => array( "volume" => 10
                                                     27728 => array( "volume" => "+10"),
                                                     59962 => array( "volume" => 30) ) ), json_encode(array( IVNTTS_saveMP3(12748, "Dieser Text wird angesagt"))), 28 );
 ```
- - Die Instanzen 11774, 27728 und 59962 werden der Gruppe mit dem Koordinator 46954 hinzugefügt.  
- - Die Instanz 11774 wird auf Lautstärke 10 gesetzt.  
- - Bei der Instanz 27728 wird die Lautstärke um 10 Punkte angehoben.  
- - Die Instanz 59962 wird auf Lautstärke 30 gesetzt.  
- - Die Instanz 46954 wird Gruppen Koordinator für die Ansage(n) und wird auf Lautstärke 28 gesetzt.  
- - Der Text "Dieser Text wird angesagt" wird vom dem SymconIvona Modul (Instanz 12748) in eine MP3 umgewandelt, welche dann abgespielt wird.
+  - Die Instanzen 11774, 27728 und 59962 werden der Gruppe mit dem Koordinator 46954 hinzugefügt.  
+  - Die Instanz 11774 wird auf Lautstärke 10 gesetzt.  
+  - Bei der Instanz 27728 wird die Lautstärke um 10 Punkte angehoben.  
+  - Die Instanz 59962 wird auf Lautstärke 30 gesetzt.  
+  - Die Instanz 46954 wird Gruppen Koordinator für die Ansage(n) und wird auf Lautstärke 28 gesetzt.  
+  - Der Text "Dieser Text wird angesagt" wird vom dem SymconIvona Modul (Instanz 12748) in eine MP3 umgewandelt, welche dann abgespielt wird.
 - __SNS_Previous(int $InstanceID)__  
 Startet den vorhergehenden Titel in der Liste.  
 Sollte das Kommando auf einem Gruppenmember ausgeführt werden, wird es automatisch an den zuständigen Koordinator weitergeleitet und gilt somit für die ganze Gruppe.  
