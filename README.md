@@ -12,6 +12,7 @@ IP-Symcon PHP Modul um Sonos Lautsprecher zu steuern
 6. [Variablen](#6-variablen)
 7. [Timer](#7-timer)
 8. [Funktionen](#8-funktionen)
+9. [Update](#9-update)
 
 ## 1. Funktionsumfang
 Dieses Modul is dazu gedacht um allgemeine Funktionalitäten in Sonos aus IP-Symcon heraus auszulösen.  
@@ -36,6 +37,13 @@ Audiodateien von einem Samba-Share (z.B. Synology) oder HTTP Server abspielen un
  - Sonos audio system
 
 ## 3. Installation
+Hinweis:
+Derzeit ist das Modul noch als Beta im Store.
+Daher bitte im Store nach "Sonos" suchen.
+<kbd>![Store 1](imgs/storeBeta1.png?raw=true "Store 1")</kbd>
+
+<kbd>![Store 2](imgs/storeBeta2.png?raw=true "Store 2")</kbd>   
+
 Am einfachsten ist es die Sonos Lautsprecher über das "Sonos Discovery" Modul hinzuzufügen.
 Hierzu muss unter Gerätesuche (die Glocke oben rechts in der Web Konsole) "Sonos Discovery" aktiviert werden.  
 <kbd>![Discovery aktivieren](imgs/addDiscovery_de.png?raw=true "Discovery aktivieren")</kbd>  
@@ -441,3 +449,64 @@ Sollte das Kommando auf einem Gruppenmember ausgeführt werden, wird es automati
 Diese Funktion wird in regelmäßigen Abständen per Timer aufgerufen. Es ist nicht notwendig diese manuell auszuführen.  
 - __SNS_getRINCON(int $InstanceID, string $ip)__  
 Diese Funktion ist nur für das Konfigurationsformular. Endbenutzer sollten diese Funktion nicht verwenden.
+
+## 9. Update
+Um von der [alten Version des Sonos Moduls](https://github.com/tkugelberg/SymconSonos) zu dieser zu wechseln sind ein paar manuelle Schritte notwendig.  
+Der Grund hierfür ist, dass sich z.B. die ID des Moduls geändert hat.  
+### 1. sichern der alten ObjectIDs  
+Damit man später besser aufräumen kann, ist es sinnvoll sich alle ObjectIDs aus Symcon zu merken.  
+Diese Script gibt euch alle IDs + Namen aus.  
+```php
+$SonosPlayers = IPS_GetInstanceListByModuleID("{F6F3A773-F685-4FD2-805E-83FD99407EE8}");
+
+foreach ( $SonosPlayers as $SonosPlayer ){
+    print $SonosPlayer." -> ".IPS_GetName($SonosPlayer)."\n";
+     getChild($SonosPlayer,'');
+}
+
+function getChild($Parent, $spacer){
+    $spacer = "\t".$spacer;
+    foreach (IPS_GetObject($Parent)["ChildrenIDs"] as $Child){
+        print $spacer.$Child." -> ".IPS_GetName($Child)."\n";
+        getChild($Child,$spacer);
+    }
+}
+```
+--> die Ausgabe in eine Textdatei kopieren und gut aufheben.
+### 2. Alte Instanzen löschen  
+Wie gesagt, alle Instanzen des alten Moduls löschen.
+### 3. Profile löschen  
+Die Namen der Profile werden sich ändern (Das "SONOS" kommt nach vorne). Daher sollten die alten gelöscht werden.  
+Das geht mit diesem Script:
+```php
+if (IPS_VariableProfileExists("Balance.SONOS"))
+        IPS_DeleteVariableProfile("Balance.SONOS");
+
+if (IPS_VariableProfileExists("Groups.SONOS"))
+        IPS_DeleteVariableProfile("Groups.SONOS");
+
+if (IPS_VariableProfileExists("Playlist.SONOS"))
+        IPS_DeleteVariableProfile("Playlist.SONOS");
+
+if (IPS_VariableProfileExists("PlayMode.SONOS"))
+        IPS_DeleteVariableProfile("PlayMode.SONOS");
+
+if (IPS_VariableProfileExists("Radio.SONOS"))
+        IPS_DeleteVariableProfile("Radio.SONOS");
+
+if (IPS_VariableProfileExists("Status.SONOS"))
+        IPS_DeleteVariableProfile("Status.SONOS");
+
+if (IPS_VariableProfileExists("Switch.SONOS"))
+        IPS_DeleteVariableProfile("Switch.SONOS");
+
+if (IPS_VariableProfileExists("Tone.SONOS"))
+        IPS_DeleteVariableProfile("Tone.SONOS");
+
+if (IPS_VariableProfileExists("Volume.SONOS"))
+        IPS_DeleteVariableProfile("Volume.SONOS");
+``` 
+### 4. altes Modul löschen  
+Im "Module Control" (Kern Instanzen->Modules) muss das alte Modul entfernt werden.
+### 5. neues Modul installieren
+Wie oben beschrieben.

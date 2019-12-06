@@ -134,7 +134,7 @@ class SonosPlayer extends IPSModule
             IPS_SetHidden($this->RegisterVariableString("Album",         $this->Translate("Album"),          "",         $positions['Album']), true);
             IPS_SetHidden($this->RegisterVariableString("TrackDuration", $this->Translate("Track Duration"), "",         $positions['TrackDuration']), true);
             IPS_SetHidden($this->RegisterVariableString("Position",      $this->Translate("Position"),       "",         $positions['Position']), true);
-            if (!@IPS_GetObjectIDByIdent("StationID", $this->InstanceID)) {
+            if (!@$this->GetIDForIdent("StationID")) {
                 $vidStationID = $this->RegisterVariableString("StationID", $this->Translate("Station ID"), "", $positions['StationID']);
                 IPS_SetHidden($vidStationID, true);
                 // in version 1 of sonos StationID was cleared once an hour, but nor sure why. Lets see...
@@ -1242,7 +1242,7 @@ class SonosPlayer extends IPSModule
                             if (@GetValueString($vidStationID) == $stationID) {
                                 $image = GetValueString($vidCoverURL);
                             } else {
-                                $serial = substr(IPS_GetProperty($this->InstanceID, "RINCON"), 7, 12);
+                                $serial = substr($this->ReadProperty("RINCON"), 7, 12);
                                 $image = preg_replace('#(.*)<LOGO>(.*?)\</LOGO>(.*)#is', '$2', @file_get_contents("http://opml.radiotime.com/Describe.ashx?c=nowplaying&id=" . $stationID . "&partnerId=IAeIhU42&serial=" . $serial));
                             }
                         } else {
