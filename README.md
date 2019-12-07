@@ -13,6 +13,7 @@ IP-Symcon PHP Modul um Sonos Lautsprecher zu steuern
 7. [Timer](#7-timer)
 8. [Funktionen](#8-funktionen)
 9. [Update](#9-update)
+10. [Was ist neu?](#10-was-ist-neu)
 
 ## 1. Funktionsumfang
 Dieses Modul is dazu gedacht um allgemeine Funktionalitäten in Sonos aus IP-Symcon heraus auszulösen.  
@@ -510,3 +511,14 @@ if (IPS_VariableProfileExists("Volume.SONOS"))
 Im "Module Control" (Kern Instanzen->Modules) muss das alte Modul entfernt werden.
 ### 5. neues Modul installieren
 Wie oben beschrieben.
+
+## 10. Was ist neu?
+- Automatisches Discovery
+- Splitter Instanz
+  - zentrale Konfiguration
+  - Grouping
+  - Kommunikation untereinander
+- ForceGrouping wird zu RejoinGroup
+  - Findet nurnch erstmalig statt, nachdem der Lautsprecher verschwunden war
+- Vanished
+  - Wenn ein Lautsprecher in Sonos als "vanished" gekennzeichnet ist, wird er in IP-Symcon versteckt.
