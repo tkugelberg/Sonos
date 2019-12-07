@@ -324,7 +324,7 @@ Sollte das Kommando auf einem Gruppenmember ausgeführt werden, wird es automati
 - __SNS_Play(int $InstanceID)__  
 Setzt die Wiedergabe fort.  
 Sollte das Kommando auf einem Gruppenmember ausgeführt werden, wird es automatisch an den zuständigen Koordinator weitergeleitet und gilt somit für die ganze Gruppe.  
-- __SNS_PlayFiles(int $InstanceID, string $files, int $volumeChange)__  
+- __SNS_PlayFiles(int $InstanceID, string $files, string $volumeChange)__  
   - Falls gerade etwas wiedergegeben wird, wird die Wiedergabe pausiert
   - Die Lautstärke wird entsprechend $volumeChange angepasst  
    - "0" würde die Lautstärke nicht ändern  
@@ -343,7 +343,7 @@ Mehrere Dateien abzuspielen könnte so aussehen:
 SNS_PlayFiles(17265, json_encode( Array( "//ipsymcon.fritz.box/sonos/bla.mp3",
                                          "http://www.sounds.com/blubb.mp3") ), 0);
 ```
-- __SNS_PlayFilesGrouping(int $InstanceID, string $instances, string $files, int $volumeChange)__  
+- __SNS_PlayFilesGrouping(int $InstanceID, string $instances, string $files, string $volumeChange)__  
 Diese Funktion ruft die Funktion SNS_PlayFiles() auf. Dementsprechend ist das (als JSON encodierte) array $files gleich aufgebaut.  
 Vorher werden die in $instances mitgegebenen Instanzen zu der gruppe von $InstanceID hinzugefügt.  
 Das (als JSON encodierte) array $instances beinhaltet pro hinzuzufügender instanz einen Eintrag mit dem Key "&lt;instance ID&gt;" der hinzuzufügenden instanz und einem Array mit settings. Diese Array kennt derzeit lediglich einen Eintrag mit dem Key "volume" mit dem Volume Wert entsprechend dem $volumeChange aus der Funktion SNS_PlayFiles.  

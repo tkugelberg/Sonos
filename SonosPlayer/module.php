@@ -260,31 +260,38 @@ class SonosPlayer extends IPSModule
                         }
                     }
 
-                    SetValueString($groupMembersID, implode(",", $input['data'][$RINCON]['GroupMember']));
-                    SetValueInteger($memberOfGroupID, $input['data'][$RINCON]['Coordinator']);
-                    SetValueBoolean($CoordinatorID, $input['data'][$RINCON]['isCoordinator']);
+                    asort($input['data'][$RINCON]['GroupMember']);
+                    $groupMembers = implode(",", $input['data'][$RINCON]['GroupMember']);
 
-                    if ($input['data'][$RINCON]['isCoordinator']) {   // nicht 0
-                        $hidden = false;
-                        @IPS_SetVariableProfileAssociation("SONOS.Groups", $this->InstanceID, IPS_GetName($this->InstanceID), "", -1); // in case it is a ccordinator, it can be selected as group
-                    } else {
-                        $hidden = true; // in case Player is not Coordinator, the following variables are hidden, since they are taken from coodrinator
-                        @IPS_SetVariableProfileAssociation("SONOS.Groups", $this->InstanceID, "", "", -1); // cannot be selected as Group
+                    SetValueInteger($memberOfGroupID, $input['data'][$RINCON]['Coordinator']);
+
+                    if (GetValueBoolean($CoordinatorID) != $input['data'][$RINCON]['isCoordinator']) {
+                        SetValueBoolean($CoordinatorID, $input['data'][$RINCON]['isCoordinator']);
+                        if ($input['data'][$RINCON]['isCoordinator']) {   // nicht 0
+                            $hidden = false;
+                            @IPS_SetVariableProfileAssociation("SONOS.Groups", $this->InstanceID, IPS_GetName($this->InstanceID), "", -1); // in case it is a cordinator, it can be selected as group
+                        } else {
+                            $hidden = true; // in case Player is not Coordinator, the following variables are hidden, since they are taken from coodrinator
+                            @IPS_SetVariableProfileAssociation("SONOS.Groups", $this->InstanceID, "", "", -1); // cannot be selected as Group
+                        }
+                        @IPS_SetHidden($this->GetIDForIdent("nowPlaying"), $hidden);
+                        @IPS_SetHidden($this->GetIDForIdent("Radio"),      $hidden);
+                        @IPS_SetHidden($this->GetIDForIdent("Playlist"),   $hidden);
+                        @IPS_SetHidden($this->GetIDForIdent("PlayMode"),   $hidden);
+                        @IPS_SetHidden($this->GetIDForIdent("Crossfade"),  $hidden);
+                        @IPS_SetHidden($this->GetIDForIdent("Status"),     $hidden);
+                        @IPS_SetHidden($this->GetIDForIdent("Sleeptimer"), $hidden);
+                        @IPS_SetHidden($this->GetIDForIdent("Details"),    $hidden);
                     }
-                    @IPS_SetHidden($this->GetIDForIdent("nowPlaying"), $hidden);
-                    @IPS_SetHidden($this->GetIDForIdent("Radio"),      $hidden);
-                    @IPS_SetHidden($this->GetIDForIdent("Playlist"),   $hidden);
-                    @IPS_SetHidden($this->GetIDForIdent("PlayMode"),   $hidden);
-                    @IPS_SetHidden($this->GetIDForIdent("Crossfade"),  $hidden);
-                    @IPS_SetHidden($this->GetIDForIdent("Status"),     $hidden);
-                    @IPS_SetHidden($this->GetIDForIdent("Sleeptimer"), $hidden);
-                    @IPS_SetHidden($this->GetIDForIdent("Details"),    $hidden);
-                    if (count($input['data'][$RINCON]['GroupMember'])) {
-                        @IPS_SetHidden($this->GetIDForIdent("GroupVolume"), false);
-                        @IPS_SetHidden($this->GetIDForIdent("MemberOfGroup"), true);
-                    } else {
-                        @IPS_SetHidden($this->GetIDForIdent("GroupVolume"), true);
-                        @IPS_SetHidden($this->GetIDForIdent("MemberOfGroup"), false);
+                    if (GetValueString($groupMembersID) != $groupMembers) {
+                        SetValueString($groupMembersID, $groupMembers);
+                        if (count($input['data'][$RINCON]['GroupMember'])) {
+                            @IPS_SetHidden($this->GetIDForIdent("GroupVolume"), false);
+                            @IPS_SetHidden($this->GetIDForIdent("MemberOfGroup"), true);
+                        } else {
+                            @IPS_SetHidden($this->GetIDForIdent("GroupVolume"), true);
+                            @IPS_SetHidden($this->GetIDForIdent("MemberOfGroup"), false);
+                        }
                     }
                 }
                 break;
@@ -534,7 +541,7 @@ class SonosPlayer extends IPSModule
         }
     }
 
-    public function PlayFiles(string $files, int $volumeChange)
+    public function PlayFiles(string $files, string $volumeChange)
     {
         $ip = $this->getIP();
         $filesArray = json_decode($files, true);
@@ -567,7 +574,7 @@ class SonosPlayer extends IPSModule
                 }
             }
 
-            // volume request absolte or relative?
+            // volume request absolute or relative?
             if ($volumeChange[0] == "+" || $volumeChange[0] == "-") {
                 foreach ($volumeList as $ID => $volume) {
                     SNS_ChangeVolume($ID, $volumeChange);
@@ -626,7 +633,7 @@ class SonosPlayer extends IPSModule
         }
     } // END PlayFiles
 
-    public function PlayFilesGrouping(string $instances, string $files, int $volumeChange)
+    public function PlayFilesGrouping(string $instances, string $files, string $volumeChange)
     {
         $ip = $this->getIP();
         $instancesArray = json_decode($instances, true);
