@@ -154,6 +154,14 @@ class SonosSplitter extends IPSModule
           'data'   => $this->ReadPropertyString('RadioStations')
         ]));
         break;
+      case 'callFunction':
+      case 'addMember':
+      case 'removeMember':
+      case 'setAttribute':
+      case 'setVariable':
+        $input['DataID'] = '{36EA4430-7047-C11D-0854-43391B14E0D7}'; // rewrite DataID
+        $this->SendDataToChildren(json_encode($input));              // just forward
+        break;
       default:
         throw new Exception($this->Translate("unknown type in ForwardData"));
     }

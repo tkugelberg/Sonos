@@ -61,6 +61,12 @@ Hier kann man dann nur bestimmte oder gleich alle "Sonos Player" Instanzen anleg
 
 Gleichzeitig wird auch eine "Sonos Splitter" Instanz angelegt.
 
+Falls keine Geräte gefunden werden, könnte dies daran liegen, dass IP-Symcon als Docker Container betrieben wird.  
+Es muss darauf geachtet werden, dass der Port 1900 udp vom container auch erreicht werden kann.  
+Aber z.B: bei Synology ist es nicht möglich dies zu tun, da Synology diesen Port auch verwendet. Hier hat man die Möglichkeit die Option "Dasselbe Netzwerk wie Dockerhost verwenden" zu aktivieren.
+
+Alternativ können die Player Instanzen aber auch manuell angelegt werden.
+
 ## 4. Instanztypen
 Es gibt 3 verschiedene Typen von Instanzen.
 
@@ -522,3 +528,6 @@ Wie oben beschrieben.
   - Findet nurnch erstmalig statt, nachdem der Lautsprecher verschwunden war
 - Vanished
   - Wenn ein Lautsprecher in Sonos als "vanished" gekennzeichnet ist, wird er in IP-Symcon versteckt.
+- Radio Konfiguration
+  - Radiosender können komplett individuell in der Splitter Instanz konfiguriert werden
+  - Es gibt keine ausgelieferten Radiosender mehr
