@@ -196,6 +196,8 @@ class SonosPlayer extends IPSModule
                     'type'           => 'UpdateStatusFrequencyRequest',
                     'targetInstance' => $this->InstanceID
                 ]));
+            }else{
+                $this->SetTimerInterval('Sonos Update Status', $this->ReadAttributeInteger("UpdateStatusFrequency") * 1000);                
             }
 
             if ($this->ReadAttributeString("RadioStations") == '<undefined>') {
