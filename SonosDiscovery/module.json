@@ -1,6 +1,7 @@
 {
 	"id": "{8EFB4FEB-32D6-CB96-EA58-32CD86260774}",
 	"name": "Sonos Discovery",
+	"url": "https://github.com/tkugelberg/Sonos/blob/master/README.md",
 	"type": 5,
 	"vendor": "Sonos",
 	"aliases": [

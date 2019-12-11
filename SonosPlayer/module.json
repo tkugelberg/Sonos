@@ -1,6 +1,7 @@
 {
     "id": "{52F6586D-A1C7-AAC6-309B-E12A70F6EEF6}",
     "name": "Sonos Player",
+    "url": "https://github.com/tkugelberg/Sonos/blob/master/README.md",
     "type": 3,
     "vendor": "Sonos",
     "aliases": [
