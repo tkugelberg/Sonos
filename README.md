@@ -155,10 +155,13 @@ Diese Option legt eine Variable "Sleeptimer" an und aktiviert dass diese über S
 12. __Playmode-Steuerung__  
 Diese Option legt die Variablen "Play Mode" und "Crossfade" an und aktiviert dass diese über SNS_updateStatus() mit dem aktuellen Wert gepflegt wird.  
 Für "Play Mode" tauchen dann 6 Knöpfe und für "Crossfade" "Aus"/"An" auf dem Webfront auf, mit denen diese Funktionen gesteuert werden können.
-13. __Detaillierte Informationen__  
+13. __Nachtmodus-Steuerung__  
+Diese Option legt die Variablen "Nachmodus" und "Dialogverbesserung" an und aktiviert dass diese über SNS_updateStatus() mit dem aktuellen Wert gepflegt wird.  
+Für beide tauchen "Aus"/"An" auf dem Webfront auf, mit denen diese Funktionen gesteuert werden können.
+14. __Detaillierte Informationen__  
 Diese Option legt die Variablen "Details", "Titel URL", "Content Stream", "Artist", "Künstler", "Titel", "Album", "Titellänge", "Position" und "Sender ID" an, die über SNS_updateStatus() gefüllt werden.  
 In der Variablen "Details" wird eine HTMLBox erzeugt, die am WebFront auch zu sehen ist. Alle anderen Variablen werden versteckt.
-14. __Variablensortierung erzwingen__  
+15. __Variablensortierung erzwingen__  
 Wenn diese Option gesetzt ist, wird beim Speichern die vom Modul vorgeschlagene Reihenfolge der Vaiablen wieder hergestellt.
 
 ## 6. Variablen
@@ -212,6 +215,12 @@ Diese Variable enthält die Aktuelle Lautstärke der Instanz und wird von der Fu
 - __Mute__  
 Diese Variable wird nur erstellt, wenn die Option "Mute-Steuerung" aktiviert ist.
 Sie enthält den aktuelle Zustand ob die Instanz gemuted ist und wird von der Funktion SNS_updateStatus() aktualisiert.
+- __Nachtmodus__  
+Diese Variable wird nur erstellt, wenn die Option "Nachtmodus-Steuerung" aktiviert ist.  
+Sie enthält den aktuellen Zustand ob der Nachtmodus eingeschaltet ist und wird von der Funktion SNS_updateStatus() aktualisiert.
+- __Dialogverbesserung__  
+Diese Variable wird nur erstellt, wenn die Option "Nachtmodus-Steuerung" aktiviert ist.  
+Sie enthält den aktuellen Zustand ob die Dialogverbesserung eingeschaltet ist und wird von der Funktion SNS_updateStatus() aktualisiert.
 - __Loudness__  
 Diese Variable wird nur erstellt, wenn die Option "Loudness-Steuerung" aktiviert ist.  
 Sie enthält den aktuellen Zustand ob bei der Instanz Loudness eingeschaltet ist und wird von der Funktion SNS_updateStatus() aktualisiert.
@@ -388,7 +397,10 @@ Mögliche Werte liegen zwischen -10 und 10.
 - __SNS_SetCrossfade(int $InstanceID, bool $crossfade)__  
 Schaltet den Crossfade Modus für eine Instanz ein oder aus.  
 Falls die Instanz Teil einer Gruppe ist, wird das Kommano automatisch an den Gruppenkoordinator weitergeleitet.  
-0,1, true und false sind gültige Werte für $crossfade.  
+true und false sind gültige Werte für $crossfade.  
+- __SNS_SetDialogLevel(int $InstanceID, bool $dialogLevel)__  
+Schaltet die Dialogverbesserung einer Instanz. Dieses Feature wird nur von Playbar, Playbase und Beam untersützt.  
+true und false sind gültige Werte für $dialogLevel.  
 - __SNS_SetDefaultGroupVolume(int $InstanceID)__  
 Führt die Funktion SNS_SetDefaultVolume( ) für jeden Mitglied einer Gruppe aus.  
 - __SNS_SetDefaultVolume(int $InstanceID)__  
@@ -406,10 +418,13 @@ Sollte diese Funktion auf einem Gruppenkoordinator ausgeführt werden gilt die n
 Anmerkung: Da HDMI scheinbar genau wie S/PDIF behandelt wird, wird intern lediglich SetSpdifInput aufgerufen.  
 - __SNS_SetLoudness(int $InstanceID, bool $loudness)__  
 Setzt das Loundess Flag an einer Instanz.  
-0,1, true und false sind gültige Werte für $loudness.  
+true und false sind gültige Werte für $loudness.  
 - __SNS_SetMute(int $InstanceID, bool $mute)__  
 Mutet or unmutet eine Instanz.
-0,1, true und false sind gültige Werte für $mute.  
+true und false sind gültige Werte für $mute.  
+- __SNS_SetNightMode(int $InstanceID, bool $nightMode)__  
+Schaltet den Nachmodus einer Instanz. Dieses Feature wird nur von Playbar, Playbase und Beam untersützt.  
+true und false sind gültige Werte für $nightMode.  
 - __SNS_SetPlaylist(int $InstanceID, string $name)__  
 Entfernt alle Titel aus einer Queue und fügt alle Titel einer Playliste hinzu.  
 Der Name der Playliste muss in Sonos bekannt sein.  
