@@ -269,15 +269,17 @@ class SonosPlayer extends IPSModule
 
                 SetValueInteger($memberOfGroupID, $input['data']['Coordinator']);
 
+                if ($input['data']['isCoordinator']) {
+                    $hidden = false;
+                    @IPS_SetVariableProfileAssociation("SONOS.Groups", $this->InstanceID, IPS_GetName($this->InstanceID), "", -1); // in case it is a cordinator, it can be selected as group
+                } else {
+                    $hidden = true; // in case Player is not Coordinator, the following variables are hidden, since they are taken from coodrinator
+                    @IPS_SetVariableProfileAssociation("SONOS.Groups", $this->InstanceID, "", "", -1); // cannot be selected as Group
+                }
+
                 if ($this->ReadAttributeBoolean("Coordinator") != $input['data']['isCoordinator']) {
                     $this->WriteAttributeBoolean("Coordinator", $input['data']['isCoordinator']);
-                    if ($input['data']['isCoordinator']) {
-                        $hidden = false;
-                        @IPS_SetVariableProfileAssociation("SONOS.Groups", $this->InstanceID, IPS_GetName($this->InstanceID), "", -1); // in case it is a cordinator, it can be selected as group
-                    } else {
-                        $hidden = true; // in case Player is not Coordinator, the following variables are hidden, since they are taken from coodrinator
-                        @IPS_SetVariableProfileAssociation("SONOS.Groups", $this->InstanceID, "", "", -1); // cannot be selected as Group
-                    }
+
                     @IPS_SetHidden($this->GetIDForIdent("nowPlaying"), $hidden);
                     @IPS_SetHidden($this->GetIDForIdent("Radio"), $hidden);
                     @IPS_SetHidden($this->GetIDForIdent("Playlist"), $hidden);
