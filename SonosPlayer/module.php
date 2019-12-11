@@ -941,7 +941,7 @@ class SonosPlayer extends IPSModule
                 'type'           => 'callFunction',
                 'targetInstance' => $instanceID,
                 'function'       => 'SetVolume',
-                'coordinator'    => $settings["volumeBefore"]
+                'volume'    => $settings["volumeBefore"]
             ]));
             if ($settings["transportInfo"] == 1 && !$settings["group"]) {
                 $this->SendDataToParent(json_encode([
@@ -1274,6 +1274,8 @@ class SonosPlayer extends IPSModule
         }
 
         $sonos = new SonosAccess($ip);
+
+        $uri = "";
 
         // try to find Radio Station URL
         try {
