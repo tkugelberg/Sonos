@@ -82,19 +82,22 @@ class SonosSplitter extends IPSModule
     // Send different propeties to player instances, in case IPS is already started
     if (IPS_GetKernelRunlevel() == KR_READY) {
       $this->SendDataToChildren(json_encode([
-        "DataID" => '{36EA4430-7047-C11D-0854-43391B14E0D7}',
-        'type'   => 'updateStatus',
-        'data'   => $this->ReadPropertyInteger('UpdateStatusFrequency')
+        "DataID"         => '{36EA4430-7047-C11D-0854-43391B14E0D7}',
+        'type'           => 'updateStatus',
+        'targetInstance' => null,
+        'data'           => $this->ReadPropertyInteger('UpdateStatusFrequency')
       ]));
       $this->SendDataToChildren(json_encode([
-        "DataID" => '{36EA4430-7047-C11D-0854-43391B14E0D7}',
-        'type'   => 'RadioStations',
-        'data'   => $this->ReadPropertyString('RadioStations')
+        "DataID"         => '{36EA4430-7047-C11D-0854-43391B14E0D7}',
+        'type'           => 'RadioStations',
+        'targetInstance' => null,
+        'data'           => $this->ReadPropertyString('RadioStations')
       ]));
       $this->SendDataToChildren(json_encode([
-        "DataID" => '{36EA4430-7047-C11D-0854-43391B14E0D7}',
-        'type'   => 'AlbumArtHight',
-        'data'   => $this->ReadPropertyInteger('AlbumArtHeight')
+        "DataID"         => '{36EA4430-7047-C11D-0854-43391B14E0D7}',
+        'type'           => 'AlbumArtHight',
+        'targetInstance' => null,
+        'data'           => $this->ReadPropertyInteger('AlbumArtHeight')
       ]));
     }
   } // End ApplyChanges
@@ -106,24 +109,28 @@ class SonosSplitter extends IPSModule
       case IPS_KERNELSTARTED:
         // Set Timer for update Status in all Player instances
         $this->SendDataToChildren(json_encode([
-          "DataID" => '{36EA4430-7047-C11D-0854-43391B14E0D7}',
-          'type'   => 'updateStatus',
-          'data'   => $this->ReadPropertyInteger('UpdateStatusFrequency')
+          "DataID"         => '{36EA4430-7047-C11D-0854-43391B14E0D7}',
+          'type'           => 'updateStatus',
+          'targetInstance' => null,
+          'data'           => $this->ReadPropertyInteger('UpdateStatusFrequency')
         ]));
         $this->SendDataToChildren(json_encode([
-          "DataID" => '{36EA4430-7047-C11D-0854-43391B14E0D7}',
-          'type'   => 'RadioStations',
-          'data'   => $this->ReadPropertyString('RadioStations')
+          "DataID"         => '{36EA4430-7047-C11D-0854-43391B14E0D7}',
+          'type'           => 'RadioStations',
+          'targetInstance' => null,
+          'data'           => $this->ReadPropertyString('RadioStations')
         ]));
         $this->SendDataToChildren(json_encode([
-          "DataID" => '{36EA4430-7047-C11D-0854-43391B14E0D7}',
-          'type'   => 'AlbumArtHight',
-          'data'   => $this->ReadPropertyInteger('AlbumArtHeight')
+          "DataID"         => '{36EA4430-7047-C11D-0854-43391B14E0D7}',
+          'type'           => 'AlbumArtHight',
+          'targetInstance' => null,
+          'data'           => $this->ReadPropertyInteger('AlbumArtHeight')
         ]));
         $this->SendDataToChildren(json_encode([
-          "DataID" => '{36EA4430-7047-C11D-0854-43391B14E0D7}',
-          'type'   => 'checkPlaylistAction',
-          'data'   => ''
+          "DataID"         => '{36EA4430-7047-C11D-0854-43391B14E0D7}',
+          'type'           => 'checkPlaylistAction',
+          'targetInstance' => null,
+          'data'           => ''
         ]));
         break;
     }
@@ -135,23 +142,26 @@ class SonosSplitter extends IPSModule
     switch ($input['type']) {
       case 'AlbumArtRequest':
         $this->SendDataToChildren(json_encode([
-          "DataID" => '{36EA4430-7047-C11D-0854-43391B14E0D7}',
-          'type'   => 'AlbumArtHight',
-          'data'   => $this->ReadPropertyInteger('AlbumArtHeight')
+          "DataID"         => '{36EA4430-7047-C11D-0854-43391B14E0D7}',
+          'type'           => 'AlbumArtHight',
+          'targetInstance' => $input['targetInstance'],
+          'data'           => $this->ReadPropertyInteger('AlbumArtHeight')
         ]));
         break;
       case 'UpdateStatusFrequencyRequest':
         $this->SendDataToChildren(json_encode([
-          "DataID" => '{36EA4430-7047-C11D-0854-43391B14E0D7}',
-          'type'   => 'updateStatus',
-          'data'   => $this->ReadPropertyInteger('UpdateStatusFrequency')
+          "DataID"         => '{36EA4430-7047-C11D-0854-43391B14E0D7}',
+          'type'           => 'updateStatus',
+          'targetInstance' => $input['targetInstance'],
+          'data'           => $this->ReadPropertyInteger('UpdateStatusFrequency')
         ]));
         break;
       case 'RadioStationsRequest':
         $this->SendDataToChildren(json_encode([
-          "DataID" => '{36EA4430-7047-C11D-0854-43391B14E0D7}',
-          'type'   => 'RadioStations',
-          'data'   => $this->ReadPropertyString('RadioStations')
+          "DataID"         => '{36EA4430-7047-C11D-0854-43391B14E0D7}',
+          'type'           => 'RadioStations',
+          'targetInstance' => $input['targetInstance'],
+          'data'           => $this->ReadPropertyString('RadioStations')
         ]));
         break;
       case 'callFunction':
@@ -324,7 +334,7 @@ class SonosSplitter extends IPSModule
         }
         // Coordinator is also part of group --> do not add as own entry
         if ($RINCON != $CoordinatorRINCON) {
-          $Grouping[$RINCON] = [
+          $Grouping[$InstanceList[$RINCON]["InstanceID"]] = [
             'isCoordinator' => false,
             'vanished'      => false,
             'GroupMember'   => [],
@@ -345,7 +355,7 @@ class SonosSplitter extends IPSModule
       }
 
       // Add Coordinator including all members
-      $Grouping[$CoordinatorRINCON] = [
+      $Grouping[$CoordinatorInstanceID] = [
         'isCoordinator' => true,
         'vanished'      => false,
         'GroupMember'   => $GroupMember,
@@ -353,20 +363,25 @@ class SonosSplitter extends IPSModule
       ];
     }
 
-    foreach ($SonosGrouping->VanishedDevices->Device as $device) {
-      $Grouping[strval($device->attributes()['UUID'])] = [
-        'isCoordinator' => false,
-        'vanished'      => true,
-        'GroupMember'   => [],
-        'Coordinator'   => 0
-      ];
+    if (isset($SonosGrouping->VanishedDevices->Device)) {
+      foreach ($SonosGrouping->VanishedDevices->Device as $device) {
+        $Grouping[strval($device->attributes()['UUID'])] = [
+          'isCoordinator' => false,
+          'vanished'      => true,
+          'GroupMember'   => [],
+          'Coordinator'   => 0
+        ];
+      }
     }
 
-    $this->SendDataToChildren(json_encode([
-      "DataID" => '{36EA4430-7047-C11D-0854-43391B14E0D7}',
-      'type'   => 'grouping',
-      'data'   => $Grouping
-    ]));
+    foreach ($Grouping as $InstanceID => $Group) {
+      $this->SendDataToChildren(json_encode([
+        "DataID"         => '{36EA4430-7047-C11D-0854-43391B14E0D7}',
+        'type'           => 'grouping',
+        'targetInstance' => $InstanceID,
+        'data'           => $Group
+      ]));
+    }
   } // End update Grouping
 
   public function ReadTunein()

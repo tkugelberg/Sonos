@@ -15,6 +15,7 @@ class SonosPlayer extends IPSModule
         parent::Create();
 
         $this->ConnectParent("{27B601A0-6EA4-89E3-27AD-2D902307BD8C}"); // Connect To Splitter
+        $this->SetReceiveDataFilter(".*\"targetInstance\":(" . $this->InstanceID . "|null).*");
 
         $this->RegisterPropertyString("IPAddress", "");
         $this->RegisterPropertyString("RINCON", "");
@@ -172,22 +173,25 @@ class SonosPlayer extends IPSModule
         if (IPS_GetKernelRunlevel() == KR_READY) {
             if ($this->ReadAttributeInteger("AlbumArtHeight") == -1) {
                 $this->SendDataToParent(json_encode([
-                    "DataID" => '{731D7808-F7C4-FA98-2132-0FAB19A802C1}',
-                    'type'   => 'AlbumArtRequest'
+                    "DataID"         => '{731D7808-F7C4-FA98-2132-0FAB19A802C1}',
+                    'type'           => 'AlbumArtRequest',
+                    'targetInstance' => $this->InstanceID
                 ]));
             }
 
             if ($this->ReadAttributeInteger("UpdateStatusFrequency") == -1) {
                 $this->SendDataToParent(json_encode([
-                    "DataID" => '{731D7808-F7C4-FA98-2132-0FAB19A802C1}',
-                    'type'   => 'UpdateStatusFrequencyRequest'
+                    "DataID"         => '{731D7808-F7C4-FA98-2132-0FAB19A802C1}',
+                    'type'           => 'UpdateStatusFrequencyRequest',
+                    'targetInstance' => $this->InstanceID
                 ]));
             }
 
             if ($this->ReadAttributeString("RadioStations") == '<undefined>') {
                 $this->SendDataToParent(json_encode([
-                    "DataID" => '{731D7808-F7C4-FA98-2132-0FAB19A802C1}',
-                    'type'   => 'RadioStationsRequest'
+                    "DataID"         => '{731D7808-F7C4-FA98-2132-0FAB19A802C1}',
+                    'type'           => 'RadioStationsRequest',
+                    'targetInstance' => $this->InstanceID
                 ]));
             }
         }
@@ -238,62 +242,59 @@ class SonosPlayer extends IPSModule
         $input = json_decode($JSONstring, true);
         switch ($input['type']) {
             case 'grouping':
-                $RINCON = $this->ReadPropertyString("RINCON");
-                if (isset($input['data'][$RINCON])) {
-                    if ($input['data'][$RINCON]['vanished']) {
-                        $this->WriteAttributeBoolean("Vanished", true); // Not available according to SONOS
-                        @IPS_SetVariableProfileAssociation("SONOS.Groups", $this->InstanceID, "", "", -1);  // cannot be selected as Group
-                        IPS_SetHidden($this->InstanceID, true); // cannot be used, therefore hiding it
-                        return;
-                    }
+                if ($input['data']['vanished']) {
+                    $this->WriteAttributeBoolean("Vanished", true); // Not available according to SONOS
+                    @IPS_SetVariableProfileAssociation("SONOS.Groups", $this->InstanceID, "", "", -1);  // cannot be selected as Group
+                    IPS_SetHidden($this->InstanceID, true); // cannot be used, therefore hiding it
+                    return;
+                }
 
-                    $memberOfGroupID = $this->GetIDForIdent("MemberOfGroup");
+                $memberOfGroupID = $this->GetIDForIdent("MemberOfGroup");
 
-                    if ($this->ReadAttributeBoolean("Vanished")) {
-                        $this->WriteAttributeBoolean("Vanished", false);
-                        IPS_SetHidden($this->InstanceID, false);
-                        if ($this->ReadPropertyBoolean("RejoinGroup")) {
-                            $currentGroup = GetValueInteger($memberOfGroupID);
-                            if ($currentGroup != 0 && $input['data'][$RINCON]['Coordinator'] == 0) {
-                                SetValueInteger($memberOfGroupID, 0); // Clear MemberOfGroup, so SetGroup will not consider it as $startGroupCoordinator
-                                $this->SetGroup($currentGroup);
-                                return;
-                            }
+                if ($this->ReadAttributeBoolean("Vanished")) {
+                    $this->WriteAttributeBoolean("Vanished", false);
+                    IPS_SetHidden($this->InstanceID, false);
+                    if ($this->ReadPropertyBoolean("RejoinGroup")) {
+                        $currentGroup = GetValueInteger($memberOfGroupID);
+                        if ($currentGroup != 0 && $input['data']['Coordinator'] == 0) {
+                            SetValueInteger($memberOfGroupID, 0); // Clear MemberOfGroup, so SetGroup will not consider it as $startGroupCoordinator
+                            $this->SetGroup($currentGroup);
+                            return;
                         }
                     }
+                }
 
-                    asort($input['data'][$RINCON]['GroupMember']);
-                    $groupMembers = implode(",", $input['data'][$RINCON]['GroupMember']);
+                asort($input['data']['GroupMember']);
+                $groupMembers = implode(",", $input['data']['GroupMember']);
 
-                    SetValueInteger($memberOfGroupID, $input['data'][$RINCON]['Coordinator']);
+                SetValueInteger($memberOfGroupID, $input['data']['Coordinator']);
 
-                    if ($this->ReadAttributeBoolean("Coordinator") != $input['data'][$RINCON]['isCoordinator']) {
-                        $this->WriteAttributeBoolean("Coordinator", $input['data'][$RINCON]['isCoordinator']);
-                        if ($input['data'][$RINCON]['isCoordinator']) {
-                            $hidden = false;
-                            @IPS_SetVariableProfileAssociation("SONOS.Groups", $this->InstanceID, IPS_GetName($this->InstanceID), "", -1); // in case it is a cordinator, it can be selected as group
-                        } else {
-                            $hidden = true; // in case Player is not Coordinator, the following variables are hidden, since they are taken from coodrinator
-                            @IPS_SetVariableProfileAssociation("SONOS.Groups", $this->InstanceID, "", "", -1); // cannot be selected as Group
-                        }
-                        @IPS_SetHidden($this->GetIDForIdent("nowPlaying"), $hidden);
-                        @IPS_SetHidden($this->GetIDForIdent("Radio"), $hidden);
-                        @IPS_SetHidden($this->GetIDForIdent("Playlist"), $hidden);
-                        @IPS_SetHidden($this->GetIDForIdent("PlayMode"), $hidden);
-                        @IPS_SetHidden($this->GetIDForIdent("Crossfade"), $hidden);
-                        @IPS_SetHidden($this->GetIDForIdent("Status"), $hidden);
-                        @IPS_SetHidden($this->GetIDForIdent("Sleeptimer"), $hidden);
-                        @IPS_SetHidden($this->GetIDForIdent("Details"), $hidden);
+                if ($this->ReadAttributeBoolean("Coordinator") != $input['data']['isCoordinator']) {
+                    $this->WriteAttributeBoolean("Coordinator", $input['data']['isCoordinator']);
+                    if ($input['data']['isCoordinator']) {
+                        $hidden = false;
+                        @IPS_SetVariableProfileAssociation("SONOS.Groups", $this->InstanceID, IPS_GetName($this->InstanceID), "", -1); // in case it is a cordinator, it can be selected as group
+                    } else {
+                        $hidden = true; // in case Player is not Coordinator, the following variables are hidden, since they are taken from coodrinator
+                        @IPS_SetVariableProfileAssociation("SONOS.Groups", $this->InstanceID, "", "", -1); // cannot be selected as Group
                     }
-                    if ($this->ReadAttributeString("GroupMembers") != $groupMembers) {
-                        $this->WriteAttributeString("GroupMembers", $groupMembers);
-                        if (count($input['data'][$RINCON]['GroupMember'])) {  // at least one member exists
-                            @IPS_SetHidden($this->GetIDForIdent("GroupVolume"), false);
-                            @IPS_SetHidden($this->GetIDForIdent("MemberOfGroup"), true);
-                        } else {
-                            @IPS_SetHidden($this->GetIDForIdent("GroupVolume"), true);
-                            @IPS_SetHidden($this->GetIDForIdent("MemberOfGroup"), false);
-                        }
+                    @IPS_SetHidden($this->GetIDForIdent("nowPlaying"), $hidden);
+                    @IPS_SetHidden($this->GetIDForIdent("Radio"), $hidden);
+                    @IPS_SetHidden($this->GetIDForIdent("Playlist"), $hidden);
+                    @IPS_SetHidden($this->GetIDForIdent("PlayMode"), $hidden);
+                    @IPS_SetHidden($this->GetIDForIdent("Crossfade"), $hidden);
+                    @IPS_SetHidden($this->GetIDForIdent("Status"), $hidden);
+                    @IPS_SetHidden($this->GetIDForIdent("Sleeptimer"), $hidden);
+                    @IPS_SetHidden($this->GetIDForIdent("Details"), $hidden);
+                }
+                if ($this->ReadAttributeString("GroupMembers") != $groupMembers) {
+                    $this->WriteAttributeString("GroupMembers", $groupMembers);
+                    if (count($input['data']['GroupMember'])) {  // at least one member exists
+                        @IPS_SetHidden($this->GetIDForIdent("GroupVolume"), false);
+                        @IPS_SetHidden($this->GetIDForIdent("MemberOfGroup"), true);
+                    } else {
+                        @IPS_SetHidden($this->GetIDForIdent("GroupVolume"), true);
+                        @IPS_SetHidden($this->GetIDForIdent("MemberOfGroup"), false);
                     }
                 }
                 break;
@@ -311,108 +312,98 @@ class SonosPlayer extends IPSModule
                 $this->checkPlaylistAction();
                 break;
             case 'callFunction':
-                if ($input['targetInstance'] == $this->InstanceID) {
-                    switch ($input['function']) {
-                        case 'ChangeVolume':
-                            $this->ChangeVolume($input['volume']);
-                            break;
-                        case 'DeleteSleepTimer':
-                            $this->DeleteSleepTimer();
-                            break;
-                        case 'Next':
-                            $this->Next();
-                            break;
-                        case 'Pause':
-                            $this->Pause();
-                            break;
-                        case 'Play':
-                            $this->Play();
-                            break;
-                        case 'Previous':
-                            $this->Previous();
-                            break;
-                        case 'SetCrossfade':
-                            $this->SetCrossfade($input['crossfade']);
-                            break;
-                        case 'SetDefaultVolume':
-                            $this->SetDefaultVolume();
-                            break;
-                        case 'SetGroup':
-                            $this->SetGroup($input['coordinator']);
-                            break;
-                        case 'SetPlayMode':
-                            $this->SetPlayMode($input['playmode']);
-                            break;
-                        case 'SetSleepTimer':
-                            $this->SetSleepTimer($input['sleeptimer']);
-                            break;
-                        case 'SetVolume':
-                            $this->SetVolume($input['volume']);
-                            break;
-                        case 'Stop':
-                            $this->Stop();
-                            break;
-                    }
+                switch ($input['function']) {
+                    case 'ChangeVolume':
+                        $this->ChangeVolume($input['volume']);
+                        break;
+                    case 'DeleteSleepTimer':
+                        $this->DeleteSleepTimer();
+                        break;
+                    case 'Next':
+                        $this->Next();
+                        break;
+                    case 'Pause':
+                        $this->Pause();
+                        break;
+                    case 'Play':
+                        $this->Play();
+                        break;
+                    case 'Previous':
+                        $this->Previous();
+                        break;
+                    case 'SetCrossfade':
+                        $this->SetCrossfade($input['crossfade']);
+                        break;
+                    case 'SetDefaultVolume':
+                        $this->SetDefaultVolume();
+                        break;
+                    case 'SetGroup':
+                        $this->SetGroup($input['coordinator']);
+                        break;
+                    case 'SetPlayMode':
+                        $this->SetPlayMode($input['playmode']);
+                        break;
+                    case 'SetSleepTimer':
+                        $this->SetSleepTimer($input['sleeptimer']);
+                        break;
+                    case 'SetVolume':
+                        $this->SetVolume($input['volume']);
+                        break;
+                    case 'Stop':
+                        $this->Stop();
+                        break;
                 }
                 break;
             case 'removeMember':
-                if ($input['targetInstance'] == $this->InstanceID) {
-                    $currentMembers = explode(",", $this->ReadAttributeString("GroupMembers"));
-                    $currentMembers = array_filter($currentMembers, function ($v) {
-                        return $v != "";
-                    });
-                    $currentMembers = array_filter($currentMembers, function ($v) {
-                        return $v != $input['instanceID'];
-                    });
-                    asort($currentMembers);
-                    $this->WriteAttributeString("GroupMembers", implode(",", $currentMembers));
+                $currentMembers = explode(",", $this->ReadAttributeString("GroupMembers"));
+                $currentMembers = array_filter($currentMembers, function ($v) {
+                    return $v != "";
+                });
+                $currentMembers = array_filter($currentMembers, function ($v) use ($input) {
+                    return $v != $input['instanceID'];
+                });
+                asort($currentMembers);
+                $this->WriteAttributeString("GroupMembers", implode(",", $currentMembers));
 
-                    if (!count($currentMembers)) {
-                        IPS_SetHidden($this->GetIDForIdent("GroupVolume"), true);
-                        IPS_SetHidden($this->GetIDForIdent("MemberOfGroup"), false);
-                    }
+                if (!count($currentMembers)) {
+                    IPS_SetHidden($this->GetIDForIdent("GroupVolume"), true);
+                    IPS_SetHidden($this->GetIDForIdent("MemberOfGroup"), false);
                 }
                 break;
             case 'addMember':
-                if ($input['targetInstance'] == $this->InstanceID) {
-                    $currentMembers = explode(",", $this->ReadAttributeString("GroupMembers"));
-                    $currentMembers = array_filter($currentMembers, function ($v) {
-                        return $v != "";
-                    });
-                    $currentMembers = array_filter($currentMembers, function ($v) {
-                        return $v != $input['instanceID'];    // also remove instance to add to make sure no duplicates exist
-                    });
-                    $currentMembers[] = $input['instanceID'];
+                $currentMembers = explode(",", $this->ReadAttributeString("GroupMembers"));
+                $currentMembers = array_filter($currentMembers, function ($v) {
+                    return $v != "";
+                });
+                $currentMembers = array_filter($currentMembers, function ($v) use ($input) {
+                    return $v != $input['instanceID'];    // also remove instance to add to make sure no duplicates exist
+                });
+                $currentMembers[] = $input['instanceID'];
 
-                    asort($currentMembers);
-                    $this->WriteAttributeString("GroupMembers", implode(",", $currentMembers));
+                asort($currentMembers);
+                $this->WriteAttributeString("GroupMembers", implode(",", $currentMembers));
 
-                    IPS_SetHidden($this->GetIDForIdent("GroupVolume"), false);
-                    IPS_SetHidden($this->GetIDForIdent("MemberOfGroup"), true);
-                }
+                IPS_SetHidden($this->GetIDForIdent("GroupVolume"), false);
+                IPS_SetHidden($this->GetIDForIdent("MemberOfGroup"), true);
                 break;
             case 'setVariable':
-                if ($input['targetInstance'] == $this->InstanceID) {
-                    $vid = @$this->GetIDForIdent($input['variableIdent']);
-                    if ($vid) {
-                        switch ($input['variableType']) {
-                            case 'int':
-                                SetValueInteger($vid, $input['variableValue']);
-                                break;
-                        }
+                $vid = @$this->GetIDForIdent($input['variableIdent']);
+                if ($vid) {
+                    switch ($input['variableType']) {
+                        case 'int':
+                            SetValueInteger($vid, $input['variableValue']);
+                            break;
                     }
                 }
                 break;
             case 'setAttribute':
-                if ($input['targetInstance'] == $this->InstanceID) {
-                    switch ($input['attributeType']) {
-                        case 'string':
-                            $this->WriteAttributeString($input['attributeName'], $input['attributeValue']);
-                            break;
-                        case 'bool':
-                            $this->WriteAttributeBoolean($input['attributeName'], $input['attributeValue']);
-                            break;
-                    }
+                switch ($input['attributeType']) {
+                    case 'string':
+                        $this->WriteAttributeString($input['attributeName'], $input['attributeValue']);
+                        break;
+                    case 'bool':
+                        $this->WriteAttributeBoolean($input['attributeName'], $input['attributeValue']);
+                        break;
                 }
                 break;
             default:
@@ -426,9 +417,9 @@ class SonosPlayer extends IPSModule
         $response = [];
 
         if ($this->ReadAttributeBoolean("Coordinator")) {
-            $response[$variableName] = "true";
+            $response["Coordinator"] = "true";
         } else {
-            $response[$variableName] = "false";
+            $response["Coordinator"] = "false";
         }
 
         // Group Members
