@@ -95,6 +95,19 @@ class SonosAccess
     );
   }
 
+  public function GetDialogLevel()
+  {
+    return (int) $this->processSoapCall(
+      "/MediaRenderer/RenderingControl/Control",
+      "urn:schemas-upnp-org:service:RenderingControl:1",
+      "GetEQ",
+      array(
+        new SoapParam("0", "InstanceID"),
+        new SoapParam("DialogLevel", "EQType")
+      )
+    );
+  }
+
   public function GetLoudness()
   {
     return (int) $this->processSoapCall(
@@ -142,6 +155,19 @@ class SonosAccess
       array(
         new SoapParam("0", "InstanceID"),
         new SoapParam("Master", "Channel")
+      )
+    );
+  }
+
+  public function GetNightMode()
+  {
+    return (int) $this->processSoapCall(
+      "/MediaRenderer/RenderingControl/Control",
+      "urn:schemas-upnp-org:service:RenderingControl:1",
+      "GetEQ",
+      array(
+        new SoapParam("0", "InstanceID"),
+        new SoapParam("NightMode", "EQType")
       )
     );
   }
@@ -474,6 +500,26 @@ class SonosAccess
     );
   }
 
+  public function SetDialogLevel($dialogLevel)
+  {
+    if ($dialogLevel) {
+      $dialogLevel = "1";
+    } else {
+      $dialogLevel = "0";
+    }
+
+    $this->processSoapCall(
+      "/MediaRenderer/RenderingControl/Control",
+      "urn:schemas-upnp-org:service:RenderingControl:1",
+      "SetEQ",
+      array(
+        new SoapParam("0", "InstanceID"),
+        new SoapParam("DialogLevel", "EQType"),
+        new SoapParam($dialogLevel, "DesiredValue")
+      )
+    );
+  }
+
   public function SetLoudness($loud)
   {
     if ($loud) {
@@ -510,6 +556,26 @@ class SonosAccess
         new SoapParam("0", "InstanceID"),
         new SoapParam("Master", "Channel"),
         new SoapParam($mute, "DesiredMute")
+      )
+    );
+  }
+
+  public function SetNightMode($nightMode)
+  {
+    if ($nightMode) {
+      $nightMode = "1";
+    } else {
+      $nightMode = "0";
+    }
+
+    $this->processSoapCall(
+      "/MediaRenderer/RenderingControl/Control",
+      "urn:schemas-upnp-org:service:RenderingControl:1",
+      "SetEQ",
+      array(
+        new SoapParam("0", "InstanceID"),
+        new SoapParam("NightMode", "EQType"),
+        new SoapParam($nightMode, "DesiredValue")
       )
     );
   }

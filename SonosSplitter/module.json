@@ -1,6 +1,7 @@
 {
     "id": "{27B601A0-6EA4-89E3-27AD-2D902307BD8C}",
     "name": "Sonos Splitter",
+    "url": "https://github.com/tkugelberg/Sonos/blob/master/README.md",
     "type": 2,
     "vendor": "Sonos",
     "aliases": [

@@ -29,6 +29,7 @@ class SonosPlayer extends IPSModule
         $this->RegisterPropertyBoolean("BalanceControl", false);
         $this->RegisterPropertyBoolean("SleeptimerControl", false);
         $this->RegisterPropertyBoolean("PlayModeControl", false);
+        $this->RegisterPropertyBoolean("NightModeControl", false);
         $this->RegisterPropertyBoolean("DetailedInformation", false);
         $this->RegisterPropertyBoolean("ForceOrder", false);
 
@@ -103,6 +104,16 @@ class SonosPlayer extends IPSModule
             $this->removeVariableAction("Loudness");
         }
 
+        // NightMode
+        if ($this->ReadPropertyBoolean("NightModeControl")) {
+            $this->RegisterVariableInteger("NightMode", $this->Translate("Night Mode"), "SONOS.Switch", $positions['NightMode']);
+            $this->EnableAction("NightMode");
+            $this->RegisterVariableInteger("DialogLevel", $this->Translate("Dialog Level"), "SONOS.Switch", $positions['DialogLevel']);
+            $this->EnableAction("DialogLevel");
+        } else {
+            $this->removeVariableAction("NightMode");
+            $this->removeVariableAction("DialogLevel");
+        }
         // Balance
         if ($this->ReadPropertyBoolean("BalanceControl")) {
             $this->RegisterVariableInteger("Balance", $this->Translate("Balance"), "SONOS.Balance", $positions['Balance']);
@@ -230,6 +241,7 @@ class SonosPlayer extends IPSModule
             ['name' => 'BalanceControl',        'type' => 'CheckBox',          'caption' => 'Balance Control'],
             ['name' => 'SleeptimerControl',     'type' => 'CheckBox',          'caption' => 'Sleeptimer Control'],
             ['name' => 'PlayModeControl',       'type' => 'CheckBox',          'caption' => 'Playmode Control'],
+            ['name' => 'NightModeControl',      'type' => 'CheckBox',          'caption' => 'NightMode Control'],
             ['name' => 'DetailedInformation',   'type' => 'CheckBox',          'caption' => 'detailed info'],
             ['name' => 'ForceOrder',            'type' => 'CheckBox',          'caption' => 'Force Variable order']
 
@@ -448,6 +460,8 @@ class SonosPlayer extends IPSModule
         $this->alexa_get_value('Status', 'fromatted', $response);
         $this->alexa_get_value('Volume', 'fromatted', $response);
         $this->alexa_get_value('Mute', 'fromatted', $response);
+        $this->alexa_get_value('NightMode', 'fromatted', $response);
+        $this->alexa_get_value('DialogLevel', 'fromatted', $response);
         $this->alexa_get_value('Loudness', 'fromatted', $response);
         $this->alexa_get_value('Bass', 'fromatted', $response);
         $this->alexa_get_value('Treble', 'fromatted', $response);
@@ -1092,6 +1106,16 @@ class SonosPlayer extends IPSModule
         }
     } // SetDefaultVolume
 
+    public function SetDialogLevel(bool $dialogLevel)
+    {
+        $ip = $this->getIP();
+
+        (new SonosAccess($ip))->SetDialogLevel($dialogLevel);
+        if ($this->ReadPropertyBoolean("NightModeControl")) {  // same switch as Night Mode
+            SetValue($this->GetIDForIdent("DialogLevel"), $dialogLevel);
+        }
+    }   // END SetNightMode
+
     public function SetGroup(int $groupCoordinator)
     {
         // Instance has Members, do nothing
@@ -1194,6 +1218,16 @@ class SonosPlayer extends IPSModule
             SetValue($this->GetIDForIdent("Mute"), $mute);
         }
     }   // END SetMute
+
+    public function SetNightMode(bool $nightMode)
+    {
+        $ip = $this->getIP();
+
+        (new SonosAccess($ip))->SetNightMode($nightMode);
+        if ($this->ReadPropertyBoolean("NightModeControl")) {
+            SetValue($this->GetIDForIdent("NightMode"), $nightMode);
+        }
+    }   // END SetNightMode
 
     public function SetPlaylist(string $name)
     {
@@ -1398,6 +1432,8 @@ class SonosPlayer extends IPSModule
 
         $vidVolume        = @$this->GetIDForIdent("Volume");
         $vidMute          = @$this->GetIDForIdent("Mute");
+        $vidNightMode     = @$this->GetIDForIdent("NightMode");
+        $vidDialogLevel   = @$this->GetIDForIdent("DialogLevel");
         $vidLoudness      = @$this->GetIDForIdent("Loudness");
         $vidBass          = @$this->GetIDForIdent("Bass");
         $vidTreble        = @$this->GetIDForIdent("Treble");
@@ -1428,6 +1464,12 @@ class SonosPlayer extends IPSModule
         SetValueInteger($vidVolume, $sonos->GetVolume());
         if ($vidMute) {
             SetValueInteger($vidMute, $sonos->GetMute());
+        }
+        if ($vidNightMode) {
+            SetValueInteger($vidNightMode, $sonos->GetNightMode());
+        }
+        if ($vidDialogLevel) {
+            SetValueInteger($vidDialogLevel, $sonos->GetDialogLevel());
         }
         if ($vidLoudness) {
             SetValueInteger($vidLoudness, $sonos->GetLoudness());
@@ -1694,6 +1736,12 @@ class SonosPlayer extends IPSModule
             case "Loudness":
                 $this->SetLoudness($Value);
                 break;
+            case "NightMode":
+                $this->SetNightMode($Value);
+                break;
+            case "DialogLevel":
+                $this->SetDialogLevel($Value);
+                break;
             case "MemberOfGroup":
                 $this->SetGroup($Value);
                 break;
@@ -1894,7 +1942,9 @@ class SonosPlayer extends IPSModule
             'Balance'         => 58,
             'Sleeptimer'      => 60,
             'PlayMode'        => 61,
-            'Crossfade'       => 62
+            'Crossfade'       => 62,
+            'NightMode'       => 63,
+            'DialogLevel'     => 64
         ];
     }
 }
