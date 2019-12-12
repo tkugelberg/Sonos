@@ -18,3 +18,4 @@ jobs:
 
     - name: Run Tests
       run: phpdbg -qrr phpunit.phar tests
+      

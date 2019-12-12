@@ -19,3 +19,4 @@ jobs:
 
     - name: Run Checks
       run: php php-cs-fixer-v2.phar fix --config=.style/.php_cs -v --dry-run --allow-risky=yes .
+      
