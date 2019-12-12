@@ -1,5 +1,9 @@
 Sonos PHP Modul für IP-Symcon
 ===
+
+[![Check Style](https://github.com/tkugelberg/Sonos/workflows/Check%20Style/badge.svg)](https://github.com/tkugelberg/Sonos/actions)
+[![Run Tests](https://github.com/tkugelberg/Sonos/workflows/Run%20Tests/badge.svg)](https://github.com/tkugelberg/Sonos/actions)
+
 IP-Symcon PHP Modul um Sonos Lautsprecher zu steuern
 
 **Inhalt**
