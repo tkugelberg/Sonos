@@ -28,4 +28,33 @@ class SonosTest extends TestCase
     {
         $this->assertEquals(1, 1);
     }
+
+    /*
+    public function testPlay()
+    {
+        $playerID = IPS_CreateInstance($this->playerModulID);
+
+        $playerInterface = IPS\InstanceManager::getInstanceInterface($playerID);
+
+        IPS_CreateVariableProfile('~HTMLBox', 3);
+
+        IPS_SetProperty($playerID, 'IPAddress', '192.168.1.2');
+        IPS_SetProperty($playerID, 'SleeptimerControl', true );
+        IPS_SetProperty($playerID, 'PlayModeControl', true );
+        IPS_SetProperty($playerID, 'DetailedInformation', true );
+        IPS_ApplyChanges($playerID);
+
+        $playerInterface->ReceiveData(json_encode([
+            'DataID'         => '{36EA4430-7047-C11D-0854-43391B14E0D7}',
+            'type'           => 'grouping',
+            'targetInstance' => $playerID,
+            'data'           => ['isCoordinator' => true,
+                                 'vanished'      => false,
+                                 'GroupMember'   => [],
+                                 'Coordinator'   => 0 ]
+        ]));
+
+        $playerInterface->Play($ModulID);
+    }
+     */
 }

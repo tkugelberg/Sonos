@@ -145,9 +145,9 @@ class SonosDiscovery extends ipsmodule
         foreach ($zoneGroups as $zoneGroup) {
             foreach ($zoneGroup->ZoneGroupMember as $zoneGroupMember) {
                 if (!isset($zoneGroupMember->attributes()['Invisible'])) {
-                    if (preg_match('/\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}/', $zoneGroupMember->attributes()['Location'], $ip_match)) {
-                        $description = new SimpleXMLElement($zoneGroupMember->attributes()['Location'], 0, true);
-                        $SonosDevices[strval($zoneGroupMember->attributes()['UUID'])] = [
+                    if (preg_match('/\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}/', (string) $zoneGroupMember->attributes()['Location'], $ip_match)) {
+                        $description = new SimpleXMLElement((string) $zoneGroupMember->attributes()['Location'], 0, true);
+                        $SonosDevices[(string) $zoneGroupMember->attributes()['UUID']] = [
                             'Name'      => strval($zoneGroupMember->attributes()['ZoneName']),
                             'Type'      => strval($description->device->displayName),
                             'RINCON'    => strval($zoneGroupMember->attributes()['UUID']),

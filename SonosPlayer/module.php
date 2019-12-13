@@ -506,7 +506,7 @@ class SonosPlayer extends IPSModule
                     'type'           => 'callFunction',
                     'targetInstance' => $ID,
                     'function'       => 'SetVolume',
-                    'volume'         => $newVolume
+                    'volume'         => (int) $newVolume
                 ]));
             } catch (Exception $e) {
             }
@@ -769,7 +769,7 @@ class SonosPlayer extends IPSModule
         }
 
         //adjust volume if needed
-        if ($volumeChange != 0) {
+        if ($volumeChange != '0') {
             // pause if playing or remove from group
             if (!$isGroupCoordinator) {
                 $this->SetGroup(0);
@@ -796,16 +796,16 @@ class SonosPlayer extends IPSModule
                     'type'           => 'callFunction',
                     'targetInstance' => $ID,
                     'function'       => $function,
-                    'volume'         => $volumeChange
+                    'volume'         => (int) $volumeChange
                 ]));
             }
         }
 
         foreach ($filesArray as $key => $file) {
             // only files on SMB share or http server can be used
-            if (preg_match('/^\/\/[\w,.,\d,-]*\/\S*/', $file) == 1) {
+            if (preg_match('/^\/\/[\w,.,-]*\/\S*/', $file) == 1) {
                 $uri = 'x-file-cifs:' . $file;
-            } elseif (preg_match('/^https{0,1}:\/\/[\w,.,\d,\-,:]*\/\S*/', $file) == 1) {
+            } elseif (preg_match('/^https{0,1}:\/\/[\w,.,\-,:]*\/\S*/', $file) == 1) {
                 $uri = $file;
             } elseif ($file == '') {
                 throw new Exception($this->Translate('No file handed over.'));
@@ -839,7 +839,7 @@ class SonosPlayer extends IPSModule
             }
         }
 
-        if ($volumeChange != 0) {
+        if ($volumeChange != '0') {
             // set back volume
             foreach ($volumeList as $ID => $volume) {
                 $this->SendDataToParent(json_encode([
@@ -881,9 +881,9 @@ class SonosPlayer extends IPSModule
         if ($volumeChange != 0) {
             // volume request absolte or relative?
             if ($volumeChange[0] == '+' || $volumeChange[0] == '-') {
-                $this->ChangeVolume($volumeChange);
+                $this->ChangeVolume((int) $volumeChange);
             } else {
-                $this->SetVolume($volumeChange);
+                $this->SetVolume((int) $volumeChange);
             }
         }
 
@@ -936,7 +936,7 @@ class SonosPlayer extends IPSModule
         }
         unset($settings);
 
-        $this->PlayFiles($files, 0); // 0 -> no volume change!
+        $this->PlayFiles($files, '0'); // 0 -> no volume change!
 
         foreach ($instancesArray as $instanceID => $settings) {
             if ($settings['available'] == false) {
@@ -967,7 +967,7 @@ class SonosPlayer extends IPSModule
                 'type'           => 'callFunction',
                 'targetInstance' => $instanceID,
                 'function'       => 'SetVolume',
-                'volume'         => $settings['volumeBefore']
+                'volume'         => (int) $settings['volumeBefore']
             ]));
             if ($settings['transportInfo'] == 1 && !$settings['group']) {
                 $this->SendDataToParent(json_encode([
@@ -1628,12 +1628,10 @@ class SonosPlayer extends IPSModule
             }
 
             if ($vidDetails) {
-                if (!isset($stationID)) {
-                    $stationID = '';
-                }
+                $stationID = '';
                 if (isset($positionInfo)) {
                     // SPDIF and analog
-                    if (preg_match('/^RINCON_/', $mediaInfo['title'])) {
+                    if (strpos($mediaInfo['title'], 'RINCON_') === 0) {
                         $detailHTML = '';
                     // Radio or stream(?)
                     } elseif ($mediaInfo['title']) {
