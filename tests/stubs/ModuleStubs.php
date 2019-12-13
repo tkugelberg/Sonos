@@ -30,19 +30,121 @@ class IPSModule
         //Has to be overwritten by implementing module
     }
 
+    public function GetProperty($Name)
+    {
+        if (!isset($this->properties[$Name])) {
+            throw new Exception(sprintf('Property %s not found', $Name));
+        }
+
+        return $this->properties[$Name]['Current'];
+    }
+
+    public function SetProperty($Name, $Value)
+    {
+        if (!isset($this->properties[$Name])) {
+            throw new Exception(sprintf('Property %s not found', $Name));
+        }
+
+        $this->properties[$Name]['Pending'] = $Value;
+    }
+
+    public function GetConfiguration()
+    {
+        $result = [];
+        foreach ($this->properties as $name => $property) {
+            $result[$name] = $property['Current'];
+        }
+
+        return $result;
+    }
+
+    public function SetConfiguration($Configuration)
+    {
+        $json = json_decode($Configuration);
+        if ($json === null) {
+            throw new \Exception('Cannot parse configuration json');
+        }
+        foreach ($json as $name => $value) {
+            if (isset($this->properties[$name])) {
+                $this->properties[$name]['Pending'] = $value;
+            }
+        }
+    }
+
+    public function MessageSink($TimeStamp, $SenderID, $Message, $Data)
+    {
+        //Has to be overwritten by implementing module
+    }
+
+    public function HasChanges()
+    {
+        foreach ($this->properties as &$property) {
+            if ($property['Current'] != $property['Pending']) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    public function ResetChanges()
+    {
+        foreach ($this->properties as &$property) {
+            $property['Pending'] = $property['Current'];
+        }
+    }
+
+    public function ApplyChanges()
+    {
+        foreach ($this->properties as &$property) {
+            $property['Current'] = $property['Pending'];
+        }
+
+        //If the module overrides ApplyChanges, it might change the status again
+        if (IPS_GetInstance($this->InstanceID)['InstanceStatus'] == 100 /* IS_CREATING */) {
+            $this->SetStatus(102 /* IS_ACTIVE */);
+        }
+    }
+
+    public function ReceiveData($JSONString)
+    {
+        //Has to be overwritten by implementing module
+    }
+
+    public function ForwardData($JSONString)
+    {
+        //Has to be overwritten by implementing module
+        return '';
+    }
+
+    public function RequestAction($Ident, $Value)
+    {
+        //Has to be overwritten by implementing module
+    }
+
+    public function GetConfigurationForm()
+    {
+        return '{}';
+    }
+
+    public function GetConfigurationForParent()
+    {
+        return '{}';
+    }
+
+    public function Translate($Text)
+    {
+        return $Text;
+    }
+
+    public function GetReferenceList()
+    {
+        return $this->references;
+    }
+
     protected function GetIDForIdent($Ident)
     {
         return IPS_GetObjectIDByIdent($Ident, $this->InstanceID);
-    }
-
-    private function RegisterProperty($Name, $DefaultValue, $Type)
-    {
-        $this->properties[$Name] = [
-            'Type'    => $Type,
-            'Default' => $DefaultValue,
-            'Current' => $DefaultValue,
-            'Pending' => $DefaultValue
-        ];
     }
 
     protected function RegisterPropertyBoolean($Name, $DefaultValue)
@@ -63,15 +165,6 @@ class IPSModule
     protected function RegisterPropertyString($Name, $DefaultValue)
     {
         $this->RegisterProperty($Name, $DefaultValue, 3);
-    }
-
-    private function RegisterAttribute($Name, $DefaultValue, $Type)
-    {
-        $this->attributes[$Name] = [
-            'Type'    => $Type,
-            'Default' => $DefaultValue,
-            'Current' => $DefaultValue
-        ];
     }
 
     protected function RegisterAttributeBoolean($Name, $DefaultValue)
@@ -107,60 +200,6 @@ class IPSModule
     protected function RegisterScript($Ident, $Name, $Content = '', $Position = 0)
     {
         //How and why do we want to test this?
-    }
-
-    private function RegisterVariable($Ident, $Name, $Type, $Profile, $Position)
-    {
-        if ($Profile != '') {
-            //prefer system profiles
-            if (IPS_VariableProfileExists('~' . $Profile)) {
-                $Profile = '~' . $Profile;
-            }
-            if (!IPS_VariableProfileExists($Profile)) {
-                throw new Exception('Profile with name ' . $Profile . ' does not exist');
-            }
-        }
-
-        //search for already available variables with proper ident
-        $vid = @IPS_GetObjectIDByIdent($Ident, $this->InstanceID);
-
-        //properly update variableID
-        if ($vid === false) {
-            $vid = 0;
-        }
-
-        //we have a variable with the proper ident. check if it fits
-        if ($vid > 0) {
-            //check if we really have a variable
-            if (!IPS_VariableExists($vid)) {
-                throw new Exception('Ident with name ' . $Ident . ' is used for wrong object type');
-            } //bail out
-            //check for type mismatch
-            if (IPS_GetVariable($vid)['VariableType'] != $Type) {
-                //mismatch detected. delete this one. we will create a new below
-                IPS_DeleteVariable($vid);
-                //this will ensure, that a new one is created
-                $vid = 0;
-            }
-        }
-
-        //we need to create one
-        if ($vid == 0) {
-            $vid = IPS_CreateVariable($Type);
-
-            //configure it
-            IPS_SetParent($vid, $this->InstanceID);
-            IPS_SetIdent($vid, $Ident);
-            IPS_SetName($vid, $Name);
-            IPS_SetPosition($vid, $Position);
-            //IPS_SetReadOnly($vid, true);
-        }
-
-        //update variable profile. profiles may be changed in module development.
-        //this update does not affect any custom profile choices
-        IPS_SetVariableCustomProfile($vid, $Profile);
-
-        return $vid;
     }
 
     protected function RegisterVariableBoolean($Ident, $Name, $Profile = '', $Position = 0)
@@ -218,47 +257,6 @@ class IPSModule
             $this->EnableAction($Ident);
         } else {
             $this->DisableAction($Ident);
-        }
-    }
-
-    public function GetProperty($Name)
-    {
-        if (!isset($this->properties[$Name])) {
-            throw new Exception(sprintf('Property %s not found', $Name));
-        }
-
-        return $this->properties[$Name]['Current'];
-    }
-
-    public function SetProperty($Name, $Value)
-    {
-        if (!isset($this->properties[$Name])) {
-            throw new Exception(sprintf('Property %s not found', $Name));
-        }
-
-        $this->properties[$Name]['Pending'] = $Value;
-    }
-
-    public function GetConfiguration()
-    {
-        $result = [];
-        foreach ($this->properties as $name => $property) {
-            $result[$name] = $property['Current'];
-        }
-
-        return $result;
-    }
-
-    public function SetConfiguration($Configuration)
-    {
-        $json = json_decode($Configuration);
-        if ($json === null) {
-            throw new \Exception('Cannot parse configuration json');
-        }
-        foreach ($json as $name => $value) {
-            if (isset($this->properties[$name])) {
-                $this->properties[$name]['Pending'] = $value;
-            }
         }
     }
 
@@ -538,80 +536,14 @@ class IPSModule
     {
     }
 
-    public function MessageSink($TimeStamp, $SenderID, $Message, $Data)
-    {
-        //Has to be overwritten by implementing module
-    }
-
-    public function HasChanges()
-    {
-        foreach ($this->properties as &$property) {
-            if ($property['Current'] != $property['Pending']) {
-                return true;
-            }
-        }
-
-        return false;
-    }
-
-    public function ResetChanges()
-    {
-        foreach ($this->properties as &$property) {
-            $property['Pending'] = $property['Current'];
-        }
-    }
-
-    public function ApplyChanges()
-    {
-        foreach ($this->properties as &$property) {
-            $property['Current'] = $property['Pending'];
-        }
-
-        //If the module overrides ApplyChanges, it might change the status again
-        if (IPS_GetInstance($this->InstanceID)['InstanceStatus'] == 100 /* IS_CREATING */) {
-            $this->SetStatus(102 /* IS_ACTIVE */);
-        }
-    }
-
     protected function SetReceiveDataFilter($RequiredRegexMatch)
     {
         $this->receiveDataFilter = $RequiredRegexMatch;
     }
 
-    public function ReceiveData($JSONString)
-    {
-        //Has to be overwritten by implementing module
-    }
-
     protected function SetForwardDataFilter($RequiredRegexMatch)
     {
         $this->forwardDataFilter = $RequiredRegexMatch;
-    }
-
-    public function ForwardData($JSONString)
-    {
-        //Has to be overwritten by implementing module
-        return '';
-    }
-
-    public function RequestAction($Ident, $Value)
-    {
-        //Has to be overwritten by implementing module
-    }
-
-    public function GetConfigurationForm()
-    {
-        return '{}';
-    }
-
-    public function GetConfigurationForParent()
-    {
-        return '{}';
-    }
-
-    public function Translate($Text)
-    {
-        return $Text;
     }
 
     protected function RegisterReference(int $ID)
@@ -628,16 +560,84 @@ class IPSModule
         }
     }
 
-    public function GetReferenceList()
-    {
-        return $this->references;
-    }
-
     protected function ReloadForm()
     {
     }
 
     protected function UpdateFormField($Field, $Parameter, $Value)
     {
+    }
+
+    private function RegisterProperty($Name, $DefaultValue, $Type)
+    {
+        $this->properties[$Name] = [
+            'Type'    => $Type,
+            'Default' => $DefaultValue,
+            'Current' => $DefaultValue,
+            'Pending' => $DefaultValue
+        ];
+    }
+
+    private function RegisterAttribute($Name, $DefaultValue, $Type)
+    {
+        $this->attributes[$Name] = [
+            'Type'    => $Type,
+            'Default' => $DefaultValue,
+            'Current' => $DefaultValue
+        ];
+    }
+
+    private function RegisterVariable($Ident, $Name, $Type, $Profile, $Position)
+    {
+        if ($Profile != '') {
+            //prefer system profiles
+            if (IPS_VariableProfileExists('~' . $Profile)) {
+                $Profile = '~' . $Profile;
+            }
+            if (!IPS_VariableProfileExists($Profile)) {
+                throw new Exception('Profile with name ' . $Profile . ' does not exist');
+            }
+        }
+
+        //search for already available variables with proper ident
+        $vid = @IPS_GetObjectIDByIdent($Ident, $this->InstanceID);
+
+        //properly update variableID
+        if ($vid === false) {
+            $vid = 0;
+        }
+
+        //we have a variable with the proper ident. check if it fits
+        if ($vid > 0) {
+            //check if we really have a variable
+            if (!IPS_VariableExists($vid)) {
+                throw new Exception('Ident with name ' . $Ident . ' is used for wrong object type');
+            } //bail out
+            //check for type mismatch
+            if (IPS_GetVariable($vid)['VariableType'] != $Type) {
+                //mismatch detected. delete this one. we will create a new below
+                IPS_DeleteVariable($vid);
+                //this will ensure, that a new one is created
+                $vid = 0;
+            }
+        }
+
+        //we need to create one
+        if ($vid == 0) {
+            $vid = IPS_CreateVariable($Type);
+
+            //configure it
+            IPS_SetParent($vid, $this->InstanceID);
+            IPS_SetIdent($vid, $Ident);
+            IPS_SetName($vid, $Name);
+            IPS_SetPosition($vid, $Position);
+            //IPS_SetReadOnly($vid, true);
+        }
+
+        //update variable profile. profiles may be changed in module development.
+        //this update does not affect any custom profile choices
+        IPS_SetVariableCustomProfile($vid, $Profile);
+
+        return $vid;
     }
 }

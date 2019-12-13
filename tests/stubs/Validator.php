@@ -6,29 +6,9 @@ use PHPUnit\Framework\TestCase;
 
 class TestCaseSymconValidation extends TestCase
 {
-    private function isValidGUID($guid): bool
+    public function testNop(): void
     {
-        return preg_match('/^\{?[A-Z0-9]{8}-[A-Z0-9]{4}-[A-Z0-9]{4}-[A-Z0-9]{4}-[A-Z0-9]{12}\}?$/', $guid) == 1;
-    }
-
-    private function isValidName($name): bool
-    {
-        return preg_match('/^[A-Za-z0-9](?:[A-Za-z0-9 _]*[A-Za-z0-9])?$/', $name) == 1;
-    }
-
-    private function isValidPrefix($name): bool
-    {
-        return preg_match('/^[A-Z0-9]+$/', $name) == 1;
-    }
-
-    private function isValidURL($name): bool
-    {
-        return preg_match('/^(?:http:\/\/|https:\/\/)/', $name) == 1;
-    }
-
-    private function ignoreFolders(): array
-    {
-        return ['..', '.', 'libs', 'docs', 'imgs', 'tests'];
+        $this->assertTrue(true);
     }
 
     protected function validateLibrary($folder): void
@@ -133,9 +113,28 @@ class TestCaseSymconValidation extends TestCase
             $this->assertTrue(json_decode(file_get_contents($folder . '/locale.json')) !== null);
         }
     }
-
-    public function testNop(): void
+    private function isValidGUID($guid): bool
     {
-        $this->assertTrue(true);
+        return preg_match('/^\{?[A-Z0-9]{8}-[A-Z0-9]{4}-[A-Z0-9]{4}-[A-Z0-9]{4}-[A-Z0-9]{12}\}?$/', $guid) == 1;
+    }
+
+    private function isValidName($name): bool
+    {
+        return preg_match('/^[A-Za-z0-9](?:[A-Za-z0-9 _]*[A-Za-z0-9])?$/', $name) == 1;
+    }
+
+    private function isValidPrefix($name): bool
+    {
+        return preg_match('/^[A-Z0-9]+$/', $name) == 1;
+    }
+
+    private function isValidURL($name): bool
+    {
+        return preg_match('/^(?:http:\/\/|https:\/\/)/', $name) == 1;
+    }
+
+    private function ignoreFolders(): array
+    {
+        return ['..', '.', 'libs', 'docs', 'imgs', 'tests'];
     }
 }
