@@ -29,17 +29,17 @@ class SonosTest extends TestCase
         $this->assertEquals(1, 1);
     }
 
-/*    public function testPlay()
-    {
-        $playerID = IPS_CreateInstance($this->playerModulID);
-
-        $playerInterface = IPS\InstanceManager::getInstanceInterface($playerID);
-
-        IPS_SetProperty($playerID, 'IPAddress', '192.168.1.2');
-        IPS_ApplyChanges($playerID);
-
-        $playerInterface->WriteAttributeBoolean('Coordinator', true);
-
-        $playerInterface->Play($ModulID);
-      }*/
-} 
+    /*    public function testPlay()
+        {
+            $playerID = IPS_CreateInstance($this->playerModulID);
+    
+            $playerInterface = IPS\InstanceManager::getInstanceInterface($playerID);
+    
+            IPS_SetProperty($playerID, 'IPAddress', '192.168.1.2');
+            IPS_ApplyChanges($playerID);
+    
+            $playerInterface->WriteAttributeBoolean('Coordinator', true);
+    
+            $playerInterface->Play($ModulID);
+          }*/
+}

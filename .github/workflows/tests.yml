@@ -17,5 +17,5 @@ jobs:
       run: wget https://phar.phpunit.de/phpunit.phar
 
     - name: Run Tests
-      run: phpdbg -qrr phpunit.phar test
+      run: phpdbg -qrr phpunit.phar tests
       
