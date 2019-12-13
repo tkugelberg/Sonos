@@ -15,26 +15,26 @@ class SonosAccess
     public function AddToQueue($file, $meta = '')
     {
         $this->processSoapCall(
-      '/MediaRenderer/AVTransport/Control',
-      'urn:schemas-upnp-org:service:AVTransport:1',
-      'AddURIToQueue',
-      [
+            '/MediaRenderer/AVTransport/Control',
+            'urn:schemas-upnp-org:service:AVTransport:1',
+            'AddURIToQueue',
+            [
           new SoapParam('0', 'InstanceID'),
           new SoapParam(htmlspecialchars($file), 'EnqueuedURI'),
           new SoapParam($meta, 'EnqueuedURIMetaData'),
           new SoapParam('0', 'DesiredFirstTrackNumberEnqueued'),
           new SoapParam('1', 'EnqueueAsNext')
       ]
-    );
+        );
     }
 
     public function BrowseContentDirectory($objectID = 'SQ:', $browseFlag = 'BrowseDirectChildren', $requestedCount = 100, $startingIndex = 0, $filter = '', $sortCriteria = '')
     {
         return $this->processSoapCall(
-      '/MediaServer/ContentDirectory/Control',
-      'urn:schemas-upnp-org:service:ContentDirectory:1',
-      'Browse',
-      [
+            '/MediaServer/ContentDirectory/Control',
+            'urn:schemas-upnp-org:service:ContentDirectory:1',
+            'Browse',
+            [
           new SoapParam($objectID, 'ObjectID'),
           new SoapParam($browseFlag, 'BrowseFlag'),
           new SoapParam($filter, 'Filter'),
@@ -42,96 +42,96 @@ class SonosAccess
           new SoapParam($requestedCount, 'RequestedCount'),
           new SoapParam($sortCriteria, 'SortCriteria')
       ]
-    );
+        );
     }
 
     public function ClearQueue()
     {
         $this->processSoapCall(
-      '/MediaRenderer/AVTransport/Control',
-      'urn:schemas-upnp-org:service:AVTransport:1',
-      'RemoveAllTracksFromQueue',
-      [
+            '/MediaRenderer/AVTransport/Control',
+            'urn:schemas-upnp-org:service:AVTransport:1',
+            'RemoveAllTracksFromQueue',
+            [
           new SoapParam('0', 'InstanceID')
       ]
-    );
+        );
     }
 
     public function DelegateGroupCoordinationTo(string $NewCoordinator, bool $RejoinGroup)
     {
         $this->processSoapCall(
-      '/MediaRenderer/AVTransport/Control',
-      'urn:schemas-upnp-org:service:AVTransport:1',
-      'DelegateGroupCoordinationTo',
-      [
+            '/MediaRenderer/AVTransport/Control',
+            'urn:schemas-upnp-org:service:AVTransport:1',
+            'DelegateGroupCoordinationTo',
+            [
           new SoapParam('0', 'InstanceID'),
           new SoapParam($NewCoordinator, 'NewCoordinator'),
           new SoapParam($RejoinGroup, 'RejoinGroup')
       ]
-    );
+        );
     }
 
     public function GetBass()
     {
         return (int) $this->processSoapCall(
-      '/MediaRenderer/RenderingControl/Control',
-      'urn:schemas-upnp-org:service:RenderingControl:1',
-      'GetBass',
-      [
+            '/MediaRenderer/RenderingControl/Control',
+            'urn:schemas-upnp-org:service:RenderingControl:1',
+            'GetBass',
+            [
           new SoapParam('0', 'InstanceID'),
           new SoapParam('Master', 'Channel')
       ]
-    );
+        );
     }
 
     public function GetCrossfade()
     {
         return (int) $this->processSoapCall(
-      '/MediaRenderer/AVTransport/Control',
-      'urn:schemas-upnp-org:service:AVTransport:1',
-      'GetCrossfadeMode',
-      [
+            '/MediaRenderer/AVTransport/Control',
+            'urn:schemas-upnp-org:service:AVTransport:1',
+            'GetCrossfadeMode',
+            [
           new SoapParam('0', 'InstanceID')
       ]
-    );
+        );
     }
 
     public function GetDialogLevel()
     {
         return (int) $this->processSoapCall(
-      '/MediaRenderer/RenderingControl/Control',
-      'urn:schemas-upnp-org:service:RenderingControl:1',
-      'GetEQ',
-      [
+            '/MediaRenderer/RenderingControl/Control',
+            'urn:schemas-upnp-org:service:RenderingControl:1',
+            'GetEQ',
+            [
           new SoapParam('0', 'InstanceID'),
           new SoapParam('DialogLevel', 'EQType')
       ]
-    );
+        );
     }
 
     public function GetLoudness()
     {
         return (int) $this->processSoapCall(
-      '/MediaRenderer/RenderingControl/Control',
-      'urn:schemas-upnp-org:service:RenderingControl:1',
-      'GetLoudness',
-      [
+            '/MediaRenderer/RenderingControl/Control',
+            'urn:schemas-upnp-org:service:RenderingControl:1',
+            'GetLoudness',
+            [
           new SoapParam('0', 'InstanceID'),
           new SoapParam('Master', 'Channel')
       ]
-    );
+        );
     }
 
     public function GetMediaInfo()
     {
         $mediaInfo = $this->processSoapCall(
-      '/MediaRenderer/AVTransport/Control',
-      'urn:schemas-upnp-org:service:AVTransport:1',
-      'GetMediaInfo',
-      [
+            '/MediaRenderer/AVTransport/Control',
+            'urn:schemas-upnp-org:service:AVTransport:1',
+            'GetMediaInfo',
+            [
           new SoapParam('0', 'InstanceID')
       ]
-    );
+        );
 
         $xmlParser = xml_parser_create('UTF-8');
         xml_parser_set_option($xmlParser, XML_OPTION_TARGET_ENCODING, 'UTF-8');
@@ -150,39 +150,39 @@ class SonosAccess
     public function GetMute()
     {
         return (int) $this->processSoapCall(
-      '/MediaRenderer/RenderingControl/Control',
-      'urn:schemas-upnp-org:service:RenderingControl:1',
-      'GetMute',
-      [
+            '/MediaRenderer/RenderingControl/Control',
+            'urn:schemas-upnp-org:service:RenderingControl:1',
+            'GetMute',
+            [
           new SoapParam('0', 'InstanceID'),
           new SoapParam('Master', 'Channel')
       ]
-    );
+        );
     }
 
     public function GetNightMode()
     {
         return (int) $this->processSoapCall(
-      '/MediaRenderer/RenderingControl/Control',
-      'urn:schemas-upnp-org:service:RenderingControl:1',
-      'GetEQ',
-      [
+            '/MediaRenderer/RenderingControl/Control',
+            'urn:schemas-upnp-org:service:RenderingControl:1',
+            'GetEQ',
+            [
           new SoapParam('0', 'InstanceID'),
           new SoapParam('NightMode', 'EQType')
       ]
-    );
+        );
     }
 
     public function GetPositionInfo()
     {
         $positionInfo = $this->processSoapCall(
-      '/MediaRenderer/AVTransport/Control',
-      'urn:schemas-upnp-org:service:AVTransport:1',
-      'GetPositionInfo',
-      [
+            '/MediaRenderer/AVTransport/Control',
+            'urn:schemas-upnp-org:service:AVTransport:1',
+            'GetPositionInfo',
+            [
           new SoapParam('0', 'InstanceID')
       ]
-    );
+        );
 
         $xmlParser = xml_parser_create('UTF-8');
         xml_parser_set_option($xmlParser, XML_OPTION_TARGET_ENCODING, 'UTF-8');
@@ -235,26 +235,26 @@ class SonosAccess
     public function GetSleeptimer()
     {
         $remainingTimer = $this->processSoapCall(
-      '/MediaRenderer/AVTransport/Control',
-      'urn:schemas-upnp-org:service:AVTransport:1',
-      'GetRemainingSleepTimerDuration',
-      [
+            '/MediaRenderer/AVTransport/Control',
+            'urn:schemas-upnp-org:service:AVTransport:1',
+            'GetRemainingSleepTimerDuration',
+            [
           new SoapParam('0', 'InstanceID')
       ]
-    );
+        );
         return $remainingTimer['RemainingSleepTimerDuration'];
     }
 
     public function GetTransportInfo()
     {
         $returnContent = $this->processSoapCall(
-      '/MediaRenderer/AVTransport/Control',
-      'urn:schemas-upnp-org:service:AVTransport:1',
-      'GetTransportInfo',
-      [
+            '/MediaRenderer/AVTransport/Control',
+            'urn:schemas-upnp-org:service:AVTransport:1',
+            'GetTransportInfo',
+            [
           new SoapParam('0', 'InstanceID')
       ]
-    );
+        );
 
         switch ($returnContent['CurrentTransportState']) {
       case 'PLAYING':
@@ -273,13 +273,13 @@ class SonosAccess
     public function GetTransportSettings()
     {
         $returnContent = $this->processSoapCall(
-      '/MediaRenderer/AVTransport/Control',
-      'urn:schemas-upnp-org:service:AVTransport:1',
-      'GetTransportSettings',
-      [
+            '/MediaRenderer/AVTransport/Control',
+            'urn:schemas-upnp-org:service:AVTransport:1',
+            'GetTransportSettings',
+            [
           new SoapParam('0', 'InstanceID')
       ]
-    );
+        );
 
         switch ($returnContent['PlayMode']) {
       case 'NORMAL':
@@ -302,96 +302,96 @@ class SonosAccess
     public function GetTreble()
     {
         return (int) $this->processSoapCall(
-      '/MediaRenderer/RenderingControl/Control',
-      'urn:schemas-upnp-org:service:RenderingControl:1',
-      'GetTreble',
-      [
+            '/MediaRenderer/RenderingControl/Control',
+            'urn:schemas-upnp-org:service:RenderingControl:1',
+            'GetTreble',
+            [
           new SoapParam('0', 'InstanceID'),
           new SoapParam('Master', 'Channel')
       ]
-    );
+        );
     }
 
     public function GetVolume($channel = 'Master')
     {
         return (int) $this->processSoapCall(
-      '/MediaRenderer/RenderingControl/Control',
-      'urn:schemas-upnp-org:service:RenderingControl:1',
-      'GetVolume',
-      [
+            '/MediaRenderer/RenderingControl/Control',
+            'urn:schemas-upnp-org:service:RenderingControl:1',
+            'GetVolume',
+            [
           new SoapParam('0', 'InstanceID'),
           new SoapParam($channel, 'Channel')
       ]
-    );
+        );
     }
 
     public function GetZoneGroupAttributes()
     {
         return $this->processSoapCall(
-      '/ZoneGroupTopology/Control',
-      'urn:schemas-upnp-org:service:ZoneGroupTopology:1',
-      'GetZoneGroupAttributes',
-      []
-    );
+            '/ZoneGroupTopology/Control',
+            'urn:schemas-upnp-org:service:ZoneGroupTopology:1',
+            'GetZoneGroupAttributes',
+            []
+        );
     }
 
     public function GetZoneGroupState()
     {
         return $this->processSoapCall(
-      '/ZoneGroupTopology/Control',
-      'urn:schemas-upnp-org:service:ZoneGroupTopology:1',
-      'GetZoneGroupState',
-      []
-    );
+            '/ZoneGroupTopology/Control',
+            'urn:schemas-upnp-org:service:ZoneGroupTopology:1',
+            'GetZoneGroupState',
+            []
+        );
     }
 
     public function Next()
     {
         $this->processSoapCall(
-      '/MediaRenderer/AVTransport/Control',
-      'urn:schemas-upnp-org:service:AVTransport:1',
-      'Next',
-      [
+            '/MediaRenderer/AVTransport/Control',
+            'urn:schemas-upnp-org:service:AVTransport:1',
+            'Next',
+            [
           new SoapParam('0', 'InstanceID')
       ]
-    );
+        );
     }
 
     public function Pause()
     {
         $this->processSoapCall(
-      '/MediaRenderer/AVTransport/Control',
-      'urn:schemas-upnp-org:service:AVTransport:1',
-      'Pause',
-      [
+            '/MediaRenderer/AVTransport/Control',
+            'urn:schemas-upnp-org:service:AVTransport:1',
+            'Pause',
+            [
           new SoapParam('0', 'InstanceID')
       ]
-    );
+        );
     }
 
     public function Play()
     {
         $this->processSoapCall(
-      '/MediaRenderer/AVTransport/Control',
-      'urn:schemas-upnp-org:service:AVTransport:1',
-      'Play',
-      [
+            '/MediaRenderer/AVTransport/Control',
+            'urn:schemas-upnp-org:service:AVTransport:1',
+            'Play',
+            [
           new SoapParam('0', 'InstanceID'),
           new SoapParam('1', 'Speed')
       ]
-    );
+        );
     }
 
     public function Previous()
     {
         $this->processSoapCall(
-      '/MediaRenderer/AVTransport/Control',
-      'urn:schemas-upnp-org:service:AVTransport:1',
-      'Previous',
-      [
+            '/MediaRenderer/AVTransport/Control',
+            'urn:schemas-upnp-org:service:AVTransport:1',
+            'Previous',
+            [
           new SoapParam('0', 'InstanceID')
       ]
-    );
+        );
     }
 
     public function RampToVolume($rampType, $volume)
@@ -409,10 +409,10 @@ class SonosAccess
     }
 
         return $this->processSoapCall(
-      '/MediaRenderer/RenderingControl/Control',
-      'urn:schemas-upnp-org:service:RenderingControl:1',
-      'RampToVolume',
-      [
+            '/MediaRenderer/RenderingControl/Control',
+            'urn:schemas-upnp-org:service:RenderingControl:1',
+            'RampToVolume',
+            [
           new SoapParam('0', 'InstanceID'),
           new SoapParam('Master', 'Channel'),
           new SoapParam($rampType, 'RampType'),
@@ -420,20 +420,20 @@ class SonosAccess
           new SoapParam(0, 'ResetVolumeAfter'),
           new SoapParam('', 'ProgramURI')
       ]
-    );
+        );
     }
 
     public function RemoveFromQueue($track)
     {
         $this->processSoapCall(
-      '/MediaRenderer/AVTransport/Control',
-      'urn:schemas-upnp-org:service:AVTransport:1',
-      'RemoveTrackFromQueue',
-      [
+            '/MediaRenderer/AVTransport/Control',
+            'urn:schemas-upnp-org:service:AVTransport:1',
+            'RemoveTrackFromQueue',
+            [
           new SoapParam('0', 'InstanceID'),
           new SoapParam('Q:0/' . $track, 'ObjectID')
       ]
-    );
+        );
     }
 
     public function Rewind()
@@ -444,42 +444,42 @@ class SonosAccess
     public function Seek($unit, $target)
     {
         $this->processSoapCall(
-      '/MediaRenderer/AVTransport/Control',
-      'urn:schemas-upnp-org:service:AVTransport:1',
-      'Seek',
-      [
+            '/MediaRenderer/AVTransport/Control',
+            'urn:schemas-upnp-org:service:AVTransport:1',
+            'Seek',
+            [
           new SoapParam('0', 'InstanceID'),
           new SoapParam($unit, 'Unit'),
           new SoapParam($target, 'Target')
       ]
-    );
+        );
     }
 
     public function SetAVTransportURI($tspuri, $MetaData = '')
     {
         $this->processSoapCall(
-      '/MediaRenderer/AVTransport/Control',
-      'urn:schemas-upnp-org:service:AVTransport:1',
-      'SetAVTransportURI',
-      [
+            '/MediaRenderer/AVTransport/Control',
+            'urn:schemas-upnp-org:service:AVTransport:1',
+            'SetAVTransportURI',
+            [
           new SoapParam('0', 'InstanceID'),
           new SoapParam(htmlspecialchars($tspuri), 'CurrentURI'),
           new SoapParam($MetaData, 'CurrentURIMetaData')
       ]
-    );
+        );
     }
 
     public function SetBass($bass)
     {
         $this->processSoapCall(
-      '/MediaRenderer/RenderingControl/Control',
-      'urn:schemas-upnp-org:service:RenderingControl:1',
-      'SetBass',
-      [
+            '/MediaRenderer/RenderingControl/Control',
+            'urn:schemas-upnp-org:service:RenderingControl:1',
+            'SetBass',
+            [
           new SoapParam('0', 'InstanceID'),
           new SoapParam($bass, 'DesiredBass')
       ]
-    );
+        );
     }
 
     public function SetCrossfade($crossfade)
@@ -491,14 +491,14 @@ class SonosAccess
         }
 
         $this->processSoapCall(
-      '/MediaRenderer/AVTransport/Control',
-      'urn:schemas-upnp-org:service:AVTransport:1',
-      'SetCrossfadeMode',
-      [
+            '/MediaRenderer/AVTransport/Control',
+            'urn:schemas-upnp-org:service:AVTransport:1',
+            'SetCrossfadeMode',
+            [
           new SoapParam('0', 'InstanceID'),
           new SoapParam($crossfade, 'CrossfadeMode')
       ]
-    );
+        );
     }
 
     public function SetDialogLevel($dialogLevel)
@@ -510,15 +510,15 @@ class SonosAccess
         }
 
         $this->processSoapCall(
-      '/MediaRenderer/RenderingControl/Control',
-      'urn:schemas-upnp-org:service:RenderingControl:1',
-      'SetEQ',
-      [
+            '/MediaRenderer/RenderingControl/Control',
+            'urn:schemas-upnp-org:service:RenderingControl:1',
+            'SetEQ',
+            [
           new SoapParam('0', 'InstanceID'),
           new SoapParam('DialogLevel', 'EQType'),
           new SoapParam($dialogLevel, 'DesiredValue')
       ]
-    );
+        );
     }
 
     public function SetLoudness($loud)
@@ -530,15 +530,15 @@ class SonosAccess
         }
 
         $this->processSoapCall(
-      '/MediaRenderer/RenderingControl/Control',
-      'urn:schemas-upnp-org:service:RenderingControl:1',
-      'SetLoudness',
-      [
+            '/MediaRenderer/RenderingControl/Control',
+            'urn:schemas-upnp-org:service:RenderingControl:1',
+            'SetLoudness',
+            [
           new SoapParam('0', 'InstanceID'),
           new SoapParam('Master', 'Channel'),
           new SoapParam($loud, 'DesiredLoudness')
       ]
-    );
+        );
     }
 
     public function SetMute($mute)
@@ -550,15 +550,15 @@ class SonosAccess
         }
 
         $this->processSoapCall(
-      '/MediaRenderer/RenderingControl/Control',
-      'urn:schemas-upnp-org:service:RenderingControl:1',
-      'SetMute',
-      [
+            '/MediaRenderer/RenderingControl/Control',
+            'urn:schemas-upnp-org:service:RenderingControl:1',
+            'SetMute',
+            [
           new SoapParam('0', 'InstanceID'),
           new SoapParam('Master', 'Channel'),
           new SoapParam($mute, 'DesiredMute')
       ]
-    );
+        );
     }
 
     public function SetNightMode($nightMode)
@@ -570,15 +570,15 @@ class SonosAccess
         }
 
         $this->processSoapCall(
-      '/MediaRenderer/RenderingControl/Control',
-      'urn:schemas-upnp-org:service:RenderingControl:1',
-      'SetEQ',
-      [
+            '/MediaRenderer/RenderingControl/Control',
+            'urn:schemas-upnp-org:service:RenderingControl:1',
+            'SetEQ',
+            [
           new SoapParam('0', 'InstanceID'),
           new SoapParam('NightMode', 'EQType'),
           new SoapParam($nightMode, 'DesiredValue')
       ]
-    );
+        );
     }
 
     public function SetPlayMode($PlayMode)
@@ -607,14 +607,14 @@ class SonosAccess
     }
 
         $this->processSoapCall(
-      '/MediaRenderer/AVTransport/Control',
-      'urn:schemas-upnp-org:service:AVTransport:1',
-      'SetPlayMode',
-      [
+            '/MediaRenderer/AVTransport/Control',
+            'urn:schemas-upnp-org:service:AVTransport:1',
+            'SetPlayMode',
+            [
           new SoapParam('0', 'InstanceID'),
           new SoapParam($PlayMode, 'NewPlayMode')
       ]
-    );
+        );
     }
 
     public function SetQueue($queue)
@@ -638,14 +638,14 @@ class SonosAccess
         }
 
         $this->processSoapCall(
-      '/MediaRenderer/AVTransport/Control',
-      'urn:schemas-upnp-org:service:AVTransport:1',
-      'ConfigureSleepTimer',
-      [
+            '/MediaRenderer/AVTransport/Control',
+            'urn:schemas-upnp-org:service:AVTransport:1',
+            'ConfigureSleepTimer',
+            [
           new SoapParam('0', 'InstanceID'),
           new SoapParam($sleeptimer, 'NewSleepTimerDuration')
       ]
-    );
+        );
     }
 
     public function SetTrack($track)
@@ -656,40 +656,40 @@ class SonosAccess
     public function SetTreble($treble)
     {
         $this->processSoapCall(
-      '/MediaRenderer/RenderingControl/Control',
-      'urn:schemas-upnp-org:service:RenderingControl:1',
-      'SetTreble',
-      [
+            '/MediaRenderer/RenderingControl/Control',
+            'urn:schemas-upnp-org:service:RenderingControl:1',
+            'SetTreble',
+            [
           new SoapParam('0', 'InstanceID'),
           new SoapParam($treble, 'DesiredTreble')
       ]
-    );
+        );
     }
 
     public function SetVolume($volume, $channel = 'Master')
     {
         $this->processSoapCall(
-      '/MediaRenderer/RenderingControl/Control',
-      'urn:schemas-upnp-org:service:RenderingControl:1',
-      'SetVolume',
-      [
+            '/MediaRenderer/RenderingControl/Control',
+            'urn:schemas-upnp-org:service:RenderingControl:1',
+            'SetVolume',
+            [
           new SoapParam('0', 'InstanceID'),
           new SoapParam($channel, 'Channel'),
           new SoapParam($volume, 'DesiredVolume')
       ]
-    );
+        );
     }
 
     public function Stop()
     {
         $this->processSoapCall(
-      '/MediaRenderer/AVTransport/Control',
-      'urn:schemas-upnp-org:service:AVTransport:1',
-      'Stop',
-      [
+            '/MediaRenderer/AVTransport/Control',
+            'urn:schemas-upnp-org:service:AVTransport:1',
+            'Stop',
+            [
           new SoapParam('0', 'InstanceID')
       ]
-    );
+        );
     }
 
     private function processSoapCall($path, $uri, $action, $parameter)
