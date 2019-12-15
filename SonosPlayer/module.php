@@ -91,7 +91,7 @@ class SonosPlayer extends IPSModule
 
         // Mute
         if ($this->ReadPropertyBoolean('MuteControl')) {
-            $this->RegisterVariableInteger('Mute', $this->Translate('Mute'), 'SONOS.Switch', $positions['Mute']);
+            $this->RegisterVariableBoolean('Mute', $this->Translate('Mute'), 'SONOS.Switch', $positions['Mute']);
             $this->EnableAction('Mute');
         } else {
             $this->removeVariableAction('Mute');
@@ -99,7 +99,7 @@ class SonosPlayer extends IPSModule
 
         // Loudness
         if ($this->ReadPropertyBoolean('LoudnessControl')) {
-            $this->RegisterVariableInteger('Loudness', $this->Translate('Loudness'), 'SONOS.Switch', $positions['Loudness']);
+            $this->RegisterVariableBoolean('Loudness', $this->Translate('Loudness'), 'SONOS.Switch', $positions['Loudness']);
             $this->EnableAction('Loudness');
         } else {
             $this->removeVariableAction('Loudness');
@@ -107,9 +107,9 @@ class SonosPlayer extends IPSModule
 
         // NightMode
         if ($this->ReadPropertyBoolean('NightModeControl')) {
-            $this->RegisterVariableInteger('NightMode', $this->Translate('Night Mode'), 'SONOS.Switch', $positions['NightMode']);
+            $this->RegisterVariableBoolean('NightMode', $this->Translate('Night Mode'), 'SONOS.Switch', $positions['NightMode']);
             $this->EnableAction('NightMode');
-            $this->RegisterVariableInteger('DialogLevel', $this->Translate('Dialog Level'), 'SONOS.Switch', $positions['DialogLevel']);
+            $this->RegisterVariableBoolean('DialogLevel', $this->Translate('Dialog Level'), 'SONOS.Switch', $positions['DialogLevel']);
             $this->EnableAction('DialogLevel');
         } else {
             $this->removeVariableAction('NightMode');
@@ -133,7 +133,7 @@ class SonosPlayer extends IPSModule
         // PlayMode + Crossfade
         if ($this->ReadPropertyBoolean('PlayModeControl')) {
             $this->RegisterVariableInteger('PlayMode', $this->Translate('Play Mode'), 'SONOS.PlayMode', $positions['PlayMode']);
-            $this->RegisterVariableInteger('Crossfade', $this->Translate('Crossfade'), 'SONOS.Switch', $positions['Crossfade']);
+            $this->RegisterVariableBoolean('Crossfade', $this->Translate('Crossfade'), 'SONOS.Switch', $positions['Crossfade']);
             $this->EnableAction('PlayMode');
             $this->EnableAction('Crossfade');
         } else {
@@ -1064,7 +1064,7 @@ class SonosPlayer extends IPSModule
 
             (new SonosAccess($ip))->SetCrossfade($crossfade);
             if ($this->ReadPropertyBoolean('PlayModeControl')) {
-                SetValue($this->GetIDForIdent('Crossfade'), $crossfade);
+                SetValueBoolean($this->GetIDForIdent('Crossfade'), $crossfade);
             }
         } else {
             $this->SendDataToParent(json_encode([
@@ -1125,9 +1125,9 @@ class SonosPlayer extends IPSModule
 
         (new SonosAccess($ip))->SetDialogLevel($dialogLevel);
         if ($this->ReadPropertyBoolean('NightModeControl')) {  // same switch as Night Mode
-            SetValue($this->GetIDForIdent('DialogLevel'), $dialogLevel);
+            SetValueBoolean($this->GetIDForIdent('DialogLevel'), $dialogLevel);
         }
-    }   // END SetNightMode
+    }   // END SetDialogLevel
 
     public function SetGroup(int $groupCoordinator)
     {
@@ -1218,7 +1218,7 @@ class SonosPlayer extends IPSModule
 
         (new SonosAccess($ip))->SetLoudness($loudness);
         if ($this->ReadPropertyBoolean('LoudnessControl')) {
-            SetValue($this->GetIDForIdent('Loudness'), $loudness);
+            SetValueBoolean($this->GetIDForIdent('Loudness'), $loudness);
         }
     } //  END SetLoudness
 
@@ -1228,7 +1228,7 @@ class SonosPlayer extends IPSModule
 
         (new SonosAccess($ip))->SetMute($mute);
         if ($this->ReadPropertyBoolean('MuteControl')) {
-            SetValue($this->GetIDForIdent('Mute'), $mute);
+            SetValueBoolean($this->GetIDForIdent('Mute'), $mute);
         }
     }   // END SetMute
 
@@ -1238,7 +1238,7 @@ class SonosPlayer extends IPSModule
 
         (new SonosAccess($ip))->SetNightMode($nightMode);
         if ($this->ReadPropertyBoolean('NightModeControl')) {
-            SetValue($this->GetIDForIdent('NightMode'), $nightMode);
+            SetValueBoolean($this->GetIDForIdent('NightMode'), $nightMode);
         }
     }   // END SetNightMode
 
@@ -1476,16 +1476,16 @@ class SonosPlayer extends IPSModule
 
         SetValueInteger($vidVolume, $sonos->GetVolume());
         if ($vidMute) {
-            SetValueInteger($vidMute, $sonos->GetMute());
+            SetValueBoolean($vidMute, $sonos->GetMute());
         }
         if ($vidNightMode) {
-            SetValueInteger($vidNightMode, $sonos->GetNightMode());
+            SetValueBoolean($vidNightMode, $sonos->GetNightMode());
         }
         if ($vidDialogLevel) {
-            SetValueInteger($vidDialogLevel, $sonos->GetDialogLevel());
+            SetValueBoolean($vidDialogLevel, $sonos->GetDialogLevel());
         }
         if ($vidLoudness) {
-            SetValueInteger($vidLoudness, $sonos->GetLoudness());
+            SetValueBoolean($vidLoudness, $sonos->GetLoudness());
         }
         if ($vidBass) {
             SetValueInteger($vidBass, $sonos->GetBass());
@@ -1494,7 +1494,7 @@ class SonosPlayer extends IPSModule
             SetValueInteger($vidTreble, $sonos->GetTreble());
         }
         if ($vidCrossfade) {
-            SetValueInteger($vidCrossfade, $sonos->GetCrossfade());
+            SetValueBoolean($vidCrossfade, $sonos->GetCrossfade());
         }
         if ($vidPlaymode) {
             SetValueInteger($vidPlaymode, $sonos->GetTransportsettings());

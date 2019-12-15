@@ -86,7 +86,7 @@ class SonosAccess
 
     public function GetCrossfade()
     {
-        return (int) $this->processSoapCall(
+        $crossfade = (int) $this->processSoapCall(
             '/MediaRenderer/AVTransport/Control',
             'urn:schemas-upnp-org:service:AVTransport:1',
             'GetCrossfadeMode',
@@ -94,11 +94,17 @@ class SonosAccess
                 new SoapParam('0', 'InstanceID')
             ]
         );
+
+        if ($crossfade === 1) {
+            return true;
+        } else {
+            return false;
+        }
     }
 
     public function GetDialogLevel()
     {
-        return (int) $this->processSoapCall(
+        $dialogLevel = (int) $this->processSoapCall(
             '/MediaRenderer/RenderingControl/Control',
             'urn:schemas-upnp-org:service:RenderingControl:1',
             'GetEQ',
@@ -107,11 +113,17 @@ class SonosAccess
                 new SoapParam('DialogLevel', 'EQType')
             ]
         );
+
+        if ($dialogLevel === 1) {
+            return true;
+        } else {
+            return false;
+        }
     }
 
     public function GetLoudness()
     {
-        return (int) $this->processSoapCall(
+        $loudness = (int) $this->processSoapCall(
             '/MediaRenderer/RenderingControl/Control',
             'urn:schemas-upnp-org:service:RenderingControl:1',
             'GetLoudness',
@@ -120,6 +132,12 @@ class SonosAccess
                 new SoapParam('Master', 'Channel')
             ]
         );
+
+        if ($loudness === 1) {
+            return true;
+        } else {
+            return false;
+        }
     }
 
     public function GetMediaInfo()
@@ -149,7 +167,7 @@ class SonosAccess
 
     public function GetMute()
     {
-        return (int) $this->processSoapCall(
+        $mute = (int) $this->processSoapCall(
             '/MediaRenderer/RenderingControl/Control',
             'urn:schemas-upnp-org:service:RenderingControl:1',
             'GetMute',
@@ -158,11 +176,17 @@ class SonosAccess
                 new SoapParam('Master', 'Channel')
             ]
         );
+
+        if ($mute === 1) {
+            return true;
+        } else {
+            return false;
+        }
     }
 
     public function GetNightMode()
     {
-        return (int) $this->processSoapCall(
+        $nightMode = (int) $this->processSoapCall(
             '/MediaRenderer/RenderingControl/Control',
             'urn:schemas-upnp-org:service:RenderingControl:1',
             'GetEQ',
@@ -171,6 +195,12 @@ class SonosAccess
                 new SoapParam('NightMode', 'EQType')
             ]
         );
+
+        if ($nightMode === 1) {
+            return true;
+        } else {
+            return false;
+        }
     }
 
     public function GetPositionInfo()

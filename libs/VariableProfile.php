@@ -37,6 +37,25 @@ trait VariableProfile
         }
     }
 
+    private function RegisterProfileBool($Name, $Icon, $Prefix, $Suffix, $Associations)
+    {
+        if (!IPS_VariableProfileExists($Name)) {
+            IPS_CreateVariableProfile($Name, 0);
+        } else {
+            $profile = IPS_GetVariableProfile($Name);
+            if ($profile['ProfileType'] != 0) {
+                throw new Exception('Variable profile type does not match for profile ' . $Name);
+            }
+        }
+
+        IPS_SetVariableProfileIcon($Name, $Icon);
+        IPS_SetVariableProfileText($Name, $Prefix, $Suffix);
+
+        foreach ($Associations as $Association) {
+            IPS_SetVariableProfileAssociation($Name, $Association[0], $Association[1], $Association[2], $Association[3]);
+        }
+    }
+
     private function removeVariable($ident)
     {
         $vid = @$this->GetIDForIdent($ident);

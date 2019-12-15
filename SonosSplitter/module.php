@@ -57,9 +57,13 @@ class SonosSplitter extends IPSModule
         $this->RegisterProfileInteger('SONOS.Volume', 'Intensity', '', ' %', 0, 100, 1);
         $this->RegisterProfileInteger('SONOS.Tone', 'Intensity', '', ' %', -10, 10, 1);
         $this->RegisterProfileInteger('SONOS.Balance', 'Intensity', '', ' %', -100, 100, 1);
-        $this->RegisterProfileIntegerEx('SONOS.Switch', 'Information', '', '', [
-            [0, $this->Translate('Off'), '', 0xFF0000],
-            [1, $this->Translate('On'),  '', 0x00FF00]
+        // to be deleted, once everyone go tthe change
+        if (IPS_VariableProfileExists("SONOS.Switch"))
+            IPS_DeleteVariableProfile("SONOS.Switch");
+           
+        $this->RegisterProfileBool('SONOS.Switch', 'Information', '', '', [
+            [false, $this->Translate('Off'), '', 0xFF0000],
+            [true, $this->Translate('On'),  '', 0x00FF00]
         ]);
 
         // Radio Stations
