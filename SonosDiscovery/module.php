@@ -121,6 +121,7 @@ class SonosDiscovery extends ipsmodule
     private function DiscoverDevices(): array
     {
         $SonosDevices = [];
+        $zoneGroups = [];
 
         $SSDPInstance = IPS_GetInstanceListByModuleID('{FFFFA648-B296-E785-96ED-065F7CEE6F29}')[0];
 
@@ -129,18 +130,17 @@ class SonosDiscovery extends ipsmodule
         foreach ($discoveredDevices as $discoveredDevice) {
             if (Sys_ping($discoveredDevice['IPv4'], 1000) == true) {
                 $ip = $discoveredDevice['IPv4'];
-                break;
+                try {
+                    $sonos = new SonosAccess($ip);
+
+                    $grouping = new SimpleXMLElement($sonos->GetZoneGroupState());
+                    $zoneGroups = $grouping->ZoneGroups->ZoneGroup;
+                    break;
+                } catch (Exception $e) {
+                    // no nothing, try next hit
+                }
             }
         }
-
-        if (!isset($ip)) {
-            return $SonosDevices;
-        }
-
-        $sonos = new SonosAccess($ip);
-
-        $grouping = new SimpleXMLElement($sonos->GetZoneGroupState());
-        $zoneGroups = $grouping->ZoneGroups->ZoneGroup;
 
         foreach ($zoneGroups as $zoneGroup) {
             foreach ($zoneGroup->ZoneGroupMember as $zoneGroupMember) {

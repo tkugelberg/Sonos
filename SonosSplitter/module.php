@@ -29,6 +29,8 @@ class SonosSplitter extends IPSModule
         $this->RegisterPropertyInteger('UpdateGroupingFrequency', 120);
         $this->RegisterPropertyInteger('UpdateStatusFrequency', 5);
         $this->RegisterTimer('Sonos Update Grouping', 0, 'SNS_updateGrouping(' . $this->InstanceID . ');');
+
+        $this->RegisterAttributeInteger('LastPlaylistImport', 0);
     } // End Create
 
     public function ApplyChanges()
@@ -85,7 +87,10 @@ class SonosSplitter extends IPSModule
         }
         $this->RegisterProfileIntegerEx('SONOS.Radio', 'Speaker', '', '', $Associations);
 
-        $this->UpdatePlaylists();
+        if ($this->ReadAttributeInteger('LastPlaylistImport') != $this->ReadPropertyInteger('PlaylistImport')) {
+            $this->UpdatePlaylists();
+            $this->WriteAttributeInteger('LastPlaylistImport', $this->ReadPropertyInteger('PlaylistImport'));
+        }
 
         if (!IPS_VariableProfileExists('SONOS.Groups')) {
             $this->RegisterProfileIntegerEx('SONOS.Groups', 'Network', '', '', [[0, $this->Translate('none'), '', -1]]);
