@@ -30,7 +30,7 @@ class SonosSplitter extends IPSModule
         $this->RegisterPropertyInteger('UpdateStatusFrequency', 5);
         $this->RegisterTimer('Sonos Update Grouping', 0, 'SNS_updateGrouping(' . $this->InstanceID . ');');
 
-        $this->RegisterAttributeInteger('LastPlaylistImport', 0);
+        $this->RegisterAttributeInteger('LastPlaylistImport', -1);
     } // End Create
 
     public function ApplyChanges()
