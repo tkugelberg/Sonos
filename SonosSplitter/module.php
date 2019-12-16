@@ -17,9 +17,9 @@ class SonosSplitter extends IPSModule
         // Diese Zeile nicht löschen.
 
         $radioStationDefault = json_encode([
-            ['name' => 'SWR3',             'URL' => 'x-rincon-mp3radio://mp3-live.swr3.de/swr3_m.m3u',                      'imageURL' => 'http://cdn-radiotime-logos.tunein.com/s24896q.png'],
-            ['name' => 'AC/DC Collection', 'URL' => 'x-rincon-mp3radio://streams.radiobob.de/bob-acdc/mp3-192/mediaplayer', 'imageURL' => 'http://cdn-radiotime-logos.tunein.com/s256712.png'],
-            ['name' => 'FFN',              'URL' => 'x-rincon-mp3radio://player.ffn.de/ffn.mp3',                            'imageURL' => 'http://cdn-radiotime-logos.tunein.com/s8954q.png']
+            ['name' => 'SWR3',             'URL' => 'x-rincon-mp3radio://swr-swr3-live.cast.addradio.de/swr/swr3/live/mp3/128/stream.mp3', 'imageURL' => 'http://cdn-radiotime-logos.tunein.com/s24896q.png'],
+            ['name' => 'AC/DC Collection', 'URL' => 'x-rincon-mp3radio://streams.radiobob.de/bob-acdc/mp3-192/mediaplayer',                'imageURL' => 'http://cdn-radiotime-logos.tunein.com/s256712.png'],
+            ['name' => 'FFN',              'URL' => 'x-rincon-mp3radio://player.ffn.de/ffn.mp3',                                           'imageURL' => 'http://cdn-radiotime-logos.tunein.com/s8954q.png']
         ]);
 
         parent::Create();

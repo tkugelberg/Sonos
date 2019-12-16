@@ -171,13 +171,6 @@ Wenn diese Option gesetzt ist, wird beim Speichern die vom Modul vorgeschlagene 
 ## 6. Variablen
 Lediglich Player Instanzen haben Variablen.
 
-- __Koordinator__  
-Bei dieser versteckten Variable ist hinterlegt, ob es sich bei dem Lautsprecher zu dem aktuellen Zeitpunkt um einen Koordinator handelt.  
-Auf einem Koordinator können z.B. Funktionen wie Play, Pause, Next oder der Sleeptimer verwendet werden.  
-Sollte es sich bei einem Lautsprecher nicht um einen Koordinator handel und der zuständige Koordinator in IPS verfügbar sein, werden diese Kommandos automatisch an den Gruppenkoordinator weitergeleitet.
-- __Gruppen Mitglieder__  
-Diese Variable enthält eine Liste von Sonos Instanz IDs, die diesem Gruppen Koordinator zugewiesen sind.  
-Diese Variable wird automatisch durch SNS_updateGrouping gefüllt.
 - __Gruppenlautstärke__  
 Diese Variable wird automatisch eingeblendet, wenn ein Lautsprecher als Gruppenmenber zugeordnet ist.  
 Ihr Wert wird anhand der Lautstärke der einzelnen Gruppenmitglieder (Durchnittswert) berechnet.  
@@ -544,9 +537,10 @@ Wie oben beschrieben.
   - Grouping
   - Kommunikation untereinander
 - ForceGrouping wird zu RejoinGroup
-  - Findet nurnch erstmalig statt, nachdem der Lautsprecher verschwunden war
+  - Findet nur noch erstmalig statt, nachdem der Lautsprecher verschwunden war
 - Vanished
   - Wenn ein Lautsprecher in Sonos als "vanished" gekennzeichnet ist, wird er in IP-Symcon versteckt.
 - Radio Konfiguration
   - Radiosender können komplett individuell in der Splitter Instanz konfiguriert werden
   - Es gibt keine ausgelieferten Radiosender mehr
+- Die Variablen "Coordinator" und "Group Members" sind jetzt als Attribute modelliert.
