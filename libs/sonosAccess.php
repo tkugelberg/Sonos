@@ -28,7 +28,7 @@ class SonosAccess
         );
     }
 
-    public function BrowseContentDirectory($objectID = 'SQ:', $browseFlag = 'BrowseDirectChildren', $requestedCount = 100, $startingIndex = 0, $filter = '', $sortCriteria = '')
+    public function BrowseContentDirectory($objectID = 'SQ:', $browseFlag = 'BrowseDirectChildren', $requestedCount = 100, $startingIndex = 0, $filter = '', $sortCriteria = ''): string
     {
         return $this->processSoapCall(
             '/MediaServer/ContentDirectory/Control',
@@ -71,7 +71,7 @@ class SonosAccess
         );
     }
 
-    public function GetBass()
+    public function GetBass(): int
     {
         return (int) $this->processSoapCall(
             '/MediaRenderer/RenderingControl/Control',
@@ -84,7 +84,7 @@ class SonosAccess
         );
     }
 
-    public function GetCrossfade()
+    public function GetCrossfade(): bool
     {
         $crossfade = (int) $this->processSoapCall(
             '/MediaRenderer/AVTransport/Control',
@@ -102,7 +102,7 @@ class SonosAccess
         }
     }
 
-    public function GetDialogLevel()
+    public function GetDialogLevel(): bool
     {
         $dialogLevel = (int) $this->processSoapCall(
             '/MediaRenderer/RenderingControl/Control',
@@ -121,7 +121,7 @@ class SonosAccess
         }
     }
 
-    public function GetLoudness()
+    public function GetLoudness(): bool
     {
         $loudness = (int) $this->processSoapCall(
             '/MediaRenderer/RenderingControl/Control',
@@ -140,7 +140,7 @@ class SonosAccess
         }
     }
 
-    public function GetMediaInfo()
+    public function GetMediaInfo(): array
     {
         $mediaInfo = $this->processSoapCall(
             '/MediaRenderer/AVTransport/Control',
@@ -165,7 +165,7 @@ class SonosAccess
         return $mediaInfo;
     }
 
-    public function GetMute()
+    public function GetMute(): bool
     {
         $mute = (int) $this->processSoapCall(
             '/MediaRenderer/RenderingControl/Control',
@@ -184,7 +184,7 @@ class SonosAccess
         }
     }
 
-    public function GetNightMode()
+    public function GetNightMode(): bool
     {
         $nightMode = (int) $this->processSoapCall(
             '/MediaRenderer/RenderingControl/Control',
@@ -203,7 +203,7 @@ class SonosAccess
         }
     }
 
-    public function GetPositionInfo()
+    public function GetPositionInfo(): array
     {
         $positionInfo = $this->processSoapCall(
             '/MediaRenderer/AVTransport/Control',
@@ -238,7 +238,7 @@ class SonosAccess
         }
 
         if (isset($index['UPNP:ALBUMARTURI']) && isset($vals[$index['UPNP:ALBUMARTURI'][0]]['value'])) {
-            if (preg_match('/^https?:\/\/[\w,.,\d,-,:]*\/\S*/', $vals[$index['UPNP:ALBUMARTURI'][0]]['value']) == 1) {
+            if (preg_match('/^https?:\/\/[\w,.,-,:]*\/\S*/', $vals[$index['UPNP:ALBUMARTURI'][0]]['value']) == 1) {
                 $positionInfo['albumArtURI'] = $vals[$index['UPNP:ALBUMARTURI'][0]]['value'];
             } else {
                 $positionInfo['albumArtURI'] = 'http://' . $this->address . ':1400' . $vals[$index['UPNP:ALBUMARTURI'][0]]['value'];
@@ -262,7 +262,7 @@ class SonosAccess
         return $positionInfo;
     }
 
-    public function GetSleeptimer()
+    public function GetSleeptimer(): string
     {
         $remainingTimer = $this->processSoapCall(
             '/MediaRenderer/AVTransport/Control',
@@ -275,7 +275,7 @@ class SonosAccess
         return $remainingTimer['RemainingSleepTimerDuration'];
     }
 
-    public function GetTransportInfo()
+    public function GetTransportInfo(): int
     {
         $returnContent = $this->processSoapCall(
             '/MediaRenderer/AVTransport/Control',
@@ -300,7 +300,7 @@ class SonosAccess
         }
     }
 
-    public function GetTransportSettings()
+    public function GetTransportSettings(): int
     {
         $returnContent = $this->processSoapCall(
             '/MediaRenderer/AVTransport/Control',
@@ -329,7 +329,7 @@ class SonosAccess
         }
     }
 
-    public function GetTreble()
+    public function GetTreble(): int
     {
         return (int) $this->processSoapCall(
             '/MediaRenderer/RenderingControl/Control',
@@ -342,7 +342,7 @@ class SonosAccess
         );
     }
 
-    public function GetVolume($channel = 'Master')
+    public function GetVolume($channel = 'Master'): int
     {
         return (int) $this->processSoapCall(
             '/MediaRenderer/RenderingControl/Control',
@@ -355,7 +355,7 @@ class SonosAccess
         );
     }
 
-    public function GetZoneGroupAttributes()
+    public function GetZoneGroupAttributes(): array
     {
         return $this->processSoapCall(
             '/ZoneGroupTopology/Control',
@@ -365,7 +365,7 @@ class SonosAccess
         );
     }
 
-    public function GetZoneGroupState()
+    public function GetZoneGroupState(): string
     {
         return $this->processSoapCall(
             '/ZoneGroupTopology/Control',

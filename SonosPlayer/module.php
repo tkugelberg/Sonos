@@ -1123,7 +1123,15 @@ class SonosPlayer extends IPSModule
     {
         $ip = $this->getIP();
 
-        (new SonosAccess($ip))->SetDialogLevel($dialogLevel);
+        try {
+            (new SonosAccess($ip))->SetDialogLevel($dialogLevel);
+        } catch (Exception $e) {
+            if ($e->getMessage() == 'Error during Soap Call: UPnPError s:Client 402 (UNKNOWN)') {
+                throw new Exception($this->translate('This device does not support DialogLevel'));
+            } else {
+                throw $e;
+            }
+        }
         if ($this->ReadPropertyBoolean('NightModeControl')) {  // same switch as Night Mode
             SetValue($this->GetIDForIdent('DialogLevel'), $dialogLevel);
         }
@@ -1236,7 +1244,16 @@ class SonosPlayer extends IPSModule
     {
         $ip = $this->getIP();
 
-        (new SonosAccess($ip))->SetNightMode($nightMode);
+        try {
+            (new SonosAccess($ip))->SetNightMode($nightMode);
+        } catch (Exception $e) {
+            if ($e->getMessage() == 'Error during Soap Call: UPnPError s:Client 402 (UNKNOWN)') {
+                throw new Exception($this->translate('This device does not support NightMode'));
+            } else {
+                throw $e;
+            }
+        }
+
         if ($this->ReadPropertyBoolean('NightModeControl')) {
             SetValue($this->GetIDForIdent('NightMode'), $nightMode);
         }
@@ -1479,10 +1496,26 @@ class SonosPlayer extends IPSModule
             SetValue($vidMute, $sonos->GetMute());
         }
         if ($vidNightMode) {
-            SetValue($vidNightMode, $sonos->GetNightMode());
+            try {
+                SetValue($vidNightMode, $sonos->GetNightMode());
+            } catch (Exception $e) {
+                if ($e->getMessage() == 'Error during Soap Call: UPnPError s:Client 402 (UNKNOWN)') {
+                    throw new Exception($this->translate('This device does not support NightMode'));
+                } else {
+                    throw $e;
+                }
+            }
         }
         if ($vidDialogLevel) {
-            SetValue($vidDialogLevel, $sonos->GetDialogLevel());
+            try {
+                SetValue($vidDialogLevel, $sonos->GetDialogLevel());
+            } catch (Exception $e) {
+                if ($e->getMessage() == 'Error during Soap Call: UPnPError s:Client 402 (UNKNOWN)') {
+                    throw new Exception($this->translate('This device does not support DialogLevel'));
+                } else {
+                    throw $e;
+                }
+            }
         }
         if ($vidLoudness) {
             SetValue($vidLoudness, $sonos->GetLoudness());
@@ -1695,7 +1728,7 @@ class SonosPlayer extends IPSModule
             if ($vidSleeptimer) {
                 $sleeptimer = $sonos->GetSleeptimer();
                 if ($sleeptimer) {
-                    $SleeptimerArray = explode(':', $sonos->GetSleeptimer());
+                    $SleeptimerArray = explode(':', $sleeptimer);
                     $SleeptimerMinutes = $SleeptimerArray[0] * 60 + $SleeptimerArray[1];
                     if ($SleeptimerArray[2]) {
                         $SleeptimerMinutes = $SleeptimerMinutes + 1;

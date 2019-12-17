@@ -54,7 +54,9 @@
 			"Radio station \"%s\" not found": "Der Radiosender \"%s\" konnte nicht gefunden werden",
 			"Sonos Player is currently marked as \"vanished\" in Sonos. Maybe switched off?!": "Der Sonos Player ist in Sonos aktuell als \"vanished\" markiert. Evtl. ausgeschaltet?!",
 			"Sonos Player %s is not available, TimeOut: %s ms": "Sonos Player %s ist nicht erreichbar, TimeOut: %s ms",
-			"Instance is not a coordinator and group coordinator could not be determined": "Diese Instanz ist kein Koordinator, aber der zuständige Koordinator konnte nicht ermittelt werden"
+			"Instance is not a coordinator and group coordinator could not be determined": "Diese Instanz ist kein Koordinator, aber der zuständige Koordinator konnte nicht ermittelt werden",
+			"This device does not support NightMode":"Dieses Gerät unterstützt kein Nachtmodus",
+			"This device does not support DialogLevel":"Dieses Gerät unterstützt keine Dialogverbesserung"
 		}
 	}
 }
