@@ -28,7 +28,7 @@ class SonosAccess
         );
     }
 
-    public function BrowseContentDirectory($objectID = 'SQ:', $browseFlag = 'BrowseDirectChildren', $requestedCount = 100, $startingIndex = 0, $filter = '', $sortCriteria = ''): string
+    public function BrowseContentDirectory($objectID = 'SQ:', $browseFlag = 'BrowseDirectChildren', $requestedCount = 100, $startingIndex = 0, $filter = '', $sortCriteria = ''): array
     {
         return $this->processSoapCall(
             '/MediaServer/ContentDirectory/Control',
