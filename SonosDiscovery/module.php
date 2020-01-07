@@ -128,16 +128,18 @@ class SonosDiscovery extends ipsmodule
         $discoveredDevices = YC_SearchDevices($SSDPInstance, 'urn:schemas-upnp-org:device:ZonePlayer:1');
 
         foreach ($discoveredDevices as $discoveredDevice) {
-            if (Sys_ping($discoveredDevice['IPv4'], 1000) == true) {
-                $ip = $discoveredDevice['IPv4'];
-                try {
-                    $sonos = new SonosAccess($ip);
+            if ($discoveredDevice['Location'] == 'http://' . $discoveredDevice['IPv4'] . ':1400/xml/device_description.xml') { // dirty hack to validate it is a Sonos
+                if (Sys_ping($discoveredDevice['IPv4'], 1000) == true) {
+                    $ip = $discoveredDevice['IPv4'];
+                    try {
+                        $sonos = new SonosAccess($ip);
 
-                    $grouping = new SimpleXMLElement($sonos->GetZoneGroupState());
-                    $zoneGroups = $grouping->ZoneGroups->ZoneGroup;
-                    break;
-                } catch (Exception $e) {
-                    // no nothing, try next hit
+                        $grouping = new SimpleXMLElement($sonos->GetZoneGroupState());
+                        $zoneGroups = $grouping->ZoneGroups->ZoneGroup;
+                        break;
+                    } catch (Exception $e) {
+                        // no nothing, try next hit
+                    }
                 }
             }
         }

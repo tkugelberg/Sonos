@@ -8,6 +8,7 @@ include_once __DIR__ . '/stubs/GlobalStubs.php';
 include_once __DIR__ . '/stubs/KernelStubs.php';
 include_once __DIR__ . '/stubs/ModuleStubs.php';
 include_once __DIR__ . '/stubs/MessageStubs.php';
+include_once __DIR__ . '/myStubs.php';
 
 class SonosTest extends TestCase
 {
@@ -54,7 +55,7 @@ class SonosTest extends TestCase
                                  'Coordinator'   => 0 ]
         ]));
 
-        $playerInterface->Play($ModulID);
+        $playerInterface->Play($playerID);
     }
      */
 }

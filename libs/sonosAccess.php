@@ -3,7 +3,7 @@
 declare(strict_types=1);
 
 // SONOS Acces Handler
-// using PHO SoapClient
+// using PHP SoapClient
 
 class SonosAccess
 {

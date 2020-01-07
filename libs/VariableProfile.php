@@ -52,7 +52,7 @@ trait VariableProfile
         IPS_SetVariableProfileText($Name, $Prefix, $Suffix);
 
         foreach ($Associations as $Association) {
-            IPS_SetVariableProfileAssociation($Name, $Association[0], $Association[1], $Association[2], $Association[3]);
+            IPS_SetVariableProfileAssociation($Name, (float) $Association[0], $Association[1], $Association[2], $Association[3]);
         }
     }
 
