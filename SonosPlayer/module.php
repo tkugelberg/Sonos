@@ -51,6 +51,9 @@ class SonosPlayer extends IPSModule
     {
         // Diese Zeile nicht löschen
         parent::ApplyChanges();
+
+        $this->SetSummary($this->ReadPropertyString('IPAddress'));
+
         // 1) general availabe
         $positions = $this->getPositions();
         $this->RegisterVariableInteger('MemberOfGroup', $this->Translate('Member of group'), 'SONOS.Groups', $positions['MemberOfGroup']);
@@ -373,12 +376,10 @@ class SonosPlayer extends IPSModule
                 break;
             case 'removeMember':
                 $currentMembers = explode(',', $this->ReadAttributeString('GroupMembers'));
-                $currentMembers = array_filter($currentMembers, function ($v)
-                {
+                $currentMembers = array_filter($currentMembers, function ($v) {
                     return $v != '';
                 });
-                $currentMembers = array_filter($currentMembers, function ($v) use ($input)
-                {
+                $currentMembers = array_filter($currentMembers, function ($v) use ($input) {
                     return $v != $input['instanceID'];
                 });
                 asort($currentMembers);
@@ -391,12 +392,10 @@ class SonosPlayer extends IPSModule
                 break;
             case 'addMember':
                 $currentMembers = explode(',', $this->ReadAttributeString('GroupMembers'));
-                $currentMembers = array_filter($currentMembers, function ($v)
-                {
+                $currentMembers = array_filter($currentMembers, function ($v) {
                     return $v != '';
                 });
-                $currentMembers = array_filter($currentMembers, function ($v) use ($input)
-                {
+                $currentMembers = array_filter($currentMembers, function ($v) use ($input) {
                     return $v != $input['instanceID'];    // also remove instance to add to make sure no duplicates exist
                 });
                 $currentMembers[] = $input['instanceID'];
@@ -555,12 +554,10 @@ class SonosPlayer extends IPSModule
 
         // get old membersOf and remove involved instances
         $currentMembers = explode(',', $this->ReadAttributeString('GroupMembers'));
-        $currentMembers = array_filter($currentMembers, function ($v)
-        {
+        $currentMembers = array_filter($currentMembers, function ($v) {
             return $v != '';
         });
-        $currentMembers = array_filter($currentMembers, function ($v)
-        {
+        $currentMembers = array_filter($currentMembers, function ($v) {
             return $v != $this->InstanceID;
         });
         //$currentMembers = array_filter($currentMembers, function($v) { return $v != $newGroupCoordinator ; });
