@@ -376,10 +376,12 @@ class SonosPlayer extends IPSModule
                 break;
             case 'removeMember':
                 $currentMembers = explode(',', $this->ReadAttributeString('GroupMembers'));
-                $currentMembers = array_filter($currentMembers, function ($v) {
+                $currentMembers = array_filter($currentMembers, function ($v)
+                {
                     return $v != '';
                 });
-                $currentMembers = array_filter($currentMembers, function ($v) use ($input) {
+                $currentMembers = array_filter($currentMembers, function ($v) use ($input)
+                {
                     return $v != $input['instanceID'];
                 });
                 asort($currentMembers);
@@ -392,10 +394,12 @@ class SonosPlayer extends IPSModule
                 break;
             case 'addMember':
                 $currentMembers = explode(',', $this->ReadAttributeString('GroupMembers'));
-                $currentMembers = array_filter($currentMembers, function ($v) {
+                $currentMembers = array_filter($currentMembers, function ($v)
+                {
                     return $v != '';
                 });
-                $currentMembers = array_filter($currentMembers, function ($v) use ($input) {
+                $currentMembers = array_filter($currentMembers, function ($v) use ($input)
+                {
                     return $v != $input['instanceID'];    // also remove instance to add to make sure no duplicates exist
                 });
                 $currentMembers[] = $input['instanceID'];
@@ -554,10 +558,12 @@ class SonosPlayer extends IPSModule
 
         // get old membersOf and remove involved instances
         $currentMembers = explode(',', $this->ReadAttributeString('GroupMembers'));
-        $currentMembers = array_filter($currentMembers, function ($v) {
+        $currentMembers = array_filter($currentMembers, function ($v)
+        {
             return $v != '';
         });
-        $currentMembers = array_filter($currentMembers, function ($v) {
+        $currentMembers = array_filter($currentMembers, function ($v)
+        {
             return $v != $this->InstanceID;
         });
         //$currentMembers = array_filter($currentMembers, function($v) { return $v != $newGroupCoordinator ; });
