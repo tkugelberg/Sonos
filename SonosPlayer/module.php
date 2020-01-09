@@ -166,13 +166,12 @@ class SonosPlayer extends IPSModule
                 IPS_SetParent($MediaID, $this->InstanceID);
                 IPS_SetIdent($MediaID, 'Cover');
                 IPS_SetMediaCached($MediaID, true);
-                $ImageFile = IPS_GetKernelDir() . 'media' . DIRECTORY_SEPARATOR . $this->InstanceID . '.jpg';
+                $ImageFile = IPS_GetKernelDir() . 'media' . DIRECTORY_SEPARATOR . $MediaID . '.jpg';
                 IPS_SetMediaFile($MediaID, $ImageFile, false);
                 IPS_SetName($MediaID, $this->Translate('Cover'));
                 IPS_SetInfo($MediaID, $this->Translate('Cover'));
             }
-            $picture = 'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII='; // transparent pricure
-            IPS_SetMediaContent($MediaID, $picture);
+            IPS_SetMediaContent($MediaID, 'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII='); // transparent picture
             IPS_SendMediaEvent($MediaID);
         } else {
             $this->removeVariable('Details');
@@ -1737,15 +1736,23 @@ class SonosPlayer extends IPSModule
                 }
                 @SetValueString($vidDetails, $detailHTML);
                 if ($vidCoverURL) {
+                    $oldURL       = GetValueString($vidCoverURL);
+                    $imageContent = 'notSet';
                     if ((isset($image)) && (strlen($image) > 0)) {
-                        SetValueString($vidCoverURL, $image);
-                        $imageContent = base64_encode(Sys_GetURLContent($image));
+                        if ($oldURL != $image) {
+                            SetValueString($vidCoverURL, $image);
+                            $imageContent = base64_encode(Sys_GetURLContent($image));
+                        }
                     } elseif (isset($positionInfo['albumArtURI']) && (strlen($positionInfo['albumArtURI']) > 0)) {
-                        SetValueString($vidCoverURL, $positionInfo['albumArtURI']);
-                        $imageContent = base64_encode(Sys_GetURLContent($positionInfo['albumArtURI']));
+                        if ($oldURL != $positionInfo['albumArtURI']) {
+                            SetValueString($vidCoverURL, $positionInfo['albumArtURI']);
+                            $imageContent = base64_encode(Sys_GetURLContent($positionInfo['albumArtURI']));
+                        }
                     } else {
-                        SetValueString($vidCoverURL, '');
-                        $imageContent = 'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII=';
+                        if ($oldURL != '') {
+                            SetValueString($vidCoverURL, '');
+                            $imageContent = 'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII='; // transparent picture
+                        }
                     }
                     $MediaID = @$this->GetIDForIdent('Cover');
                     if ($MediaID && IPS_MediaExists($MediaID)) {

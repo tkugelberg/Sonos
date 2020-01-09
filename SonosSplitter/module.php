@@ -530,9 +530,10 @@ class SonosSplitter extends IPSModule
 
         if (IPS_GetKernelRunlevel() == KR_READY) {
             $this->SendDataToChildren(json_encode([
-                'DataID' => '{36EA4430-7047-C11D-0854-43391B14E0D7}',
-                'type'   => 'checkPlaylistAction',
-                'data'   => ''
+                'DataID'         => '{36EA4430-7047-C11D-0854-43391B14E0D7}',
+                'type'           => 'checkPlaylistAction',
+                'targetInstance' => null,
+                'data'           => ''
             ]));
         }
     } // End UpdatePlaylists
