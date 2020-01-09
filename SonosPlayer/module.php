@@ -157,8 +157,20 @@ class SonosPlayer extends IPSModule
             if (!@$this->GetIDForIdent('StationID')) {
                 $vidStationID = $this->RegisterVariableString('StationID', $this->Translate('Station ID'), '', $positions['StationID']);
                 IPS_SetHidden($vidStationID, true);
-                // in version 1 of sonos StationID was cleared once an hour, but nor sure why. Lets see...
+                // in version 1 of sonos StationID was cleared once an hour, but not sure why. Lets see...
             }
+            // Also create a Media File for the cover
+            $MediaID = IPS_CreateMedia(1);
+            IPS_SetParent($MediaID, $this->InstanceID);
+            IPS_SetIdent($MediaID, 'Cover');
+            IPS_SetMediaCached($MediaID, true);
+            $ImageFile = IPS_GetKernelDir() . 'media' . DIRECTORY_SEPARATOR . $this->InstanceID . '.jpg';
+            IPS_SetMediaFile($MediaID, $ImageFile, false);
+            IPS_SetName($MediaID, $this->Translate('Cover'));
+            IPS_SetInfo($MediaID, $this->Translate('Cover'));
+            $picture = 'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII='; // transparent pricure
+            IPS_SetMediaContent($MediaID, $picture);
+            IPS_SendMediaEvent($MediaID);
         } else {
             $this->removeVariable('Details');
             $this->removeVariable('CoverURL');
@@ -169,6 +181,10 @@ class SonosPlayer extends IPSModule
             $this->removeVariable('TrackDuration');
             $this->removeVariable('Position');
             $this->removeVariable('StationID');
+            $MediaID = @$this->GetIDForIdent('Cover');
+            if ($MediaID && IPS_MediaExists($MediaID)) {
+                IPS_DeleteMedia($MediaID, true);
+            }
         }
         // End Register variables and Actions
 
@@ -1720,8 +1736,18 @@ class SonosPlayer extends IPSModule
                 if ($vidCoverURL) {
                     if ((isset($image)) && (strlen($image) > 0)) {
                         SetValueString($vidCoverURL, $image);
+                        $imageContent = base64_encode(Sys_GetURLContent($image));
+                    } elseif (isset($positionInfo['albumArtURI'])) {
+                        SetValueString($vidCoverURL, $positionInfo['albumArtURI']);
+                        $imageContent = base64_encode(Sys_GetURLContent($positionInfo['albumArtURI']));
                     } else {
-                        SetValueString($vidCoverURL, @$positionInfo['albumArtURI']);
+                        SetValueString($vidCoverURL, '');
+                        $imageContent = 'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII=';
+                    }
+                    $MediaID = @$this->GetIDForIdent('Cover');
+                    if ($MediaID && IPS_MediaExists($MediaID)) {
+                        IPS_SetMediaContent($MediaID, $picture);
+                        IPS_SendMediaEvent($MediaID);
                     }
                 }
                 SetValueString($vidStationID, $stationID);
