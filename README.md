@@ -163,7 +163,8 @@ Für "Play Mode" tauchen dann 6 Knöpfe und für "Crossfade" "Aus"/"An" auf dem 
 Diese Option legt die Variablen "Nachmodus" und "Dialogverbesserung" an und aktiviert dass diese über SNS_updateStatus() mit dem aktuellen Wert gepflegt wird.  
 Für beide tauchen "Aus"/"An" auf dem Webfront auf, mit denen diese Funktionen gesteuert werden können.
 14. __Detaillierte Informationen__  
-Diese Option legt die Variablen "Details", "Titel URL", "Content Stream", "Artist", "Künstler", "Titel", "Album", "Titellänge", "Position" und "Sender ID" an, die über SNS_updateStatus() gefüllt werden.  
+Diese Option legt die Variablen "Details", "Cover URL", "Content Stream", "Artist", "Künstler", "Titel", "Album", "Titellänge", "Position" und "Sender ID" an, die über SNS_updateStatus() gefüllt werden.  
+Weiterhin wird ein Medienobjekt "Cover" angelegt, welches mit dem Bild hinter "Cover URL" gefüllt.  
 In der Variablen "Details" wird eine HTMLBox erzeugt, die am WebFront auch zu sehen ist. Alle anderen Variablen werden versteckt.
 15. __Variablensortierung erzwingen__  
 Wenn diese Option gesetzt ist, wird beim Speichern die vom Modul vorgeschlagene Reihenfolge der Vaiablen wieder hergestellt.
@@ -544,3 +545,4 @@ Wie oben beschrieben.
   - Radiosender können komplett individuell in der Splitter Instanz konfiguriert werden
   - Es gibt keine ausgelieferten Radiosender mehr
 - Die Variablen "Coordinator" und "Group Members" sind jetzt als Attribute modelliert.
+- Falls konfiguriert, wird ein Medien Objekt angelegt, das mit dem Inhalt von "Cover URL" gefüllt wird
