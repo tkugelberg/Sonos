@@ -1746,7 +1746,7 @@ class SonosPlayer extends IPSModule
                     }
                     $MediaID = @$this->GetIDForIdent('Cover');
                     if ($MediaID && IPS_MediaExists($MediaID)) {
-                        IPS_SetMediaContent($MediaID, $picture);
+                        IPS_SetMediaContent($MediaID, $imageContent);
                         IPS_SendMediaEvent($MediaID);
                     }
                 }
