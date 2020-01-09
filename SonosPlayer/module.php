@@ -160,14 +160,17 @@ class SonosPlayer extends IPSModule
                 // in version 1 of sonos StationID was cleared once an hour, but not sure why. Lets see...
             }
             // Also create a Media File for the cover
-            $MediaID = IPS_CreateMedia(1);
-            IPS_SetParent($MediaID, $this->InstanceID);
-            IPS_SetIdent($MediaID, 'Cover');
-            IPS_SetMediaCached($MediaID, true);
-            $ImageFile = IPS_GetKernelDir() . 'media' . DIRECTORY_SEPARATOR . $this->InstanceID . '.jpg';
-            IPS_SetMediaFile($MediaID, $ImageFile, false);
-            IPS_SetName($MediaID, $this->Translate('Cover'));
-            IPS_SetInfo($MediaID, $this->Translate('Cover'));
+            $MediaID = @$this->GetIDForIdent('Cover');
+            if (!$MediaID) {
+                $MediaID = IPS_CreateMedia(1);
+                IPS_SetParent($MediaID, $this->InstanceID);
+                IPS_SetIdent($MediaID, 'Cover');
+                IPS_SetMediaCached($MediaID, true);
+                $ImageFile = IPS_GetKernelDir() . 'media' . DIRECTORY_SEPARATOR . $this->InstanceID . '.jpg';
+                IPS_SetMediaFile($MediaID, $ImageFile, false);
+                IPS_SetName($MediaID, $this->Translate('Cover'));
+                IPS_SetInfo($MediaID, $this->Translate('Cover'));
+            }
             $picture = 'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII='; // transparent pricure
             IPS_SetMediaContent($MediaID, $picture);
             IPS_SendMediaEvent($MediaID);
