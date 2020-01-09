@@ -1736,7 +1736,7 @@ class SonosPlayer extends IPSModule
                 }
                 @SetValueString($vidDetails, $detailHTML);
                 if ($vidCoverURL) {
-                    $oldURL       = GetValueString($vidCoverURL);
+                    $oldURL = GetValueString($vidCoverURL);
                     $imageContent = 'notSet';
                     if ((isset($image)) && (strlen($image) > 0)) {
                         if ($oldURL != $image) {
