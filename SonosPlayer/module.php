@@ -1740,7 +1740,7 @@ class SonosPlayer extends IPSModule
                     if ((isset($image)) && (strlen($image) > 0)) {
                         SetValueString($vidCoverURL, $image);
                         $imageContent = base64_encode(Sys_GetURLContent($image));
-                    } elseif (isset($positionInfo['albumArtURI'])) {
+                    } elseif (isset($positionInfo['albumArtURI']) && (strlen($positionInfo['albumArtURI']) > 0)) {
                         SetValueString($vidCoverURL, $positionInfo['albumArtURI']);
                         $imageContent = base64_encode(Sys_GetURLContent($positionInfo['albumArtURI']));
                     } else {
