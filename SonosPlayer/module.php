@@ -388,7 +388,11 @@ class SonosPlayer extends IPSModule
                         $this->SetVolume($input['volume']);
                         break;
                     case 'Stop':
-                        $this->Stop();
+                        try {
+                            $this->StopInternal(false);
+                        } catch (Exception $e) {
+                            // ignore exceptions, so StopAll works fine
+                        }
                         break;
                 }
                 break;
@@ -1451,24 +1455,7 @@ class SonosPlayer extends IPSModule
 
     public function Stop()
     {
-        $targetInstance = $this->findTarget();
-
-        if ($targetInstance === $this->InstanceID) {
-            $ip = $this->getIP();
-
-            SetValue($this->GetIDForIdent('Status'), 3);
-            $sonos = new SonosAccess($ip);
-            if ($sonos->GetTransportInfo() == 1) {
-                $sonos->Stop();
-            }
-        } else {
-            $this->SendDataToParent(json_encode([
-                'DataID'         => '{731D7808-F7C4-FA98-2132-0FAB19A802C1}',
-                'type'           => 'callFunction',
-                'targetInstance' => $targetInstance,
-                'function'       => 'Stop'
-            ]));
-        }
+        $this->StopInternal(true);
     } //END Stop
 
     // end of public Functions for End users
@@ -1755,7 +1742,7 @@ class SonosPlayer extends IPSModule
                         }
                     }
                     $MediaID = @$this->GetIDForIdent('Cover');
-                    if ($MediaID && IPS_MediaExists($MediaID)) {
+                    if ($MediaID && IPS_MediaExists($MediaID) && $imageContent != 'notSet') {
                         IPS_SetMediaContent($MediaID, $imageContent);
                         IPS_SendMediaEvent($MediaID);
                     }
@@ -1909,6 +1896,28 @@ class SonosPlayer extends IPSModule
             $this->UpdateFormField('rinconMessage', 'caption', 'RINCON could not be read from "' . $ip . '"');
         }
     }
+
+    private function StopInternal(bool $forward)
+    {
+        $targetInstance = $this->findTarget();
+
+        if ($targetInstance === $this->InstanceID) {
+            $ip = $this->getIP();
+
+            SetValue($this->GetIDForIdent('Status'), 3);
+            $sonos = new SonosAccess($ip);
+            if ($sonos->GetTransportInfo() == 1) {
+                $sonos->Stop();
+            }
+        } elseif ($forward) {
+            $this->SendDataToParent(json_encode([
+                'DataID'         => '{731D7808-F7C4-FA98-2132-0FAB19A802C1}',
+                'type'           => 'callFunction',
+                'targetInstance' => $targetInstance,
+                'function'       => 'Stop'
+            ]));
+        }
+    } //END StopInternal
 
     // internal functions
     private function alexa_get_value($variableName, $type, &$response)
