@@ -129,7 +129,7 @@ class SonosDiscovery extends ipsmodule
 
         foreach ($discoveredDevices as $discoveredDevice) {
             if ($discoveredDevice['Location'] == 'http://' . $discoveredDevice['IPv4'] . ':1400/xml/device_description.xml') { // dirty hack to validate it is a Sonos
-                if (Sys_ping($discoveredDevice['IPv4'], 1000) == true) {
+                if (Sys_ping($discoveredDevice['IPv4'], 1000)) {
                     $ip = $discoveredDevice['IPv4'];
                     try {
                         $sonos = new SonosAccess($ip);
