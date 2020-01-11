@@ -298,6 +298,16 @@ class SonosSplitter extends IPSModule
         return json_encode($Form);
     } // End GetConfigurationForm
 
+    public function StopAll()
+    {
+        $this->SendDataToChildren(json_encode([
+            'DataID'         => '{36EA4430-7047-C11D-0854-43391B14E0D7}',
+            'type'           => 'callFunction',
+            'targetInstance' => null,
+            'function'       => 'Pause'
+        ]));
+    } // End StopAll
+
     public function updateGrouping()
     {
         // get all Player instances, including required data
