@@ -1739,7 +1739,7 @@ class SonosPlayer extends IPSModule
                             $imageContentResponse = @Sys_GetURLContent($positionInfo['albumArtURI']);
                             if ($imageContentResponse) {
                                 $imageContent = base64_encode($imageContentResponse);
-                            }                            
+                            }
                         }
                     } else {
                         if ($oldURL != '') {
