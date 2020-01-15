@@ -1728,12 +1728,18 @@ class SonosPlayer extends IPSModule
                     if ((isset($image)) && (strlen($image) > 0)) {
                         if ($oldURL != $image) {
                             SetValueString($vidCoverURL, $image);
-                            $imageContent = base64_encode(Sys_GetURLContent($image));
+                            $imageContentResponse = @Sys_GetURLContent($image);
+                            if ($imageContentResponse) {
+                                $imageContent = base64_encode($imageContentResponse);
+                            }
                         }
                     } elseif (isset($positionInfo['albumArtURI']) && (strlen($positionInfo['albumArtURI']) > 0)) {
                         if ($oldURL != $positionInfo['albumArtURI']) {
                             SetValueString($vidCoverURL, $positionInfo['albumArtURI']);
-                            $imageContent = base64_encode(Sys_GetURLContent($positionInfo['albumArtURI']));
+                            $imageContentResponse = @Sys_GetURLContent($positionInfo['albumArtURI']);
+                            if ($imageContentResponse) {
+                                $imageContent = base64_encode($imageContentResponse);
+                            }                            
                         }
                     } else {
                         if ($oldURL != '') {
