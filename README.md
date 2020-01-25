@@ -308,8 +308,12 @@ Diese Funktion wird in regelmäßigen Abständen per Timer aufgerufen. Es ist ni
 Diese Funktion wird in regelmäßigen Abständen per Timer aufgerufen. Es ist nicht notwendig diese manuell auszuführen.
 - __SNS_ReadTunein(int $InstanceID, string $ip)__  
 Diese Funktion ist nur für das Konfigurationsformular. Endbenutzer sollten diese Funktion nicht verwenden.
-- __SNSUpdatePlaylists(int $InstanceID)__  
+- __SNS_UpdatePlaylists(int $InstanceID)__  
 Bei der Ausführung dieser Funktion werden entsprechend der Konfiguration "Import Playlists" die Playlisten aus dem Sonos System abgerufen und in dem Profil "SONOS.Playlists" gespeichert.
+- __SNS_StopAll(int $InstanceID)__
+Bei der Ausführung dieser Funktion wird SNS_Stop() an alle Player geschickt, die mit dem Splitter verbunden sind.
+- __SNS_PauseAll(int $UbstanceID)__
+Bei der Ausführung dieser Funktion wird SNS_Pause() an alle Player geschickt, die mit dem Splitter verbunden sind.
 
 ### 8.3. Sonos Player  
 - __SNS_alexaResponse(int $InstanceID)__  
@@ -364,8 +368,8 @@ Das (als JSON encodierte) array $instances beinhaltet pro hinzuzufügender insta
 Beispiel:
 ```php
 SNS_PlayFilesGrouping(46954 , json_encode( array( 11774 => array( "volume" => 10),
-                                                    27728 => array( "volume" => "+10"),
-                                                    59962 => array( "volume" => 30) ) ), json_encode(array( IVNTTS_saveMP3(12748, "Dieser Text wird angesagt"))), 28 );
+                                                  27728 => array( "volume" => "+10"),
+                                                  59962 => array( "volume" => 30) ) ), json_encode(array( IVNTTS_saveMP3(12748, "Dieser Text wird angesagt"))), 28 );
 ```
   - Die Instanzen 11774, 27728 und 59962 werden der Gruppe mit dem Koordinator 46954 hinzugefügt.  
   - Die Instanz 11774 wird auf Lautstärke 10 gesetzt.  

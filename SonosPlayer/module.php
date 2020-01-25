@@ -34,6 +34,7 @@ class SonosPlayer extends IPSModule
         $this->RegisterPropertyBoolean('NightModeControl', false);
         $this->RegisterPropertyBoolean('DetailedInformation', false);
         $this->RegisterPropertyBoolean('ForceOrder', false);
+        $this->RegisterPropertyBoolean('DisableHiding', false);
 
         $this->RegisterAttributeBoolean('Coordinator', false);
         $this->RegisterAttributeString('GroupMembers', '');
@@ -56,89 +57,120 @@ class SonosPlayer extends IPSModule
 
         // 1) general availabe
         $positions = $this->getPositions();
-        $this->RegisterVariableInteger('MemberOfGroup', $this->Translate('Member of group'), 'SONOS.Groups', $positions['MemberOfGroup']);
-        $this->RegisterVariableInteger('GroupVolume', $this->Translate('Group volume'), 'SONOS.Volume', $positions['GroupVolume']);
-        $this->RegisterVariableString('nowPlaying', $this->Translate('now Playing'), '', $positions['nowPlaying']);
-        $this->RegisterVariableInteger('Radio', $this->Translate('Radio'), 'SONOS.Radio', $positions['Radio']);
-        $this->RegisterVariableInteger('Status', $this->Translate('Status'), 'SONOS.Status', $positions['Status']);
-        $this->RegisterVariableInteger('Volume', $this->Translate('Volume'), 'SONOS.Volume', $positions['Volume']);
-        $this->RegisterVariableInteger('Playlist', $this->Translate('Playlist'), 'SONOS.Playlist', $positions['Playlist']);
-        $this->EnableAction('GroupVolume');
-        $this->EnableAction('MemberOfGroup');
-        $this->EnableAction('Radio');
-        $this->EnableAction('Status');
-        $this->EnableAction('Volume');
-        $this->checkPlaylistAction();
+        if (!@$this->GetIDForIdent('MemberOfGroup')) {
+            $this->RegisterVariableInteger('MemberOfGroup', $this->Translate('Member of group'), 'SONOS.Groups', $positions['MemberOfGroup']);
+            $this->EnableAction('MemberOfGroup');
+        }
+        if (!@$this->GetIDForIdent('GroupVolume')) {
+            $this->RegisterVariableInteger('GroupVolume', $this->Translate('Group volume'), 'SONOS.Volume', $positions['GroupVolume']);
+            $this->EnableAction('GroupVolume');
+        }
+        if (!@$this->GetIDForIdent('nowPlaying')) {
+            $this->RegisterVariableString('nowPlaying', $this->Translate('now Playing'), '', $positions['nowPlaying']);
+        }
+        if (!@$this->GetIDForIdent('Radio')) {
+            $this->RegisterVariableInteger('Radio', $this->Translate('Radio'), 'SONOS.Radio', $positions['Radio']);
+            $this->EnableAction('Radio');
+        }
+        if (!@$this->GetIDForIdent('Status')) {
+            $this->RegisterVariableInteger('Status', $this->Translate('Status'), 'SONOS.Status', $positions['Status']);
+            $this->EnableAction('Status');
+        }
+        if (!@$this->GetIDForIdent('Volume')) {
+            $this->RegisterVariableInteger('Volume', $this->Translate('Volume'), 'SONOS.Volume', $positions['Volume']);
+            $this->EnableAction('Volume');
+        }
+        if (!@$this->GetIDForIdent('Playlist')) {
+            $this->RegisterVariableInteger('Playlist', $this->Translate('Playlist'), 'SONOS.Playlist', $positions['Playlist']);
+        }
 
-        // to be removed, these Variables moved to Attributes
-        $this->removeVariable('Coordinator');
-        $this->removeVariable('GroupMembers');
+        $this->checkPlaylistAction();
 
         // 2) Add/Remove according to feature activation
 
         // Bass
         if ($this->ReadPropertyBoolean('BassControl')) {
-            $this->RegisterVariableInteger('Bass', $this->Translate('Bass'), 'SONOS.Tone', $positions['Bass']);
-            $this->EnableAction('Bass');
+            if (!@$this->GetIDForIdent('Bass')) {
+                $this->RegisterVariableInteger('Bass', $this->Translate('Bass'), 'SONOS.Tone', $positions['Bass']);
+                $this->EnableAction('Bass');
+            }
         } else {
             $this->removeVariableAction('Bass');
         }
 
         // Treble
         if ($this->ReadPropertyBoolean('TrebleControl')) {
-            $this->RegisterVariableInteger('Treble', $this->Translate('Treble'), 'SONOS.Tone', $positions['Treble']);
-            $this->EnableAction('Treble');
+            if (!@$this->GetIDForIdent('Treble')) {
+                $this->RegisterVariableInteger('Treble', $this->Translate('Treble'), 'SONOS.Tone', $positions['Treble']);
+                $this->EnableAction('Treble');
+            }
         } else {
             $this->removeVariableAction('Treble');
         }
 
         // Mute
         if ($this->ReadPropertyBoolean('MuteControl')) {
-            $this->RegisterVariableBoolean('Mute', $this->Translate('Mute'), 'SONOS.Switch', $positions['Mute']);
-            $this->EnableAction('Mute');
+            if (!@$this->GetIDForIdent('Mute')) {
+                $this->RegisterVariableBoolean('Mute', $this->Translate('Mute'), 'SONOS.Switch', $positions['Mute']);
+                $this->EnableAction('Mute');
+            }
         } else {
             $this->removeVariableAction('Mute');
         }
 
         // Loudness
         if ($this->ReadPropertyBoolean('LoudnessControl')) {
-            $this->RegisterVariableBoolean('Loudness', $this->Translate('Loudness'), 'SONOS.Switch', $positions['Loudness']);
-            $this->EnableAction('Loudness');
+            if (!@$this->GetIDForIdent('Loudness')) {
+                $this->RegisterVariableBoolean('Loudness', $this->Translate('Loudness'), 'SONOS.Switch', $positions['Loudness']);
+                $this->EnableAction('Loudness');
+            }
         } else {
             $this->removeVariableAction('Loudness');
         }
 
         // NightMode
         if ($this->ReadPropertyBoolean('NightModeControl')) {
-            $this->RegisterVariableBoolean('NightMode', $this->Translate('Night Mode'), 'SONOS.Switch', $positions['NightMode']);
-            $this->EnableAction('NightMode');
-            $this->RegisterVariableBoolean('DialogLevel', $this->Translate('Dialog Level'), 'SONOS.Switch', $positions['DialogLevel']);
-            $this->EnableAction('DialogLevel');
+            if (!@$this->GetIDForIdent('NightMode')) {
+                $this->RegisterVariableBoolean('NightMode', $this->Translate('Night Mode'), 'SONOS.Switch', $positions['NightMode']);
+                $this->EnableAction('NightMode');
+            }
+            if (!@$this->GetIDForIdent('DialogLevel')) {
+                $this->RegisterVariableBoolean('DialogLevel', $this->Translate('Dialog Level'), 'SONOS.Switch', $positions['DialogLevel']);
+                $this->EnableAction('DialogLevel');
+            }
         } else {
             $this->removeVariableAction('NightMode');
             $this->removeVariableAction('DialogLevel');
         }
         // Balance
         if ($this->ReadPropertyBoolean('BalanceControl')) {
-            $this->RegisterVariableInteger('Balance', $this->Translate('Balance'), 'SONOS.Balance', $positions['Balance']);
-            $this->EnableAction('Balance');
+            if (!@$this->GetIDForIdent('Balance')) {
+                $this->RegisterVariableInteger('Balance', $this->Translate('Balance'), 'SONOS.Balance', $positions['Balance']);
+                $this->EnableAction('Balance');
+            }
         } else {
             $this->removeVariableAction('Balance');
         }
 
         // Sleeptimer
         if ($this->ReadPropertyBoolean('SleeptimerControl')) {
-            $this->RegisterVariableInteger('Sleeptimer', $this->Translate('Sleeptimer'), '', $positions['Sleeptimer']);
+            if (!@$this->GetIDForIdent('Sleeptimer')) {
+                $this->RegisterVariableInteger('Sleeptimer', $this->Translate('Sleeptimer'), '', $positions['Sleeptimer']);
+            }
         } else {
             $this->removeVariable('Sleeptimer');
         }
 
         // PlayMode + Crossfade
         if ($this->ReadPropertyBoolean('PlayModeControl')) {
-            $this->RegisterVariableInteger('PlayMode', $this->Translate('Play Mode'), 'SONOS.PlayMode', $positions['PlayMode']);
-            $this->RegisterVariableBoolean('Crossfade', $this->Translate('Crossfade'), 'SONOS.Switch', $positions['Crossfade']);
-            $this->EnableAction('PlayMode');
-            $this->EnableAction('Crossfade');
+            if (!@$this->GetIDForIdent('PlayMode')) {
+                $this->RegisterVariableInteger('PlayMode', $this->Translate('Play Mode'), 'SONOS.PlayMode', $positions['PlayMode']);
+                $this->EnableAction('PlayMode');
+            }
+            if (!@$this->GetIDForIdent('Crossfade')) {
+                $this->RegisterVariableBoolean('Crossfade', $this->Translate('Crossfade'), 'SONOS.Switch', $positions['Crossfade']);
+                $this->EnableAction('Crossfade');
+            }
         } else {
             $this->removeVariableAction('PlayMode');
             $this->removeVariableAction('Crossfade');
@@ -146,17 +178,32 @@ class SonosPlayer extends IPSModule
 
         // Detailed Now Playing informtion
         if ($this->ReadPropertyBoolean('DetailedInformation')) {
-            $this->RegisterVariableString('Details', $this->Translate('Details'), '~HTMLBox', $positions['Details']);
-            IPS_SetHidden($this->RegisterVariableString('CoverURL', $this->Translate('Cover URL'), '', $positions['CoverURL']), true);
-            IPS_SetHidden($this->RegisterVariableString('ContentStream', $this->Translate('Content Stream'), '', $positions['ContentStream']), true);
-            IPS_SetHidden($this->RegisterVariableString('Artist', $this->Translate('Artist'), '', $positions['Artist']), true);
-            IPS_SetHidden($this->RegisterVariableString('Title', $this->Translate('Title'), '', $positions['Title']), true);
-            IPS_SetHidden($this->RegisterVariableString('Album', $this->Translate('Album'), '', $positions['Album']), true);
-            IPS_SetHidden($this->RegisterVariableString('TrackDuration', $this->Translate('Track Duration'), '', $positions['TrackDuration']), true);
-            IPS_SetHidden($this->RegisterVariableString('Position', $this->Translate('Position'), '', $positions['Position']), true);
+            if (!@$this->GetIDForIdent('Details')) {
+                $this->RegisterVariableString('Details', $this->Translate('Details'), '~HTMLBox', $positions['Details']);
+            }
+            if (!@$this->GetIDForIdent('CoverURL')) {
+                IPS_SetHidden($this->RegisterVariableString('CoverURL', $this->Translate('Cover URL'), '', $positions['CoverURL']), true);
+            }
+            if (!@$this->GetIDForIdent('ContentStream')) {
+                IPS_SetHidden($this->RegisterVariableString('ContentStream', $this->Translate('Content Stream'), '', $positions['ContentStream']), true);
+            }
+            if (!@$this->GetIDForIdent('Artist')) {
+                IPS_SetHidden($this->RegisterVariableString('Artist', $this->Translate('Artist'), '', $positions['Artist']), true);
+            }
+            if (!@$this->GetIDForIdent('Title')) {
+                IPS_SetHidden($this->RegisterVariableString('Title', $this->Translate('Title'), '', $positions['Title']), true);
+            }
+            if (!@$this->GetIDForIdent('Album')) {
+                IPS_SetHidden($this->RegisterVariableString('Album', $this->Translate('Album'), '', $positions['Album']), true);
+            }
+            if (!@$this->GetIDForIdent('TrackDuration')) {
+                IPS_SetHidden($this->RegisterVariableString('TrackDuration', $this->Translate('Track Duration'), '', $positions['TrackDuration']), true);
+            }
+            if (!@$this->GetIDForIdent('Position')) {
+                IPS_SetHidden($this->RegisterVariableString('Position', $this->Translate('Position'), '', $positions['Position']), true);
+            }
             if (!@$this->GetIDForIdent('StationID')) {
-                $vidStationID = $this->RegisterVariableString('StationID', $this->Translate('Station ID'), '', $positions['StationID']);
-                IPS_SetHidden($vidStationID, true);
+                IPS_SetHidden($this->RegisterVariableString('StationID', $this->Translate('Station ID'), '', $positions['StationID']), true);
                 // in version 1 of sonos StationID was cleared once an hour, but not sure why. Lets see...
             }
             // Also create a Media File for the cover
@@ -267,8 +314,8 @@ class SonosPlayer extends IPSModule
             ['name' => 'PlayModeControl',       'type' => 'CheckBox',          'caption' => 'Playmode Control'],
             ['name' => 'NightModeControl',      'type' => 'CheckBox',          'caption' => 'NightMode Control'],
             ['name' => 'DetailedInformation',   'type' => 'CheckBox',          'caption' => 'detailed info'],
-            ['name' => 'ForceOrder',            'type' => 'CheckBox',          'caption' => 'Force Variable order']
-
+            ['name' => 'ForceOrder',            'type' => 'CheckBox',          'caption' => 'Force Variable order'],
+            ['name' => 'DisableHiding',         'type' => 'CheckBox',          'caption' => 'Disable automatic hiding of variables']
         ]];
         return json_encode($Form);
     }
@@ -315,15 +362,16 @@ class SonosPlayer extends IPSModule
 
                 if ($this->ReadAttributeBoolean('Coordinator') != $input['data']['isCoordinator']) {
                     $this->WriteAttributeBoolean('Coordinator', $input['data']['isCoordinator']);
-
-                    @IPS_SetHidden($this->GetIDForIdent('nowPlaying'), $hidden);
-                    @IPS_SetHidden($this->GetIDForIdent('Radio'), $hidden);
-                    @IPS_SetHidden($this->GetIDForIdent('Playlist'), $hidden);
-                    @IPS_SetHidden($this->GetIDForIdent('PlayMode'), $hidden);
-                    @IPS_SetHidden($this->GetIDForIdent('Crossfade'), $hidden);
-                    @IPS_SetHidden($this->GetIDForIdent('Status'), $hidden);
-                    @IPS_SetHidden($this->GetIDForIdent('Sleeptimer'), $hidden);
-                    @IPS_SetHidden($this->GetIDForIdent('Details'), $hidden);
+                    if (!$this->ReadPropertyBoolean('DisableHiding')) {
+                        @IPS_SetHidden($this->GetIDForIdent('nowPlaying'), $hidden);
+                        @IPS_SetHidden($this->GetIDForIdent('Radio'), $hidden);
+                        @IPS_SetHidden($this->GetIDForIdent('Playlist'), $hidden);
+                        @IPS_SetHidden($this->GetIDForIdent('PlayMode'), $hidden);
+                        @IPS_SetHidden($this->GetIDForIdent('Crossfade'), $hidden);
+                        @IPS_SetHidden($this->GetIDForIdent('Status'), $hidden);
+                        @IPS_SetHidden($this->GetIDForIdent('Sleeptimer'), $hidden);
+                        @IPS_SetHidden($this->GetIDForIdent('Details'), $hidden);
+                    }
                 }
                 if ($this->ReadAttributeString('GroupMembers') != $groupMembers) {
                     $this->WriteAttributeString('GroupMembers', $groupMembers);
@@ -349,6 +397,118 @@ class SonosPlayer extends IPSModule
             case 'checkPlaylistAction':
                 $this->checkPlaylistAction();
                 break;
+            case 'prepareAllPlayGrouping':
+                unset($this->PlayFilesGroupingSettings);
+                try {
+                    $ip = $this->getIP();
+                } catch (Exception $e) {
+                    return; // player is not available, skip
+                }
+
+                $this->PlayFilesGroupingSettings = [];
+                $this->PlayFilesGroupingSettings['sonos'] = new SonosAccess($ip);
+
+                // remember settings in all players
+                $this->PlayFilesGroupingSettings['mediaInfo'] = $this->PlayFilesGroupingSettings['sonos']->GetMediaInfo();
+                $this->PlayFilesGroupingSettings['positionInfo'] = $this->PlayFilesGroupingSettings['sonos']->GetPositionInfo();
+                $this->PlayFilesGroupingSettings['transportInfo'] = $this->PlayFilesGroupingSettings['sonos']->GetTransportInfo();
+                $this->PlayFilesGroupingSettings['volume'] = $this->PlayFilesGroupingSettings['sonos']->GetVolume();
+
+                // pause all players
+                if ($this->PlayFilesGroupingSettings['transportInfo'] == 1) {
+                    try {
+                        $this->PlayFilesGroupingSettings['sonos']->Pause();
+                    } catch (Exception $e) {
+                        if ($e->getMessage() != 'Error during Soap Call: UPnPError s:Client 701 (ERROR_AV_UPNP_AVT_INVALID_TRANSITION)') {
+                            // INVALID_TRANSITION happens e.g. when still member of a group
+                            throw $e;
+                        }
+                    }
+                }
+
+                // ungroup all players
+                $this->PlayFilesGroupingSettings['sonos']->SetAVTransportURI('');
+
+                break;
+            case 'preparePlayGrouping':
+                if (!isset($this->PlayFilesGroupingSettings)) {
+                    return; // no prepare done, so it will not be used for playing
+                }
+
+                // Set Volume
+                if ($input['volumeChange'] != 0) {
+                    // volume request absolte or relative?
+                    if ($input['volumeChange'][0] == '+' || $input['volumeChange'][0] == '-') {
+                        $newVolume = ($this->PlayFilesGroupingSettings['volume'] + $input['volumeChange']);
+                    } else {
+                        $newVolume = $input['volumeChange'];
+                    }
+
+                    if ($newVolume > 100) {
+                        $newVolume = 100;
+                    } elseif ($newVolume < 0) {
+                        $newVolume = 0;
+                    }
+
+                    $this->PlayFilesGroupingSettings['sonos']->SetVolume($newVolume);
+                }
+
+                // set source
+                $this->PlayFilesGroupingSettings['sonos']->SetAVTransportURI($input['transportURI']);
+                break;
+            case 'resetPlayGrouping':
+                // reset settings
+                if (!isset($this->PlayFilesGroupingSettings)) {
+                    return; // no prepare done, so no reset will be done.
+                }
+
+                $this->PlayFilesGroupingSettings['sonos']->SetAVTransportURI($this->PlayFilesGroupingSettings['mediaInfo']['CurrentURI'], $this->PlayFilesGroupingSettings['mediaInfo']['CurrentURIMetaData']);
+                if (@$this->PlayFilesGroupingSettings['mediaInfo']['Track'] > 1) {
+                    try {
+                        $this->PlayFilesGroupingSettings['sonos']->Seek('TRACK_NR', $this->PlayFilesGroupingSettings['mediaInfo']['Track']);
+                    } catch (Exception $e) {
+                    }
+                }
+                if ($this->PlayFilesGroupingSettings['positionInfo']['TrackDuration'] != '0:00:00' && $this->PlayFilesGroupingSettings['positionInfo']['RelTime'] != 'NOT_IMPLEMENTED') {
+                    try {
+                        $this->PlayFilesGroupingSettings['sonos']->Seek('REL_TIME', $this->PlayFilesGroupingSettings['positionInfo']['RelTime']);
+                    } catch (Exception $e) {
+                    }
+                }
+                $this->PlayFilesGroupingSettings['sonos']->SetVolume($this->PlayFilesGroupingSettings['volume']);
+
+                // play again
+                if ($this->PlayFilesGroupingSettings['transportInfo'] == 1) {
+                    try {
+                        $this->PlayFilesGroupingSettings['sonos']->Play();
+                    } catch (Exception $e) {
+                        if ($e->getMessage() != 'Error during Soap Call: UPnPError s:Client 701 (ERROR_AV_UPNP_AVT_INVALID_TRANSITION)') {
+                            // INVALID_TRANSITION happens e.g. when no resource set
+                            throw $e;
+                        }
+                    }
+                }
+
+                unset($this->PlayFilesGroupingSettings);
+                break;
+            case 'becomeNewGroupCoordinator':
+
+                @IPS_SetVariableProfileAssociation('SONOS.Groups', $this->InstanceID, IPS_GetName($this->InstanceID), '', -1);
+
+                // Variablen anzeigen und verstecken.
+                @IPS_SetHidden($this->GetIDForIdent('GroupVolume'), false);
+                @IPS_SetHidden($this->GetIDForIdent('MemberOfGroup'), true);
+                if (!$this->ReadPropertyBoolean('DisableHiding')) {
+                    @IPS_SetHidden($this->GetIDForIdent('nowPlaying'), false);
+                    @IPS_SetHidden($this->GetIDForIdent('Radio'), false);
+                    @IPS_SetHidden($this->GetIDForIdent('Playlist'), false);
+                    @IPS_SetHidden($this->GetIDForIdent('PlayMode'), false);
+                    @IPS_SetHidden($this->GetIDForIdent('Crossfade'), false);
+                    @IPS_SetHidden($this->GetIDForIdent('Status'), false);
+                    @IPS_SetHidden($this->GetIDForIdent('Sleeptimer'), false);
+                    @IPS_SetHidden($this->GetIDForIdent('Details'), false);
+                }
+                break;
             case 'callFunction':
                 switch ($input['function']) {
                     case 'ChangeVolume':
@@ -361,7 +521,11 @@ class SonosPlayer extends IPSModule
                         $this->Next();
                         break;
                     case 'Pause':
-                        $this->Pause();
+                        try {
+                            $this->PauseInternal(false);
+                        } catch (Exception $e) {
+                            // ignore exceptions, so PauseAll works fine
+                        }
                         break;
                     case 'Play':
                         $this->Play();
@@ -516,28 +680,22 @@ class SonosPlayer extends IPSModule
         if ($groupMembers) {
             $groupMembersArray = array_map('intval', explode(',', $groupMembers));
         }
-        $groupMembersArray[] = $this->InstanceID;
+        $this->ChangeVolume($increment);
 
         foreach ($groupMembersArray as $key => $ID) {
-            $newVolume = (GetValueInteger(IPS_GetObjectIDByIdent('Volume', $ID)) + $increment);
-            if ($newVolume > 100) {
-                $newVolume = 100;
-            } elseif ($newVolume < 0) {
-                $newVolume = 0;
-            }
             try {
                 $this->SendDataToParent(json_encode([
                     'DataID'         => '{731D7808-F7C4-FA98-2132-0FAB19A802C1}',
                     'type'           => 'callFunction',
                     'targetInstance' => $ID,
-                    'function'       => 'SetVolume',
-                    'volume'         => (int) $newVolume
+                    'function'       => 'ChangeVolume',
+                    'volume'         => (int) $increment
                 ]));
             } catch (Exception $e) {
             }
         }
 
-        $GroupVolume = 0;
+        $GroupVolume = GetValueInteger($this->GetIDForIdent('Volume'));
         foreach ($groupMembersArray as $key => $ID) {
             $GroupVolume += GetValueInteger(IPS_GetObjectIDByIdent('Volume', $ID));
         }
@@ -576,6 +734,7 @@ class SonosPlayer extends IPSModule
         // execute sonos change
         $ip = $this->getIP();
 
+        // Is executed on own Instance, but with RINCON of new Coordinator
         (new SonosAccess($ip))->DelegateGroupCoordinationTo(IPS_GetProperty($newGroupCoordinator, 'RINCON'), $rejoinGroup);
 
         // get old membersOf and remove involved instances
@@ -659,23 +818,13 @@ class SonosPlayer extends IPSModule
         } else {
             @IPS_SetVariableProfileAssociation('SONOS.Groups', $this->InstanceID, IPS_GetName($this->InstanceID), '', -1);
         }
-        @IPS_SetVariableProfileAssociation('SONOS.Groups', $newGroupCoordinator, IPS_GetName($newGroupCoordinator), '', -1);
 
-        // Variablen anzeigen und verstecken.
-        // new coordinator
-        // TODO --> Verstecken oder auch nicht.
-        @IPS_SetHidden(IPS_GetObjectIDByIdent('GroupVolume', $newGroupCoordinator), false);
-        @IPS_SetHidden(IPS_GetObjectIDByIdent('MemberOfGroup', $newGroupCoordinator), true);
-        @IPS_SetHidden(IPS_GetObjectIDByIdent('nowPlaying', $newGroupCoordinator), false);
-        @IPS_SetHidden(IPS_GetObjectIDByIdent('Radio', $newGroupCoordinator), false);
-        @IPS_SetHidden(IPS_GetObjectIDByIdent('Playlist', $newGroupCoordinator), false);
-        @IPS_SetHidden(IPS_GetObjectIDByIdent('PlayMode', $newGroupCoordinator), false);
-        @IPS_SetHidden(IPS_GetObjectIDByIdent('Crossfade', $newGroupCoordinator), false);
-        @IPS_SetHidden(IPS_GetObjectIDByIdent('Status', $newGroupCoordinator), false);
-        @IPS_SetHidden(IPS_GetObjectIDByIdent('Sleeptimer', $newGroupCoordinator), false);
-        @IPS_SetHidden(IPS_GetObjectIDByIdent('Details', $newGroupCoordinator), false);
+        $this->SendDataToParent(json_encode([
+            'DataID'         => '{731D7808-F7C4-FA98-2132-0FAB19A802C1}',
+            'type'           => 'becomeNewGroupCoordinator',
+            'targetInstance' => $newGroupCoordinator
+        ]));
 
-        // old coordinator
         if ($rejoinGroup) {
             $hidden = true;
         } else {
@@ -684,14 +833,16 @@ class SonosPlayer extends IPSModule
 
         @IPS_SetHidden($this->GetIDForIdent('GroupVolume'), true);
         @IPS_SetHidden($this->GetIDForIdent('MemberOfGroup'), false);
-        @IPS_SetHidden($this->GetIDForIdent('nowPlaying'), $hidden);
-        @IPS_SetHidden($this->GetIDForIdent('Radio'), $hidden);
-        @IPS_SetHidden($this->GetIDForIdent('Playlist'), $hidden);
-        @IPS_SetHidden($this->GetIDForIdent('PlayMode'), $hidden);
-        @IPS_SetHidden($this->GetIDForIdent('Crossfade'), $hidden);
-        @IPS_SetHidden($this->GetIDForIdent('Status'), $hidden);
-        @IPS_SetHidden($this->GetIDForIdent('Sleeptimer'), $hidden);
-        @IPS_SetHidden($this->GetIDForIdent('Details'), $hidden);
+        if (!$this->ReadPropertyBoolean('DisableHiding')) {
+            @IPS_SetHidden($this->GetIDForIdent('nowPlaying'), $hidden);
+            @IPS_SetHidden($this->GetIDForIdent('Radio'), $hidden);
+            @IPS_SetHidden($this->GetIDForIdent('Playlist'), $hidden);
+            @IPS_SetHidden($this->GetIDForIdent('PlayMode'), $hidden);
+            @IPS_SetHidden($this->GetIDForIdent('Crossfade'), $hidden);
+            @IPS_SetHidden($this->GetIDForIdent('Status'), $hidden);
+            @IPS_SetHidden($this->GetIDForIdent('Sleeptimer'), $hidden);
+            @IPS_SetHidden($this->GetIDForIdent('Details'), $hidden);
+        }
     } // END DelegateGroupCoordinationTo
 
     public function DeleteSleepTimer()
@@ -732,24 +883,7 @@ class SonosPlayer extends IPSModule
 
     public function Pause()
     {
-        $targetInstance = $this->findTarget();
-
-        if ($targetInstance === $this->InstanceID) {
-            $ip = $this->getIP();
-
-            SetValue($this->GetIDForIdent('Status'), 2);
-            $sonos = new SonosAccess($ip);
-            if ($sonos->GetTransportInfo() == 1) {
-                $sonos->Pause();
-            }
-        } else {
-            $this->SendDataToParent(json_encode([
-                'DataID'         => '{731D7808-F7C4-FA98-2132-0FAB19A802C1}',
-                'type'           => 'callFunction',
-                'targetInstance' => $targetInstance,
-                'function'       => 'Pause'
-            ]));
-        }
+        $this->PauseInternal(true);
     }   // END Pause
 
     public function Play()
@@ -773,31 +907,41 @@ class SonosPlayer extends IPSModule
 
     public function PlayFiles(string $files, string $volumeChange)
     {
-        $ip = $this->getIP();
         $filesArray = json_decode($files, true);
+        foreach ($filesArray as $key => $file) {
+            // only files on SMB share or http server can be used
+            if ($file == '') {
+                throw new Exception($this->Translate('No file handed over.'));
+            } elseif (preg_match('/^\/\/[\w,.,-]*\/\S*/', $file) != 1 && preg_match('/^https{0,1}:\/\/[\w,.,\-,:]*\/\S*/', $file) != 1) {
+                throw new Exception(sprintf($this->Translate('File (%s) has to be located on a Samba share (e.g. //ipsymcon.fritz.box/tts/text.mp3) or a HTTP server (e.g. http://ipsymcon.fritz.box/tts/text.mp3)'), $file));
+            }
+        }
 
+        $ip = $this->getIP();
         $sonos = new SonosAccess($ip);
 
         $positionInfo = $sonos->GetPositionInfo();
         $mediaInfo = $sonos->GetMediaInfo();
         $transportInfo = $sonos->GetTransportInfo();
         $isGroupCoordinator = @$this->ReadAttributeBoolean('Coordinator');
-        $volumeList = [];
-        $volumeList[$this->InstanceID] = GetValueInteger($this->GetIDForIdent('Volume'));
-        if ($isGroupCoordinator) {
-            foreach (explode(',', $this->ReadAttributeString('GroupMembers')) as $groupMember) {
-                if ($groupMember == 0) {
-                    continue;
-                }
-                $volumeList[$groupMember] = GetValueInteger(IPS_GetObjectIDByIdent('Volume', $groupMember));
-            }
-        }
 
         //adjust volume if needed
         if ($volumeChange != '0') {
+            // remember old volume settings
+            $volumeList = [];
+            $volumeList[$this->InstanceID] = GetValueInteger($this->GetIDForIdent('Volume'));
+            if ($isGroupCoordinator) {
+                foreach (explode(',', $this->ReadAttributeString('GroupMembers')) as $groupMember) {
+                    if ($groupMember == 0) {
+                        continue;
+                    }
+                    $volumeList[$groupMember] = GetValueInteger(IPS_GetObjectIDByIdent('Volume', $groupMember)); // remember old setting
+                }
+            }
+
             // pause if playing or remove from group
             if (!$isGroupCoordinator) {
-                $this->SetGroup(0);
+                $sonos->SetAVTransportURI(''); // Set itself as source, so it is removed from Group
             } elseif ($transportInfo == 1) {
                 try {
                     $sonos->Pause();
@@ -827,15 +971,10 @@ class SonosPlayer extends IPSModule
         }
 
         foreach ($filesArray as $key => $file) {
-            // only files on SMB share or http server can be used
             if (preg_match('/^\/\/[\w,.,-]*\/\S*/', $file) == 1) {
                 $uri = 'x-file-cifs:' . $file;
             } elseif (preg_match('/^https{0,1}:\/\/[\w,.,\-,:]*\/\S*/', $file) == 1) {
                 $uri = $file;
-            } elseif ($file == '') {
-                throw new Exception($this->Translate('No file handed over.'));
-            } else {
-                throw new Exception(sprintf($this->Translate('File (%s) has to be located on a Samba share (e.g. //ipsymcon.fritz.box/tts/text.mp3) or a HTTP server (e.g. http://ipsymcon.fritz.box/tts/text.mp3)'), $file));
             }
 
             $sonos->SetAVTransportURI($uri);
@@ -885,133 +1024,88 @@ class SonosPlayer extends IPSModule
 
     public function PlayFilesGrouping(string $instances, string $files, string $volumeChange)
     {
-        $ip = $this->getIP();
-        $instancesArray = json_decode($instances, true);
-
-        $sonos = new SonosAccess($ip);
-        $transportInfo = $sonos->GetTransportInfo();
-        $volume = GetValueInteger($this->GetIDForIdent('Volume'));
-
-        // pause if playing
-        if ($transportInfo == 1) {
-            try {
-                $sonos->Pause();
-            } catch (Exception $e) {
-                if ($e->getMessage() != 'Error during Soap Call: UPnPError s:Client 701 (ERROR_AV_UPNP_AVT_INVALID_TRANSITION)') {
-                    throw $e;
-                }
+        // check if files are OK
+        $filesArray = json_decode($files, true);
+        foreach ($filesArray as $key => $file) {
+            // only files on SMB share or http server can be used
+            if ($file == '') {
+                throw new Exception($this->Translate('No file handed over.'));
+            } elseif (preg_match('/^\/\/[\w,.,-]*\/\S*/', $file) != 1 && preg_match('/^https{0,1}:\/\/[\w,.,\-,:]*\/\S*/', $file) != 1) {
+                throw new Exception(sprintf($this->Translate('File (%s) has to be located on a Samba share (e.g. //ipsymcon.fritz.box/tts/text.mp3) or a HTTP server (e.g. http://ipsymcon.fritz.box/tts/text.mp3)'), $file));
             }
         }
 
+        $ip = $this->getIP();
+
+        $this->SendDataToParent(json_encode([
+            'DataID'         => '{731D7808-F7C4-FA98-2132-0FAB19A802C1}',
+            'type'           => 'prepareAllPlayGrouping',
+            'targetInstance' => null
+        ]));
+
+        $instancesArray = json_decode($instances, true);
+        $sonos = new SonosAccess($ip);
+        $transportURI = 'x-rincon:' . $this->ReadPropertyBoolean('RINCON');
+
+        foreach ($instancesArray as $instanceID => $settings) {
+            if (isset($settings['volume'])) {
+                $volumeChange = $settings['volume'];
+            } else {
+                $volumeChange = '0';
+            }
+
+            $this->SendDataToParent(json_encode([
+                'DataID'         => '{731D7808-F7C4-FA98-2132-0FAB19A802C1}',
+                'type'           => 'preparePlayGrouping',
+                'targetInstance' => $instanceID,
+                'volumeChange'   => $volumeChange,
+                'transportURI'   => $transportURI
+            ]));
+        }
+
+        //also set volume for this instance
         if ($volumeChange != 0) {
             // volume request absolte or relative?
             if ($volumeChange[0] == '+' || $volumeChange[0] == '-') {
-                $this->ChangeVolume((int) $volumeChange);
+                $newVolume = ($sonos->GetVolume() + $volumeChange);
             } else {
-                $this->SetVolume((int) $volumeChange);
+                $newVolume = $volumeChange;
             }
+
+            if ($newVolume > 100) {
+                $newVolume = 100;
+            } elseif ($newVolume < 0) {
+                $newVolume = 0;
+            }
+
+            $sonos->SetVolume($newVolume);
         }
 
-        foreach ($instancesArray as $instanceID => &$settings) {
-            $ip = gethostbyname(IPS_GetProperty($instanceID, 'IPAddress'));
-            $timeout = $this->ReadPropertyInteger('TimeOut');
-            if ($timeout && Sys_Ping($ip, $timeout) != true) {
-                if (Sys_Ping($ip, $timeout) != true) {
-                    $settings['available'] = false;
-                    continue;
-                }
+        // play files
+        foreach ($filesArray as $key => $file) {
+            if (preg_match('/^\/\/[\w,.,-]*\/\S*/', $file) == 1) {
+                $uri = 'x-file-cifs:' . $file;
+            } elseif (preg_match('/^https{0,1}:\/\/[\w,.,\-,:]*\/\S*/', $file) == 1) {
+                $uri = $file;
             }
 
-            $settings['available'] = true;
-            $settings['sonos'] = new SonosAccess($ip);
-            $settings['mediaInfo'] = $settings['sonos']->GetMediaInfo();
-            $settings['positionInfo'] = $settings['sonos']->GetPositionInfo();
-            $settings['transportInfo'] = $settings['sonos']->GetTransportInfo();
-            $settings['group'] = GetValueInteger(IPS_GetObjectIDByIdent('MemberOfGroup', $instanceID));
-            $settings['volumeBefore'] = GetValueInteger(IPS_GetObjectIDByIdent('Volume', $instanceID));
-
-            if (isset($settings['volume']) && $settings['volume'] != 0) {
-                // volume request absolte or relative?
-                if ($settings['volume'][0] == '+' || $settings['volume'][0] == '-') {
-                    $this->SendDataToParent(json_encode([
-                        'DataID'         => '{731D7808-F7C4-FA98-2132-0FAB19A802C1}',
-                        'type'           => 'callFunction',
-                        'targetInstance' => $instanceID,
-                        'function'       => 'ChangeVolume',
-                        'volume'         => $settings['volume']
-                    ]));
-                } else {
-                    $this->SendDataToParent(json_encode([
-                        'DataID'         => '{731D7808-F7C4-FA98-2132-0FAB19A802C1}',
-                        'type'           => 'callFunction',
-                        'targetInstance' => $instanceID,
-                        'function'       => 'SetVolume',
-                        'volume'         => $settings['volume']
-                    ]));
-                }
-            }
-
-            $this->SendDataToParent(json_encode([
-                'DataID'         => '{731D7808-F7C4-FA98-2132-0FAB19A802C1}',
-                'type'           => 'callFunction',
-                'targetInstance' => $instanceID,
-                'function'       => 'SetGroup',
-                'coordinator'    => $this->InstanceID
-            ]));
-        }
-        unset($settings);
-
-        $this->PlayFiles($files, '0'); // 0 -> no volume change!
-
-        foreach ($instancesArray as $instanceID => $settings) {
-            if ($settings['available'] == false) {
-                continue;
-            }
-            $this->SendDataToParent(json_encode([
-                'DataID'         => '{731D7808-F7C4-FA98-2132-0FAB19A802C1}',
-                'type'           => 'callFunction',
-                'targetInstance' => $instanceID,
-                'function'       => 'SetGroup',
-                'coordinator'    => $settings['group']
-            ]));
-            $settings['sonos']->SetAVTransportURI($settings['mediaInfo']['CurrentURI'], $settings['mediaInfo']['CurrentURIMetaData']);
-            if (@$settings['mediaInfo']['Track'] > 1) {
-                try {
-                    $settings['sonos']->Seek('TRACK_NR', $settings['mediaInfo']['Track']);
-                } catch (Exception $e) {
-                }
-            }
-            if ($settings['positionInfo']['TrackDuration'] != '0:00:00' && $settings['positionInfo']['RelTime'] != 'NOT_IMPLEMENTED') {
-                try {
-                    $settings['sonos']->Seek('REL_TIME', $settings['positionInfo']['RelTime']);
-                } catch (Exception $e) {
-                }
-            }
-            $this->SendDataToParent(json_encode([
-                'DataID'         => '{731D7808-F7C4-FA98-2132-0FAB19A802C1}',
-                'type'           => 'callFunction',
-                'targetInstance' => $instanceID,
-                'function'       => 'SetVolume',
-                'volume'         => (int) $settings['volumeBefore']
-            ]));
-            if ($settings['transportInfo'] == 1 && !$settings['group']) {
-                $this->SendDataToParent(json_encode([
-                    'DataID'         => '{731D7808-F7C4-FA98-2132-0FAB19A802C1}',
-                    'type'           => 'callFunction',
-                    'targetInstance' => $instanceID,
-                    'function'       => 'Play'
-                ]));
-            }
-        }
-
-        if ($volumeChange != 0) {
-            // set back volume
-            $this->SetVolume($volume);
-        }
-
-        if ($transportInfo == 1) {
+            $sonos->SetAVTransportURI($uri);
+            $sonos->SetPlayMode(0);
             $sonos->Play();
+            IPS_Sleep(500);
+            $fileTransportInfo = $sonos->GetTransportInfo();
+            while ($fileTransportInfo == 1 || $fileTransportInfo == 5) {
+                IPS_Sleep(200);
+                $fileTransportInfo = $sonos->GetTransportInfo();
+            }
         }
+
+        // reset all players, including myself
+        $this->SendDataToParent(json_encode([
+            'DataID'         => '{731D7808-F7C4-FA98-2132-0FAB19A802C1}',
+            'type'           => 'resetPlayGrouping',
+            'targetInstance' => null
+        ]));
     } // END PlayFilesGrouping
 
     public function Previous()
@@ -1215,14 +1309,17 @@ class SonosPlayer extends IPSModule
         } else {
             $hidden = false;
         }
-        @IPS_SetHidden($this->GetIDForIdent('nowPlaying'), $hidden);
-        @IPS_SetHidden($this->GetIDForIdent('Radio'), $hidden);
-        @IPS_SetHidden($this->GetIDForIdent('Playlist'), $hidden);
-        @IPS_SetHidden($this->GetIDForIdent('PlayMode'), $hidden);
-        @IPS_SetHidden($this->GetIDForIdent('Crossfade'), $hidden);
-        @IPS_SetHidden($this->GetIDForIdent('Status'), $hidden);
-        @IPS_SetHidden($this->GetIDForIdent('Sleeptimer'), $hidden);
-        @IPS_SetHidden($this->GetIDForIdent('Details'), $hidden);
+
+        if (!$this->ReadPropertyBoolean('DisableHiding')) {
+            @IPS_SetHidden($this->GetIDForIdent('nowPlaying'), $hidden);
+            @IPS_SetHidden($this->GetIDForIdent('Radio'), $hidden);
+            @IPS_SetHidden($this->GetIDForIdent('Playlist'), $hidden);
+            @IPS_SetHidden($this->GetIDForIdent('PlayMode'), $hidden);
+            @IPS_SetHidden($this->GetIDForIdent('Crossfade'), $hidden);
+            @IPS_SetHidden($this->GetIDForIdent('Status'), $hidden);
+            @IPS_SetHidden($this->GetIDForIdent('Sleeptimer'), $hidden);
+            @IPS_SetHidden($this->GetIDForIdent('Details'), $hidden);
+        }
         // always hide GroupVolume, unhide executed on GroupCoordinator a few lines above
         @IPS_SetHidden($this->GetIDForIdent('GroupVolume'), true);
         @IPS_SetHidden($this->GetIDForIdent('MemberOfGroup'), false);
@@ -1902,6 +1999,28 @@ class SonosPlayer extends IPSModule
             $this->UpdateFormField('rinconMessage', 'caption', 'RINCON could not be read from "' . $ip . '"');
         }
     }
+
+    private function PauseInternal(bool $forward)
+    {
+        $targetInstance = $this->findTarget();
+
+        if ($targetInstance === $this->InstanceID) {
+            $ip = $this->getIP();
+
+            SetValue($this->GetIDForIdent('Status'), 2);
+            $sonos = new SonosAccess($ip);
+            if ($sonos->GetTransportInfo() == 1) {
+                $sonos->Pause();
+            }
+        } elseif ($forward) {
+            $this->SendDataToParent(json_encode([
+                'DataID'         => '{731D7808-F7C4-FA98-2132-0FAB19A802C1}',
+                'type'           => 'callFunction',
+                'targetInstance' => $targetInstance,
+                'function'       => 'Pause'
+            ]));
+        }
+    } //END PauseInternal
 
     private function StopInternal(bool $forward)
     {

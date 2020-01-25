@@ -47,6 +47,7 @@
 			"NightMode Control": "Nachtmodus-Steuerung",
 			"detailed info": "Detaillierte Informationen",
 			"Force Variable order": "Variablensortierung erzwingen",
+			"Disable automatic hiding of variables": "automatisches Verstecken von Variablen ausschalten",
 			"unknown type in ReceiveData": "unbekannter tpye in ReceiveData",
 			"This function is only allowed for Coordinators": "Diese Funktion darf nur auf Koordinatoren ausgeführt werden",
 			"%s is not a member of this group": "%s ist nicht Teil dieser Gruppe",

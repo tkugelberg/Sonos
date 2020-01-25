@@ -182,6 +182,9 @@ class SonosSplitter extends IPSModule
             'data'           => $this->ReadPropertyString('RadioStations')
         ]));
         break;
+      case 'prepareAllPlayGrouping':
+      case 'preparePlayGrouping':
+      case 'resetPlayGrouping':
       case 'callFunction':
       case 'addMember':
       case 'removeMember':
@@ -299,6 +302,16 @@ class SonosSplitter extends IPSModule
     } // End GetConfigurationForm
 
     public function StopAll()
+    {
+        $this->SendDataToChildren(json_encode([
+            'DataID'         => '{36EA4430-7047-C11D-0854-43391B14E0D7}',
+            'type'           => 'callFunction',
+            'targetInstance' => null,
+            'function'       => 'Stop'
+        ]));
+    } // End StopAll
+
+    public function PauseAll()
     {
         $this->SendDataToChildren(json_encode([
             'DataID'         => '{36EA4430-7047-C11D-0854-43391B14E0D7}',

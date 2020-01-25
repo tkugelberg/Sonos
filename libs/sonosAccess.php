@@ -726,9 +726,10 @@ class SonosAccess
     {
         try {
             $client = new SoapClient(null, [
-                'location'   => 'http://' . $this->address . ':1400' . $path,
-                'uri'        => $uri,
-                'trace'      => true
+                'location'           => 'http://' . $this->address . ':1400' . $path,
+                'uri'                => $uri,
+                'trace'              => true,
+                'connection_timeout' => 5
             ]);
 
             return $client->__soapCall($action, $parameter);
