@@ -11,8 +11,6 @@ class SonosPlayer extends IPSModule
     use VariableProfile;
     use CommonFunctions;
 
-    private static $PlayFilesGroupingSettings = [];
-
     public function Create()
     {
         // Diese Zeile nicht löschen.
@@ -400,25 +398,26 @@ class SonosPlayer extends IPSModule
                 $this->checkPlaylistAction();
                 break;
             case 'prepareAllPlayGrouping':
-                $this->PlayFilesGroupingSettings = [];
+                $this->SetBuffer($this->InstanceID . 'PlayFilesGrouping', '');
                 try {
                     $ip = $this->getIP();
                 } catch (Exception $e) {
                     return; // player is not available, skip
                 }
 
-                $this->PlayFilesGroupingSettings['sonos'] = new SonosAccess($ip);
+                $sonos = new SonosAccess($ip);
 
                 // remember settings in all players
-                $this->PlayFilesGroupingSettings['mediaInfo'] = $this->PlayFilesGroupingSettings['sonos']->GetMediaInfo();
-                $this->PlayFilesGroupingSettings['positionInfo'] = $this->PlayFilesGroupingSettings['sonos']->GetPositionInfo();
-                $this->PlayFilesGroupingSettings['transportInfo'] = $this->PlayFilesGroupingSettings['sonos']->GetTransportInfo();
-                $this->PlayFilesGroupingSettings['volume'] = $this->PlayFilesGroupingSettings['sonos']->GetVolume();
+                $Settings = [];
+                $Settings['mediaInfo'] = $sonos->GetMediaInfo();
+                $Settings['positionInfo'] = $sonos->GetPositionInfo();
+                $Settings['transportInfo'] = $sonos->GetTransportInfo();
+                $Settings['volume'] = $sonos->GetVolume();
 
                 // pause all players
-                if ($this->PlayFilesGroupingSettings['transportInfo'] == 1) {
+                if ($Settings['transportInfo'] == 1) {
                     try {
-                        $this->PlayFilesGroupingSettings['sonos']->Pause();
+                        $sonos->Pause();
                     } catch (Exception $e) {
                         if ($e->getMessage() != 'Error during Soap Call: UPnPError s:Client 701 (ERROR_AV_UPNP_AVT_INVALID_TRANSITION)') {
                             // INVALID_TRANSITION happens e.g. when still member of a group
@@ -428,19 +427,29 @@ class SonosPlayer extends IPSModule
                 }
 
                 // ungroup all players
-                $this->PlayFilesGroupingSettings['sonos']->SetAVTransportURI('');
-
+                $sonos->SetAVTransportURI('');
+                $this->SetBuffer($this->InstanceID . 'PlayFilesGrouping', json_encode($Settings));
                 break;
             case 'preparePlayGrouping':
-                if (!$this->PlayFilesGroupingSettings) {
+                $buffer = $this->GetBuffer($this->InstanceID . 'PlayFilesGrouping');
+                if ($buffer == '') {
                     return; // no prepare done, so it will not be used for playing
                 }
+                $Settings = json_decode($buffer);
+
+                try {
+                    $ip = $this->getIP();
+                } catch (Exception $e) {
+                    return; // player is not available, skip
+                }
+
+                $sonos = new SonosAccess($ip);
 
                 // Set Volume
                 if ($input['volumeChange'] != 0) {
                     // volume request absolte or relative?
                     if ($input['volumeChange'][0] == '+' || $input['volumeChange'][0] == '-') {
-                        $newVolume = ($this->PlayFilesGroupingSettings['volume'] + $input['volumeChange']);
+                        $newVolume = ($Settings['volume'] + $input['volumeChange']);
                     } else {
                         $newVolume = $input['volumeChange'];
                     }
@@ -451,37 +460,47 @@ class SonosPlayer extends IPSModule
                         $newVolume = 0;
                     }
 
-                    $this->PlayFilesGroupingSettings['sonos']->SetVolume($newVolume);
+                    $sonos->SetVolume($newVolume);
                 }
 
                 // set source
-                $this->PlayFilesGroupingSettings['sonos']->SetAVTransportURI($input['transportURI']);
+                $sonos->SetAVTransportURI($input['transportURI']);
                 break;
             case 'resetPlayGrouping':
                 // reset settings
-                if (!$this->PlayFilesGroupingSettings) {
+                $buffer = $this->GetBuffer($this->InstanceID . 'PlayFilesGrouping');
+                if ($buffer == '') {
                     return; // no prepare done, so no reset will be done.
                 }
+                $Settings = json_decode($buffer);
 
-                $this->PlayFilesGroupingSettings['sonos']->SetAVTransportURI($this->PlayFilesGroupingSettings['mediaInfo']['CurrentURI'], $this->PlayFilesGroupingSettings['mediaInfo']['CurrentURIMetaData']);
-                if (@$this->PlayFilesGroupingSettings['mediaInfo']['Track'] > 1) {
+                try {
+                    $ip = $this->getIP();
+                } catch (Exception $e) {
+                    return; // player is not available, skip
+                }
+
+                $sonos = new SonosAccess($ip);
+
+                $sonos->SetAVTransportURI($Settings['mediaInfo']['CurrentURI'], $Settings['mediaInfo']['CurrentURIMetaData']);
+                if (@$Settings['mediaInfo']['Track'] > 1) {
                     try {
-                        $this->PlayFilesGroupingSettings['sonos']->Seek('TRACK_NR', $this->PlayFilesGroupingSettings['mediaInfo']['Track']);
+                        $sonos->Seek('TRACK_NR', $Settings['mediaInfo']['Track']);
                     } catch (Exception $e) {
                     }
                 }
-                if ($this->PlayFilesGroupingSettings['positionInfo']['TrackDuration'] != '0:00:00' && $this->PlayFilesGroupingSettings['positionInfo']['RelTime'] != 'NOT_IMPLEMENTED') {
+                if ($Settings['positionInfo']['TrackDuration'] != '0:00:00' && $Settings['positionInfo']['RelTime'] != 'NOT_IMPLEMENTED') {
                     try {
-                        $this->PlayFilesGroupingSettings['sonos']->Seek('REL_TIME', $this->PlayFilesGroupingSettings['positionInfo']['RelTime']);
+                        $Settings['sonos']->Seek('REL_TIME', $Settings['positionInfo']['RelTime']);
                     } catch (Exception $e) {
                     }
                 }
-                $this->PlayFilesGroupingSettings['sonos']->SetVolume($this->PlayFilesGroupingSettings['volume']);
+                $sonos->SetVolume($Settings['volume']);
 
                 // play again
-                if ($this->PlayFilesGroupingSettings['transportInfo'] == 1) {
+                if ($Settings['transportInfo'] == 1) {
                     try {
-                        $this->PlayFilesGroupingSettings['sonos']->Play();
+                        $sonos->Play();
                     } catch (Exception $e) {
                         if ($e->getMessage() != 'Error during Soap Call: UPnPError s:Client 701 (ERROR_AV_UPNP_AVT_INVALID_TRANSITION)') {
                             // INVALID_TRANSITION happens e.g. when no resource set
@@ -490,7 +509,7 @@ class SonosPlayer extends IPSModule
                     }
                 }
 
-                $this->PlayFilesGroupingSettings = [];
+                $this->SetBuffer($this->InstanceID . 'PlayFilesGrouping', '');
                 break;
             case 'becomeNewGroupCoordinator':
 
