@@ -435,7 +435,7 @@ class SonosPlayer extends IPSModule
                 if ($buffer == '') {
                     return; // no prepare done, so it will not be used for playing
                 }
-                $Settings = json_decode($buffer);
+                $Settings = json_decode($buffer, true);
 
                 try {
                     $ip = $this->getIP();
@@ -472,7 +472,7 @@ class SonosPlayer extends IPSModule
                 if ($buffer == '') {
                     return; // no prepare done, so no reset will be done.
                 }
-                $Settings = json_decode($buffer);
+                $Settings = json_decode($buffer, true);
 
                 try {
                     $ip = $this->getIP();
