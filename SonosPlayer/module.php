@@ -11,6 +11,8 @@ class SonosPlayer extends IPSModule
     use VariableProfile;
     use CommonFunctions;
 
+    private static $PlayFilesGroupingSettings = [];
+
     public function Create()
     {
         // Diese Zeile nicht löschen.
@@ -398,14 +400,13 @@ class SonosPlayer extends IPSModule
                 $this->checkPlaylistAction();
                 break;
             case 'prepareAllPlayGrouping':
-                unset($this->PlayFilesGroupingSettings);
+                $this->PlayFilesGroupingSettings = [];
                 try {
                     $ip = $this->getIP();
                 } catch (Exception $e) {
                     return; // player is not available, skip
                 }
 
-                $this->PlayFilesGroupingSettings = [];
                 $this->PlayFilesGroupingSettings['sonos'] = new SonosAccess($ip);
 
                 // remember settings in all players
@@ -431,7 +432,7 @@ class SonosPlayer extends IPSModule
 
                 break;
             case 'preparePlayGrouping':
-                if (!isset($this->PlayFilesGroupingSettings)) {
+                if (!$this->PlayFilesGroupingSettings) {
                     return; // no prepare done, so it will not be used for playing
                 }
 
@@ -458,7 +459,7 @@ class SonosPlayer extends IPSModule
                 break;
             case 'resetPlayGrouping':
                 // reset settings
-                if (!isset($this->PlayFilesGroupingSettings)) {
+                if (!$this->PlayFilesGroupingSettings) {
                     return; // no prepare done, so no reset will be done.
                 }
 
@@ -489,7 +490,7 @@ class SonosPlayer extends IPSModule
                     }
                 }
 
-                unset($this->PlayFilesGroupingSettings);
+                $this->PlayFilesGroupingSettings = [];
                 break;
             case 'becomeNewGroupCoordinator':
 
@@ -1045,20 +1046,20 @@ class SonosPlayer extends IPSModule
 
         $instancesArray = json_decode($instances, true);
         $sonos = new SonosAccess($ip);
-        $transportURI = 'x-rincon:' . $this->ReadPropertyBoolean('RINCON');
+        $transportURI = 'x-rincon:' . $this->ReadPropertyString('RINCON');
 
         foreach ($instancesArray as $instanceID => $settings) {
             if (isset($settings['volume'])) {
-                $volumeChange = $settings['volume'];
+                $volume = $settings['volume'];
             } else {
-                $volumeChange = '0';
+                $volume = '0';
             }
 
             $this->SendDataToParent(json_encode([
                 'DataID'         => '{731D7808-F7C4-FA98-2132-0FAB19A802C1}',
                 'type'           => 'preparePlayGrouping',
                 'targetInstance' => $instanceID,
-                'volumeChange'   => $volumeChange,
+                'volumeChange'   => $volume,
                 'transportURI'   => $transportURI
             ]));
         }
