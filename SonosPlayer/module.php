@@ -491,7 +491,6 @@ class SonosPlayer extends IPSModule
                 }
                 if ($Settings['positionInfo']['TrackDuration'] != '0:00:00' && $Settings['positionInfo']['RelTime'] != 'NOT_IMPLEMENTED') {
                     try {
-                        $Settings['sonos']->Seek('REL_TIME', $Settings['positionInfo']['RelTime']);
                     } catch (Exception $e) {
                     }
                 }
