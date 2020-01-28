@@ -2120,8 +2120,8 @@ class SonosPlayer extends IPSModule
 
         if ($ipSetting) {
             $ip = gethostbyname($ipSetting);
-            if ($timeout && Sys_Ping($ip, $timeout) != true) {
-                if (Sys_Ping($ip, $timeout) != true) {
+            if ($timeout && @Sys_Ping($ip, $timeout) != true) {
+                if (@Sys_Ping($ip, $timeout) != true) {
                     throw new Exception(sprintf($this->Translate('Sonos Player %s is not available, TimeOut: %s ms'), $ipSetting, $timeout));
                 }
             }
