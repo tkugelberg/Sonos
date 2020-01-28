@@ -184,6 +184,7 @@ class SonosSplitter extends IPSModule
         break;
       case 'prepareAllPlayGrouping':
       case 'preparePlayGrouping':
+      case 'preResetPlayGrouping':
       case 'resetPlayGrouping':
       case 'callFunction':
       case 'addMember':

@@ -466,6 +466,16 @@ class SonosPlayer extends IPSModule
                 // set source
                 $sonos->SetAVTransportURI($input['transportURI']);
                 break;
+            case 'preResetPlayGrouping':
+                try {
+                    $ip = $this->getIP();
+                } catch (Exception $e) {
+                    return; // player is not available, skip
+                }
+
+                $sonos = new SonosAccess($ip);
+                $sonos->SetAVTransportURI('');
+                break;
             case 'resetPlayGrouping':
                 // reset settings
                 $buffer = $this->GetBuffer($this->InstanceID . 'PlayFilesGrouping');
@@ -1119,6 +1129,13 @@ class SonosPlayer extends IPSModule
                 $fileTransportInfo = $sonos->GetTransportInfo();
             }
         }
+
+        // prepare reset all players, including myself, e.g. remove from group
+        $this->SendDataToParent(json_encode([
+            'DataID'         => '{731D7808-F7C4-FA98-2132-0FAB19A802C1}',
+            'type'           => 'preResetPlayGrouping',
+            'targetInstance' => null
+        ]));
 
         // reset all players, including myself
         $this->SendDataToParent(json_encode([
@@ -1875,7 +1892,16 @@ class SonosPlayer extends IPSModule
 
             // Sleeptimer
             if ($vidSleeptimer) {
-                $sleeptimer = $sonos->GetSleeptimer();
+                try {
+                    $sleeptimer = $sonos->GetSleeptimer();
+                } catch (Exception $e) {
+                    if ($e->getMessage() != 'Error during Soap Call: UPnPError s:Client 800 (UNKNOWN)') {
+                        // INVALID_TRANSITION happens e.g. when no resource set
+                        throw $e;
+                    }
+                    $sleeptimer = false;
+                }
+
                 if ($sleeptimer) {
                     $SleeptimerArray = explode(':', $sleeptimer);
                     $SleeptimerMinutes = $SleeptimerArray[0] * 60 + $SleeptimerArray[1];
