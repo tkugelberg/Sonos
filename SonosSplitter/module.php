@@ -346,7 +346,7 @@ class SonosSplitter extends IPSModule
             }
         }
 
-        if (!$SonosGrouping) {
+        if (!isset($SonosGrouping) || !$SonosGrouping) {
             return;
         }
 
