@@ -124,79 +124,88 @@ class SonosSplitter extends IPSModule
     public function MessageSink($TimeStamp, $SenderID, $Message, $Data)
     {
         switch ($Message) {
-      case IPS_KERNELSTARTED:
-        // Set Timer for update Status in all Player instances
-        $this->SendDataToChildren(json_encode([
-            'DataID'         => '{36EA4430-7047-C11D-0854-43391B14E0D7}',
-            'type'           => 'updateStatus',
-            'targetInstance' => null,
-            'data'           => $this->ReadPropertyInteger('UpdateStatusFrequency')
-        ]));
-        $this->SendDataToChildren(json_encode([
-            'DataID'         => '{36EA4430-7047-C11D-0854-43391B14E0D7}',
-            'type'           => 'RadioStations',
-            'targetInstance' => null,
-            'data'           => $this->ReadPropertyString('RadioStations')
-        ]));
-        $this->SendDataToChildren(json_encode([
-            'DataID'         => '{36EA4430-7047-C11D-0854-43391B14E0D7}',
-            'type'           => 'AlbumArtHight',
-            'targetInstance' => null,
-            'data'           => $this->ReadPropertyInteger('AlbumArtHeight')
-        ]));
-        $this->SendDataToChildren(json_encode([
-            'DataID'         => '{36EA4430-7047-C11D-0854-43391B14E0D7}',
-            'type'           => 'checkPlaylistAction',
-            'targetInstance' => null,
-            'data'           => ''
-        ]));
-        break;
+          case IPS_KERNELSTARTED:
+            // Set Timer for update Status in all Player instances
+            $this->SendDataToChildren(json_encode([
+                'DataID'         => '{36EA4430-7047-C11D-0854-43391B14E0D7}',
+                'type'           => 'updateStatus',
+                'targetInstance' => null,
+                'data'           => $this->ReadPropertyInteger('UpdateStatusFrequency')
+            ]));
+            $this->SendDataToChildren(json_encode([
+                'DataID'         => '{36EA4430-7047-C11D-0854-43391B14E0D7}',
+                'type'           => 'RadioStations',
+                'targetInstance' => null,
+                'data'           => $this->ReadPropertyString('RadioStations')
+            ]));
+            $this->SendDataToChildren(json_encode([
+                'DataID'         => '{36EA4430-7047-C11D-0854-43391B14E0D7}',
+                'type'           => 'AlbumArtHight',
+                'targetInstance' => null,
+                'data'           => $this->ReadPropertyInteger('AlbumArtHeight')
+            ]));
+            $this->SendDataToChildren(json_encode([
+                'DataID'         => '{36EA4430-7047-C11D-0854-43391B14E0D7}',
+                'type'           => 'checkPlaylistAction',
+                'targetInstance' => null,
+                'data'           => ''
+            ]));
+            break;
     }
     }
 
     public function ForwardData($JSONString)
     {
+        $this->SendDebug('"' . __FUNCTION__ . '" called with', $JSONString, 0);
         $input = json_decode($JSONString, true);
         switch ($input['type']) {
-      case 'AlbumArtRequest':
-        $this->SendDataToChildren(json_encode([
-            'DataID'         => '{36EA4430-7047-C11D-0854-43391B14E0D7}',
-            'type'           => 'AlbumArtHight',
-            'targetInstance' => $input['targetInstance'],
-            'data'           => $this->ReadPropertyInteger('AlbumArtHeight')
-        ]));
-        break;
-      case 'UpdateStatusFrequencyRequest':
-        $this->SendDataToChildren(json_encode([
-            'DataID'         => '{36EA4430-7047-C11D-0854-43391B14E0D7}',
-            'type'           => 'updateStatus',
-            'targetInstance' => $input['targetInstance'],
-            'data'           => $this->ReadPropertyInteger('UpdateStatusFrequency')
-        ]));
-        break;
-      case 'RadioStationsRequest':
-        $this->SendDataToChildren(json_encode([
-            'DataID'         => '{36EA4430-7047-C11D-0854-43391B14E0D7}',
-            'type'           => 'RadioStations',
-            'targetInstance' => $input['targetInstance'],
-            'data'           => $this->ReadPropertyString('RadioStations')
-        ]));
-        break;
-      case 'prepareAllPlayGrouping':
-      case 'preparePlayGrouping':
-      case 'preResetPlayGrouping':
-      case 'resetPlayGrouping':
-      case 'callFunction':
-      case 'addMember':
-      case 'removeMember':
-      case 'setAttribute':
-      case 'setVariable':
-        $input['DataID'] = '{36EA4430-7047-C11D-0854-43391B14E0D7}'; // rewrite DataID
-        $this->SendDataToChildren(json_encode($input));              // just forward
-        break;
-      default:
-        throw new Exception($this->Translate('unknown type in ForwardData'));
-    }
+            case 'AlbumArtRequest':
+              $data = json_encode([
+                  'DataID'         => '{36EA4430-7047-C11D-0854-43391B14E0D7}',
+                  'type'           => 'AlbumArtHight',
+                  'targetInstance' => $input['targetInstance'],
+                  'data'           => $this->ReadPropertyInteger('AlbumArtHeight')
+              ]);
+              $this->SendDebug(__FUNCTION__ . '->SendDataToChildren', $data, 0);
+              $this->SendDataToChildren($data);
+              break;
+            case 'UpdateStatusFrequencyRequest':
+              $data = json_encode([
+                  'DataID'         => '{36EA4430-7047-C11D-0854-43391B14E0D7}',
+                  'type'           => 'updateStatus',
+                  'targetInstance' => $input['targetInstance'],
+                  'data'           => $this->ReadPropertyInteger('UpdateStatusFrequency')
+              ]);
+              $this->SendDebug(__FUNCTION__ . '->SendDataToChildren', $data, 0);
+              $this->SendDataToChildren($data);
+              break;
+            case 'RadioStationsRequest':
+              $data = json_encode([
+                  'DataID'         => '{36EA4430-7047-C11D-0854-43391B14E0D7}',
+                  'type'           => 'RadioStations',
+                  'targetInstance' => $input['targetInstance'],
+                  'data'           => $this->ReadPropertyString('RadioStations')
+              ]);
+              $this->SendDebug(__FUNCTION__ . '->SendDataToChildren', $data, 0);
+              $this->SendDataToChildren($data);
+              break;
+            case 'prepareAllPlayGrouping':
+            case 'preparePlayGrouping':
+            case 'preResetPlayGrouping':
+            case 'resetPlayGrouping':
+            case 'callFunction':
+            case 'addMember':
+            case 'removeMember':
+            case 'setAttribute':
+            case 'setVariable':
+              $input['DataID'] = '{36EA4430-7047-C11D-0854-43391B14E0D7}'; // rewrite DataID
+              $data = json_encode($input);                                 // just forward
+              $this->SendDebug(__FUNCTION__ . '->SendDataToChildren', $data, 0);
+              $this->SendDataToChildren($data);
+              break;
+            default:
+              throw new Exception($this->Translate('unknown type in ForwardData'));
+        }
     }
 
     public function GetConfigurationForm()
@@ -304,22 +313,28 @@ class SonosSplitter extends IPSModule
 
     public function StopAll()
     {
-        $this->SendDataToChildren(json_encode([
+        $this->SendDebug('"' . __FUNCTION__ . '" called', '', 0);
+        $data = json_encode([
             'DataID'         => '{36EA4430-7047-C11D-0854-43391B14E0D7}',
             'type'           => 'callFunction',
             'targetInstance' => null,
             'function'       => 'Stop'
-        ]));
+        ]);
+        $this->SendDebug(__FUNCTION__ . '->SendDataToChildren', $data, 0);
+        $this->SendDataToChildren($data);
     } // End StopAll
 
     public function PauseAll()
     {
-        $this->SendDataToChildren(json_encode([
+        $this->SendDebug('"' . __FUNCTION__ . '" called', '', 0);
+        $data = json_encode([
             'DataID'         => '{36EA4430-7047-C11D-0854-43391B14E0D7}',
             'type'           => 'callFunction',
             'targetInstance' => null,
             'function'       => 'Pause'
-        ]));
+        ]);
+        $this->SendDebug(__FUNCTION__ . '->SendDataToChildren', $data, 0);
+        $this->SendDataToChildren($data);
     } // End StopAll
 
     public function updateGrouping()
@@ -481,8 +496,10 @@ class SonosSplitter extends IPSModule
 
     public function UpdatePlaylists()
     {
+        $this->SendDebug('"' . __FUNCTION__ . '" called', '', 0);
         $Associations = [];
         $PlaylistImport = $this->ReadPropertyInteger('PlaylistImport');
+        $this->SendDebug(__FUNCTION__ . ': PlaylistImport set to', $PlaylistImport, 0);
         $Value = 1;
 
         if ($PlaylistImport != 0) {
@@ -500,6 +517,7 @@ class SonosSplitter extends IPSModule
             foreach ($InstanceList as $InstanceID => $Instance) {
                 if (Sys_Ping($Instance['IPAddress'], $Instance['TimeOut']) == true) {
                     $sonos = new SonosAccess($Instance['IPAddress']);
+                    $this->SendDebug(__FUNCTION__ . ': using Instance', $InstanceID, 0);
                     break;
                 }
             }
@@ -510,7 +528,9 @@ class SonosSplitter extends IPSModule
 
             // saved
             if ($PlaylistImport === 1 || $PlaylistImport === 3 || $PlaylistImport === 5 || $PlaylistImport === 7) {
+                $this->SendDebug(__FUNCTION__ . '->sonos', 'BrowseContentDirectory(\'SQ:\')', 0);
                 foreach ((new SimpleXMLElement($sonos->BrowseContentDirectory('SQ:')['Result']))->container as $container) {
+                    $this->SendDebug(__FUNCTION__ . ': Found PlayList', (string) $container->xpath('dc:title')[0], 0);
                     $Associations[] = [$Value++, (string) $container->xpath('dc:title')[0], '', -1];
                     // associations only support up to 128 variables
                     if ($Value === 129) {
@@ -521,7 +541,9 @@ class SonosSplitter extends IPSModule
 
             // imported
             if (($PlaylistImport === 2 || $PlaylistImport === 3 || $PlaylistImport === 6 || $PlaylistImport === 7) && $Value < 33) {
+                $this->SendDebug(__FUNCTION__ . '->sonos', 'BrowseContentDirectory(\'A:PLAYLISTS\')', 0);
                 foreach ((new SimpleXMLElement($sonos->BrowseContentDirectory('A:PLAYLISTS')['Result']))->container as $container) {
+                    $this->SendDebug(__FUNCTION__ . ': Found PlayList', (string) $container->xpath('dc:title')[0], 0);
                     $Associations[] = [$Value++, (string) preg_replace($this->getPlaylistReplacementFrom(), $this->getPlaylistReplacementTo(), $container->xpath('dc:title')[0]), '', -1];
                     // associations only support up to 128 variables
                     if ($Value === 129) {
@@ -531,18 +553,21 @@ class SonosSplitter extends IPSModule
             }
 
             // favorites
-      if (($PlaylistImport === 4 || $PlaylistImport === 5 || $PlaylistImport === 6 || $PlaylistImport === 7) && $Value < 33) { // Spotify Playlist saved as Sonos Favorite
-        foreach ((new SimpleXMLElement($sonos->BrowseContentDirectory('FV:2')['Result']))->item as $item) {
-            $Associations[] = [$Value++, (string) preg_replace($this->getPlaylistReplacementFrom(), $this->getPlaylistReplacementTo(), $item->xpath('dc:title')[0]), '', -1];
-            // associations only support up to 128 variables
-            if ($Value === 129) {
-                break;
+            if (($PlaylistImport === 4 || $PlaylistImport === 5 || $PlaylistImport === 6 || $PlaylistImport === 7) && $Value < 33) { // Spotify Playlist saved as Sonos Favorite
+                $this->SendDebug(__FUNCTION__ . '->sonos', 'BrowseContentDirectory(\'FV:2\')', 0);
+                foreach ((new SimpleXMLElement($sonos->BrowseContentDirectory('FV:2')['Result']))->item as $item) {
+                    $this->SendDebug(__FUNCTION__ . ': Found PlayList', (string) $container->xpath('dc:title')[0], 0);
+                    $Associations[] = [$Value++, (string) preg_replace($this->getPlaylistReplacementFrom(), $this->getPlaylistReplacementTo(), $item->xpath('dc:title')[0]), '', -1];
+                    // associations only support up to 128 variables
+                    if ($Value === 129) {
+                        break;
+                    }
+                }
             }
-        }
-      }
         }
 
         if ($Value === 1) {
+            $this->SendDebug(__FUNCTION__ . ': no PlayList found', '', 0);
             $Associations[] = [0, $this->Translate('no playlist available'), '', -1];
         }
 
@@ -553,12 +578,14 @@ class SonosSplitter extends IPSModule
         $this->RegisterProfileIntegerEx('SONOS.Playlist', 'Database', '', '', $Associations);
 
         if (IPS_GetKernelRunlevel() == KR_READY) {
-            $this->SendDataToChildren(json_encode([
+            $data = json_encode([
                 'DataID'         => '{36EA4430-7047-C11D-0854-43391B14E0D7}',
                 'type'           => 'checkPlaylistAction',
                 'targetInstance' => null,
                 'data'           => ''
-            ]));
+            ]);
+            $this->SendDebug(__FUNCTION__ . '->SendDataToChildren', $data, 0);
+            $this->SendDataToChildren($data);
         }
     } // End UpdatePlaylists
 }
