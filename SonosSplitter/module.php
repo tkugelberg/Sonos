@@ -189,6 +189,7 @@ class SonosSplitter extends IPSModule
               $this->SendDebug(__FUNCTION__ . '->SendDataToChildren', $data, 0);
               $this->SendDataToChildren($data);
               break;
+            case 'becomeNewGroupCoordinator':
             case 'prepareAllPlayGrouping':
             case 'preparePlayGrouping':
             case 'preResetPlayGrouping':
@@ -204,7 +205,7 @@ class SonosSplitter extends IPSModule
               $this->SendDataToChildren($data);
               break;
             default:
-              throw new Exception($this->Translate('unknown type in ForwardData'));
+              throw new Exception(sprintf($this->Translate('unknown type %s in ForwardData'),$input['type']));
         }
     }
 

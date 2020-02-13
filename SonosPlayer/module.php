@@ -526,8 +526,11 @@ class SonosPlayer extends IPSModule
                     } catch (Exception $e) {
                     }
                 }
-                $this->SendDebug(__FUNCTION__ . '->resetPlayGrouping->sonos', sprintf('SetVolume(%d)', $Settings['volume']), 0);
-                $sonos->SetVolume($Settings['volume']);
+
+                if ($Settings['volume'] != 100) {
+                    $this->SendDebug(__FUNCTION__ . '->resetPlayGrouping->sonos', sprintf('SetVolume(%d)', $Settings['volume']), 0);
+                    $sonos->SetVolume($Settings['volume']);
+                }
 
                 // play again
                 if ($Settings['transportInfo'] == 1) {
@@ -598,6 +601,9 @@ class SonosPlayer extends IPSModule
                         break;
                     case 'SetGroup':
                         $this->SetGroup($input['coordinator']);
+                        break;
+                    case 'SetMute':
+                        $this->SetMute($input['mute']);
                         break;
                     case 'SetPlayMode':
                         $this->SetPlayMode($input['playmode']);
@@ -675,7 +681,7 @@ class SonosPlayer extends IPSModule
                 }
                 break;
             default:
-                throw new Exception($this->Translate('unknown type in ReceiveData'));
+                throw new Exception(sprintf($this->Translate('unknown type %s in ReceiveData'), $input['type']));
         }
     }
 
@@ -1536,6 +1542,40 @@ class SonosPlayer extends IPSModule
         (new SonosAccess($ip))->SetMute($mute);
         if ($this->ReadPropertyBoolean('MuteControl')) {
             SetValue($this->GetIDForIdent('Mute'), $mute);
+        }
+    }   // END SetMute
+
+    public function SetMuteGroup(bool $mute)
+    {
+        $this->SendDebug('"' . __FUNCTION__ . '" called with', sprintf('$mute=%s', $mute ? 'true' : 'false'), 0);
+
+        if (!@$this->ReadAttributeBoolean('Coordinator')) {
+            die($this->Translate('This function is only allowed for Coordinators'));
+        }
+
+        $groupMembers = $this->ReadAttributeString('GroupMembers');
+        $groupMembersArray = [];
+        if ($groupMembers) {
+            $groupMembersArray = array_map('intval', explode(',', $groupMembers));
+        }
+        $this->SetMute($mute);
+
+        foreach ($groupMembersArray as $key => $ID) {
+            $data = json_encode([
+                'DataID'         => '{731D7808-F7C4-FA98-2132-0FAB19A802C1}',
+                'type'           => 'callFunction',
+                'targetInstance' => $ID,
+                'function'       => 'SetMute',
+                'mute'           => (bool) $mute
+            ]);
+
+            $this->SendDebug(__FUNCTION__ . '->SendDataToParent', $data, 0);
+
+            try {
+                $this->SendDataToParent($data);
+            } catch (Exception $e) {
+                $this->SendDebug(__FUNCTION__ . '->Exception caught', $e->getMessage(), 0);
+            }
         }
     }   // END SetMute
 
