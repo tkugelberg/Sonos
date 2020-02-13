@@ -424,6 +424,9 @@ true und false sind gültige Werte für $loudness.
 - __SNS_SetMute(int $InstanceID, bool $mute)__  
 Mutet or unmutet eine Instanz.
 true und false sind gültige Werte für $mute.  
+- __SNS_SetMuteGroup(int $InstanceID, bool $mute)__  
+Mutet or unmutet alle Instanzen einer Gruppe.
+true und false sind gültige Werte für $mute.  
 - __SNS_SetNightMode(int $InstanceID, bool $nightMode)__  
 Schaltet den Nachmodus einer Instanz. Dieses Feature wird nur von Playbar, Playbase und Beam untersützt.  
 true und false sind gültige Werte für $nightMode.  
