@@ -205,7 +205,7 @@ class SonosSplitter extends IPSModule
               $this->SendDataToChildren($data);
               break;
             default:
-              throw new Exception(sprintf($this->Translate('unknown type %s in ForwardData'),$input['type']));
+              throw new Exception(sprintf($this->Translate('unknown type %s in ForwardData'), $input['type']));
         }
     }
 
