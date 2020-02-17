@@ -473,12 +473,12 @@ class SonosPlayer extends IPSModule
                         $newVolume = 0;
                     }
 
-                    $this->SendDebug(__FUNCTION__ . '->preparePlayGrouping->sonos', sprintf('SetVolume(%d)', $newVolume), 0);
+                    $this->SendDebug(__FUNCTION__ . '->preparePlayGrouping->sonos', sprintf('SetVolume(%d)', (string) $newVolume), 0);
                     $sonos->SetVolume($newVolume);
                 }
 
                 // set source
-                $this->SendDebug(__FUNCTION__ . '->preparePlayGrouping->sonos', sprintf('SetAVTransportURI(%s)', $input['transportURI']), 0);
+                $this->SendDebug(__FUNCTION__ . '->preparePlayGrouping->sonos', sprintf('SetAVTransportURI(%s)', (string) $input['transportURI']), 0);
                 $sonos->SetAVTransportURI($input['transportURI']);
                 break;
             case 'preResetPlayGrouping':
@@ -1025,7 +1025,7 @@ class SonosPlayer extends IPSModule
         $mediaInfo = $sonos->GetMediaInfo();
         $this->SendDebug(__FUNCTION__ . ': current mediaInfo', json_encode($mediaInfo), 0);
         $transportInfo = $sonos->GetTransportInfo();
-        $this->SendDebug(__FUNCTION__ . ': current transportInfo', $transportInfo, 0);
+        $this->SendDebug(__FUNCTION__ . ': current transportInfo', (string) $transportInfo, 0);
         $isGroupCoordinator = @$this->ReadAttributeBoolean('Coordinator');
         $this->SendDebug(__FUNCTION__ . ': current $isGroupCoordinator', $isGroupCoordinator ? 'true' : 'false', 0);
 
@@ -1439,7 +1439,7 @@ class SonosPlayer extends IPSModule
         }
 
         $startGroupCoordinator = GetValue($this->GetIDForIdent('MemberOfGroup'));
-        $this->SendDebug(__FUNCTION__ . ': old coordinator', $startGroupCoordinator, 0);
+        $this->SendDebug(__FUNCTION__ . ': old coordinator', (string) $startGroupCoordinator, 0);
 
         $ip = $this->getIP();
 
@@ -1616,7 +1616,7 @@ class SonosPlayer extends IPSModule
 
         $this->SendDebug(__FUNCTION__ . '->sonos', 'BrowseContentDirectory(\'SQ:\', \'BrowseDirectChildren\', 999)', 0);
         foreach ((new SimpleXMLElement($sonos->BrowseContentDirectory('SQ:', 'BrowseDirectChildren', 999)['Result']))->container as $container) {
-            $this->SendDebug(__FUNCTION__ . ': Found Playlist', $container->xpath('dc:title')[0], 0);
+            $this->SendDebug(__FUNCTION__ . ': Found Playlist', (string) $container->xpath('dc:title')[0], 0);
             if ($container->xpath('dc:title')[0] == $name) {
                 $uri = (string) $container->res;
                 break;
@@ -1626,7 +1626,7 @@ class SonosPlayer extends IPSModule
         if ($uri === '') {
             $this->SendDebug(__FUNCTION__ . '->sonos', 'BrowseContentDirectory(\'FV:2\', \'BrowseDirectChildren\', 999)', 0);
             foreach ((new SimpleXMLElement($sonos->BrowseContentDirectory('FV:2', 'BrowseDirectChildren', 999)['Result']))->item as $item) {
-                $this->SendDebug(__FUNCTION__ . ': Found Playlist', $container->xpath('dc:title')[0], 0);
+                $this->SendDebug(__FUNCTION__ . ': Found Playlist', (string) $container->xpath('dc:title')[0], 0);
                 if (preg_replace($this->getPlaylistReplacementFrom(), $this->getPlaylistReplacementTo(), $item->xpath('dc:title')[0]) == $name) {
                     $uri = (string) $item->res;
                     $meta = (string) $item->xpath('r:resMD')[0];
@@ -1638,7 +1638,7 @@ class SonosPlayer extends IPSModule
         if ($uri === '') {
             $this->SendDebug(__FUNCTION__ . '->sonos', 'BrowseContentDirectory(\'A:PLAYLISTS\', \'BrowseDirectChildren\', 999)', 0);
             foreach ((new SimpleXMLElement($sonos->BrowseContentDirectory('A:PLAYLISTS', 'BrowseDirectChildren', 999)['Result']))->container as $container) {
-                $this->SendDebug(__FUNCTION__ . ': Found Playlist', $container->xpath('dc:title')[0], 0);
+                $this->SendDebug(__FUNCTION__ . ': Found Playlist', (string) $container->xpath('dc:title')[0], 0);
                 if (preg_replace($this->getPlaylistReplacementFrom(), $this->getPlaylistReplacementTo(), $container->xpath('dc:title')[0]) == $name) {
                     $uri = (string) $container->res;
                     break;
@@ -1707,7 +1707,7 @@ class SonosPlayer extends IPSModule
             // check in TuneIn Favorites
             $this->SendDebug(__FUNCTION__ . '->sonos', 'BrowseContentDirectory(\'R:0/0\')', 0);
             foreach ((new SimpleXMLElement($sonos->BrowseContentDirectory('R:0/0')['Result']))->item as $item) {
-                $this->SendDebug(__FUNCTION__ . ': Found radio', $container->xpath('dc:title')[0], 0);
+                $this->SendDebug(__FUNCTION__ . ': Found radio', (string) $container->xpath('dc:title')[0], 0);
                 if ($item->xpath('dc:title')[0] == $radio) {
                     $uri = (string) $item->res;
                     break;
