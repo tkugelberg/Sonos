@@ -32,6 +32,7 @@
 			"Station ID": "Sender ID",
 			"IP-Address/Host": "IP-Adresse/Host",
 			"RINCON": "RINCON",
+			"Model": "Modell",
 			"read RINCON": "RINCON auslesen",
 			"RINCON can be read automatically, once IP-Address/Host was entered": "RINCON kann ausgelesen werden, sobald IP-Adresse/Host eingegeben wurden",
 			"Maximal ping timeout": "Maximale Dauer bis zur Zeitüberschreitung des ping",
@@ -58,7 +59,8 @@
 			"Sonos Player %s is not available, TimeOut: %s ms": "Sonos Player %s ist nicht erreichbar, TimeOut: %s ms",
 			"Instance is not a coordinator and group coordinator could not be determined": "Diese Instanz ist kein Koordinator, aber der zuständige Koordinator konnte nicht ermittelt werden",
 			"This device does not support NightMode": "Dieses Gerät unterstützt kein Nachtmodus",
-			"This device does not support DialogLevel": "Dieses Gerät unterstützt keine Dialogverbesserung"
+			"This device does not support DialogLevel": "Dieses Gerät unterstützt keine Dialogverbesserung",
+			"Night Mode not supported on model %s": "Nachtmodus wird auf dem Modell %s nicht unterstützt"
 		}
 	}
 }

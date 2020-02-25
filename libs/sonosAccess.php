@@ -203,6 +203,24 @@ class SonosAccess
         }
     }
 
+    public function GetOutputFixed(): bool
+    {
+        $mute = (int) $this->processSoapCall(
+            '/MediaRenderer/RenderingControl/Control',
+            'urn:schemas-upnp-org:service:RenderingControl:1',
+            'GetOutputFixed',
+            [
+                new SoapParam('0', 'InstanceID')
+            ]
+        );
+
+        if ($mute === 1) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
     public function GetPositionInfo(): array
     {
         $positionInfo = $this->processSoapCall(

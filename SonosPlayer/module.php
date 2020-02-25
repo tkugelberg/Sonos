@@ -13,7 +13,6 @@ class SonosPlayer extends IPSModule
 
     public function Create()
     {
-        // Diese Zeile nicht löschen.
         parent::Create();
 
         $this->ConnectParent('{27B601A0-6EA4-89E3-27AD-2D902307BD8C}'); // Connect To Splitter
@@ -21,6 +20,7 @@ class SonosPlayer extends IPSModule
 
         $this->RegisterPropertyString('IPAddress', '');
         $this->RegisterPropertyString('RINCON', '');
+        $this->RegisterPropertyString('Model', '');
         $this->RegisterPropertyInteger('TimeOut', 1000);
         $this->RegisterPropertyInteger('DefaultVolume', 15);
         $this->RegisterPropertyBoolean('RejoinGroup', false);
@@ -39,6 +39,7 @@ class SonosPlayer extends IPSModule
         $this->RegisterAttributeBoolean('Coordinator', false);
         $this->RegisterAttributeString('GroupMembers', '');
         $this->RegisterAttributeBoolean('Vanished', false);
+        $this->RegisterAttributeBoolean('OutputFixed', false);
 
         // These Attributes will be configured on Splitter Instance and pushed down to Player Instances
         $this->RegisterAttributeInteger('AlbumArtHeight', -1);
@@ -54,6 +55,8 @@ class SonosPlayer extends IPSModule
         parent::ApplyChanges();
 
         $this->SetSummary($this->ReadPropertyString('IPAddress'));
+        // Set status to "Instanz ist aktiv"
+        $this->SetStatus(102);
 
         // 1) general availabe
         $positions = $this->getPositions();
@@ -130,13 +133,19 @@ class SonosPlayer extends IPSModule
 
         // NightMode
         if ($this->ReadPropertyBoolean('NightModeControl')) {
-            if (!@$this->GetIDForIdent('NightMode')) {
-                $this->RegisterVariableBoolean('NightMode', $this->Translate('Night Mode'), 'SONOS.Switch', $positions['NightMode']);
-                $this->EnableAction('NightMode');
-            }
-            if (!@$this->GetIDForIdent('DialogLevel')) {
-                $this->RegisterVariableBoolean('DialogLevel', $this->Translate('Dialog Level'), 'SONOS.Switch', $positions['DialogLevel']);
-                $this->EnableAction('DialogLevel');
+            $Model = $this->ReadPropertyString('Model');
+            if ($Model == 'Playbar' || $Model == 'Playbase' || $Model == 'Beam' || $Model == '') {
+                if (!@$this->GetIDForIdent('NightMode')) {
+                    $this->RegisterVariableBoolean('NightMode', $this->Translate('Night Mode'), 'SONOS.Switch', $positions['NightMode']);
+                    $this->EnableAction('NightMode');
+                }
+                if (!@$this->GetIDForIdent('DialogLevel')) {
+                    $this->RegisterVariableBoolean('DialogLevel', $this->Translate('Dialog Level'), 'SONOS.Switch', $positions['DialogLevel']);
+                    $this->EnableAction('DialogLevel');
+                }
+            } else {
+                // Set status to display that  night mode is not supported
+                $this->SetStatus(201);
             }
         } else {
             $this->removeVariableAction('NightMode');
@@ -287,36 +296,84 @@ class SonosPlayer extends IPSModule
             $showRINCONButton = true;
         }
 
-        if ($this->ReadPropertyString('IPAddress')) {
+        $ipSetting = $this->ReadPropertyString('IPAddress');
+
+        if ($ipSetting) {
             $showRINCONMessage = false;
         } else {
             $showRINCONMessage = true;
         }
 
-        $Form = ['elements' => [
-            ['name' => 'IPAddress',             'type' => 'ValidationTextBox', 'caption' => 'IP-Address/Host'],
-            [
-                'type' => 'RowLayout', 'items' => [
-                    ['name' => 'RINCON',        'type' => 'ValidationTextBox', 'caption' => 'RINCON',      'validate' => 'RINCON_[\dA-F]{12}01400'],
-                    ['name' => 'rinconButton',  'type' => 'Button',            'caption' => 'read RINCON', 'onClick'  => 'SNS_getRINCON($id,$IPAddress);', 'visible' => $showRINCONButton],
-                    ['name' => 'rinconMessage', 'type' => 'Label',             'caption' => 'RINCON can be read automatically, once IP-Address/Host was entered', 'visible'  => $showRINCONMessage]
-                ]
+        $knownModels = [
+            ['caption' => 'Connect',      'value' => 'Connect'],
+            ['caption' => 'Connect:Amp',  'value' => 'Connect:Amp'],
+            ['caption' => 'Play:1',       'value' => 'Play:1'],
+            ['caption' => 'Play:3',       'value' => 'Play:3'],
+            ['caption' => 'Play:5',       'value' => 'Play:5'],
+            ['caption' => 'Playbar',      'value' => 'Playbar'],
+            ['caption' => 'Playbase',     'value' => 'Playbase'],
+            ['caption' => 'SYMFONISK',    'value' => 'SYMFONISK']
+        ];
+
+        // in case a model in unknown, but handed in via discovery, be tolerant
+        $Model = $this->ReadPropertyString('Model');
+
+        if (!$Model && $ipSetting) {
+            $ip = gethostbyname($ipSetting);
+            $description = new SimpleXMLElement('http://' . $ip . ':1400/xml/device_description.xml', 0, true);
+            $Model = (string) $description->device->displayName;
+        }
+
+        $ModelKnown = false;
+
+        foreach ($knownModels as $key => $knownModel) {
+            if ($knownModel['caption'] === $Model) {
+                $ModelKnown = true;
+                break;
+            }
+        }
+
+        if ($ModelKnown === false) {
+            $knownModels[] = ['caption' => $Model, 'value' => $Model];
+        }
+
+        // hide NightMode on unsupported devices
+        $NightMode = $this->ReadPropertyBoolean('NightModeControl');
+        if ($Model == 'Playbar' || $Model == 'Playbase' || $Model == 'Beam' || $NightMode === true) {
+            $showNightMode = true;
+        } else {
+            $showNightMode = false;
+        }
+
+        $Form = [
+            'status'      => [
+                ['code'=> 201, 'icon'=> 'error', 'caption'=> sprintf($this->Translate('Night Mode not supported on model %s'), $Model)]
             ],
-            ['name' => 'TimeOut',               'type' => 'NumberSpinner',     'caption' => 'Maximal ping timeout', 'suffix' => 'ms'],
-            ['name' => 'DefaultVolume',         'type' => 'NumberSpinner',     'caption' => 'Default volume',       'suffix' => '%'],
-            ['name' => 'RejoinGroup',           'type' => 'CheckBox',          'caption' => 'Rejoin group after unavailability'],
-            ['name' => 'MuteControl',           'type' => 'CheckBox',          'caption' => 'Mute Control'],
-            ['name' => 'LoudnessControl',       'type' => 'CheckBox',          'caption' => 'Loudness Control'],
-            ['name' => 'BassControl',           'type' => 'CheckBox',          'caption' => 'Bass Control'],
-            ['name' => 'TrebleControl',         'type' => 'CheckBox',          'caption' => 'Treble Control'],
-            ['name' => 'BalanceControl',        'type' => 'CheckBox',          'caption' => 'Balance Control'],
-            ['name' => 'SleeptimerControl',     'type' => 'CheckBox',          'caption' => 'Sleeptimer Control'],
-            ['name' => 'PlayModeControl',       'type' => 'CheckBox',          'caption' => 'Playmode Control'],
-            ['name' => 'NightModeControl',      'type' => 'CheckBox',          'caption' => 'NightMode Control'],
-            ['name' => 'DetailedInformation',   'type' => 'CheckBox',          'caption' => 'detailed info'],
-            ['name' => 'ForceOrder',            'type' => 'CheckBox',          'caption' => 'Force Variable order'],
-            ['name' => 'DisableHiding',         'type' => 'CheckBox',          'caption' => 'Disable automatic hiding of variables']
-        ]];
+            'elements'    => [
+                ['name' => 'IPAddress',             'type' => 'ValidationTextBox', 'caption' => 'IP-Address/Host'],
+                [
+                    'type' => 'RowLayout', 'items' => [
+                        ['name' => 'RINCON',        'type' => 'ValidationTextBox', 'caption' => 'RINCON',      'validate' => 'RINCON_[\dA-F]{12}01400'],
+                        ['name' => 'rinconButton',  'type' => 'Button',            'caption' => 'read RINCON', 'onClick'  => 'SNS_getRINCON($id,$IPAddress);', 'visible' => $showRINCONButton],
+                        ['name' => 'rinconMessage', 'type' => 'Label',             'caption' => 'RINCON can be read automatically, once IP-Address/Host was entered', 'visible'  => $showRINCONMessage]
+                    ]
+                ],
+                ['name' => 'Model',                 'type' => 'Select',            'caption' => 'Model', 'options'  => $knownModels, 'value' => $Model],
+                ['name' => 'TimeOut',               'type' => 'NumberSpinner',     'caption' => 'Maximal ping timeout', 'suffix' => 'ms'],
+                ['name' => 'DefaultVolume',         'type' => 'NumberSpinner',     'caption' => 'Default volume',       'suffix' => '%'],
+                ['name' => 'RejoinGroup',           'type' => 'CheckBox',          'caption' => 'Rejoin group after unavailability'],
+                ['name' => 'MuteControl',           'type' => 'CheckBox',          'caption' => 'Mute Control'],
+                ['name' => 'LoudnessControl',       'type' => 'CheckBox',          'caption' => 'Loudness Control'],
+                ['name' => 'BassControl',           'type' => 'CheckBox',          'caption' => 'Bass Control'],
+                ['name' => 'TrebleControl',         'type' => 'CheckBox',          'caption' => 'Treble Control'],
+                ['name' => 'BalanceControl',        'type' => 'CheckBox',          'caption' => 'Balance Control'],
+                ['name' => 'SleeptimerControl',     'type' => 'CheckBox',          'caption' => 'Sleeptimer Control'],
+                ['name' => 'PlayModeControl',       'type' => 'CheckBox',          'caption' => 'Playmode Control'],
+                ['name' => 'NightModeControl',      'type' => 'CheckBox',          'caption' => 'NightMode Control', 'visible' => $showNightMode],
+                ['name' => 'DetailedInformation',   'type' => 'CheckBox',          'caption' => 'detailed info'],
+                ['name' => 'ForceOrder',            'type' => 'CheckBox',          'caption' => 'Force Variable order'],
+                ['name' => 'DisableHiding',         'type' => 'CheckBox',          'caption' => 'Disable automatic hiding of variables']
+            ]];
         return json_encode($Form);
     }
 
@@ -459,22 +516,24 @@ class SonosPlayer extends IPSModule
                 $sonos = new SonosAccess($ip);
 
                 // Set Volume
-                if ($input['volumeChange'] != 0) {
-                    // volume request absolte or relative?
-                    if ($input['volumeChange'][0] == '+' || $input['volumeChange'][0] == '-') {
-                        $newVolume = ($Settings['volume'] + $input['volumeChange']);
-                    } else {
-                        $newVolume = $input['volumeChange'];
-                    }
+                if ($this->ReadAttributeBoolean('OutputFixed') == false) {
+                    if ($input['volumeChange'] != 0) {
+                        // volume request absolte or relative?
+                        if ($input['volumeChange'][0] == '+' || $input['volumeChange'][0] == '-') {
+                            $newVolume = ($Settings['volume'] + $input['volumeChange']);
+                        } else {
+                            $newVolume = $input['volumeChange'];
+                        }
 
-                    if ($newVolume > 100) {
-                        $newVolume = 100;
-                    } elseif ($newVolume < 0) {
-                        $newVolume = 0;
-                    }
+                        if ($newVolume > 100) {
+                            $newVolume = 100;
+                        } elseif ($newVolume < 0) {
+                            $newVolume = 0;
+                        }
 
-                    $this->SendDebug(__FUNCTION__ . '->preparePlayGrouping->sonos', sprintf('SetVolume(%d)', (string) $newVolume), 0);
-                    $sonos->SetVolume($newVolume);
+                        $this->SendDebug(__FUNCTION__ . '->preparePlayGrouping->sonos', sprintf('SetVolume(%d)', (string) $newVolume), 0);
+                        $sonos->SetVolume($newVolume);
+                    }
                 }
 
                 // set source
@@ -527,7 +586,7 @@ class SonosPlayer extends IPSModule
                     }
                 }
 
-                if ($Settings['volume'] != 100) {
+                if ($this->ReadAttributeBoolean('OutputFixed') == false) {
                     $this->SendDebug(__FUNCTION__ . '->resetPlayGrouping->sonos', sprintf('SetVolume(%d)', $Settings['volume']), 0);
                     $sonos->SetVolume($Settings['volume']);
                 }
@@ -702,6 +761,7 @@ class SonosPlayer extends IPSModule
             if ($instanceID == 0) {
                 $name_array[] = 'none';
             } else {
+                // TODO: switch to DataFLow once 5.4 is out
                 $name_array[] = IPS_GetName($instanceID);
             }
         }
@@ -768,6 +828,7 @@ class SonosPlayer extends IPSModule
 
         $GroupVolume = GetValueInteger($this->GetIDForIdent('Volume'));
         foreach ($groupMembersArray as $key => $ID) {
+            // TODO: switch to DataFLow once 5.4 is out
             $GroupVolume += GetValueInteger(IPS_GetObjectIDByIdent('Volume', $ID));
         }
 
@@ -777,7 +838,6 @@ class SonosPlayer extends IPSModule
     public function ChangeVolume(int $increment)
     {
         $this->SendDebug('"' . __FUNCTION__ . '" called with', sprintf('$increment=%d', $increment), 0);
-
         $newVolume = (GetValueInteger($this->GetIDForIdent('Volume')) + $increment);
 
         if ($newVolume > 100) {
@@ -803,6 +863,7 @@ class SonosPlayer extends IPSModule
         }
 
         // $newGroupCoordinator is not part of group
+        // TODO: switch to DataFLow once 5.4 is out
         if (GetValueInteger(IPS_GetObjectIDByIdent('MemberOfGroup', $newGroupCoordinator)) !== $this->InstanceID) {
             throw new Exception(sprintf($this->translate('%s is not a member of this group'), $newGroupCoordinator));
         }
@@ -825,7 +886,6 @@ class SonosPlayer extends IPSModule
         {
             return $v != $this->InstanceID;
         });
-        //$currentMembers = array_filter($currentMembers, function($v) { return $v != $newGroupCoordinator ; });
 
         // update memberOf in all members, and clear in new coordinator
         foreach ($currentMembers as $key => $ID) {
@@ -1039,6 +1099,7 @@ class SonosPlayer extends IPSModule
                     if ($groupMember == 0) {
                         continue;
                     }
+                    // TODO: switch to DataFLow once 5.4 is out
                     $volumeList[$groupMember] = GetValueInteger(IPS_GetObjectIDByIdent('Volume', $groupMember)); // remember old setting
                 }
             }
@@ -1191,22 +1252,24 @@ class SonosPlayer extends IPSModule
         }
 
         //also set volume for this instance
-        if ($volumeChange != 0) {
-            // volume request absolte or relative?
-            if ($volumeChange[0] == '+' || $volumeChange[0] == '-') {
-                $newVolume = ($sonos->GetVolume() + $volumeChange);
-            } else {
-                $newVolume = $volumeChange;
-            }
+        if ($this->ReadAttributeBoolean('OutputFixed') == false) {
+            if ($volumeChange != 0) {
+                // volume request absolte or relative?
+                if ($volumeChange[0] == '+' || $volumeChange[0] == '-') {
+                    $newVolume = ($sonos->GetVolume() + $volumeChange);
+                } else {
+                    $newVolume = $volumeChange;
+                }
 
-            if ($newVolume > 100) {
-                $newVolume = 100;
-            } elseif ($newVolume < 0) {
-                $newVolume = 0;
-            }
+                if ($newVolume > 100) {
+                    $newVolume = 100;
+                } elseif ($newVolume < 0) {
+                    $newVolume = 0;
+                }
 
-            $this->SendDebug(__FUNCTION__ . '->sonos', sprintf('SetVolume(%d)', $newVolume), 0);
-            $sonos->SetVolume($newVolume);
+                $this->SendDebug(__FUNCTION__ . '->sonos', sprintf('SetVolume(%d)', $newVolume), 0);
+                $sonos->SetVolume($newVolume);
+            }
         }
 
         // play files
@@ -1275,11 +1338,13 @@ class SonosPlayer extends IPSModule
     public function RampToVolume(string $rampType, int $volume)
     {
         $this->SendDebug('"' . __FUNCTION__ . '" called with', sprintf('$rampType=%s $volume=%d', $rampType, $volume), 0);
-        $ip = $this->getIP();
+        if ($this->ReadAttributeBoolean('OutputFixed') == false) {
+            $ip = $this->getIP();
 
-        SetValue($this->GetIDForIdent('Volume'), $volume);
-        $this->SendDebug(__FUNCTION__ . '->sonos', sprintf('RampToVolume(%s, %d)', $rampType, $volume), 0);
-        (new SonosAccess($ip))->RampToVolume($rampType, $volume);
+            SetValue($this->GetIDForIdent('Volume'), $volume);
+            $this->SendDebug(__FUNCTION__ . '->sonos', sprintf('RampToVolume(%s, %d)', $rampType, $volume), 0);
+            (new SonosAccess($ip))->RampToVolume($rampType, $volume);
+        }
     } // END RampToVolume
 
     public function SetAnalogInput(int $input_instance)
@@ -1388,6 +1453,7 @@ class SonosPlayer extends IPSModule
 
         $GroupVolume = 0;
         foreach ($groupMembersArray as $key => $ID) {
+            // TODO: switch to DataFLow once 5.4 is out
             $GroupVolume += GetValueInteger(IPS_GetObjectIDByIdent('Volume', $ID));
         }
 
@@ -1795,11 +1861,13 @@ class SonosPlayer extends IPSModule
     public function SetVolume(int $volume)
     {
         $this->SendDebug('"' . __FUNCTION__ . '" called with', sprintf('$volume=%d', $volume), 0);
-        $ip = $this->getIP();
+        if ($this->ReadAttributeBoolean('OutputFixed') == false) {
+            $ip = $this->getIP();
 
-        SetValue($this->GetIDForIdent('Volume'), $volume);
-        $this->SendDebug(__FUNCTION__ . '->sonos', sprintf('SetVolume(%d)', $volume), 0);
-        (new SonosAccess($ip))->SetVolume($volume);
+            SetValue($this->GetIDForIdent('Volume'), $volume);
+            $this->SendDebug(__FUNCTION__ . '->sonos', sprintf('SetVolume(%d)', $volume), 0);
+            (new SonosAccess($ip))->SetVolume($volume);
+        }
     } // END SetVolume
 
     public function Stop()
@@ -1850,9 +1918,22 @@ class SonosPlayer extends IPSModule
         $status = $sonos->GetTransportInfo();
 
         SetValueInteger($vidVolume, $sonos->GetVolume());
+        if ($sonos->GetOutputFixed()) {
+            if ($this->ReadAttributeBoolean('OutputFixed') == false) {
+                $this->WriteAttributeBoolean('OutputFixed', true);
+                $this->DisableAction('Volume');
+            }
+        } else {
+            if ($this->ReadAttributeBoolean('OutputFixed') == true) {
+                $this->WriteAttributeBoolean('OutputFixed', false);
+                $this->EnableAction('Volume');
+            }
+        }
+
         if ($vidMute) {
             SetValue($vidMute, $sonos->GetMute());
         }
+
         if ($vidNightMode) {
             try {
                 SetValue($vidNightMode, $sonos->GetNightMode());
@@ -1911,6 +1992,7 @@ class SonosPlayer extends IPSModule
 
         if ($MemberOfGroup) {
             // If Sonos is member of a group, use values of Group Coordinator
+            // TODO: switch to DataFLow once 5.4 is out
             SetValueInteger($vidStatus, GetValueInteger(IPS_GetObjectIDByIdent('Status', $MemberOfGroup)));
             $actuallyPlaying = GetValueString(IPS_GetObjectIDByIdent('nowPlaying', $MemberOfGroup));
             SetValueInteger($vidRadio, GetValueInteger(IPS_GetObjectIDByIdent('Radio', $MemberOfGroup)));
@@ -2147,6 +2229,7 @@ class SonosPlayer extends IPSModule
 
         $GroupVolume = 0;
         foreach ($groupMembersArray as $key => $ID) {
+            // TODO: switch to DataFLow once 5.4 is out
             $GroupVolume += GetValueInteger(IPS_GetObjectIDByIdent('Volume', $ID));
         }
 

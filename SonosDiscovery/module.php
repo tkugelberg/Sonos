@@ -50,7 +50,7 @@ class SonosDiscovery extends ipsmodule
             $AddValue = [
                 'name'       => $SonosDevice['Name'],
                 'IPAddress'  => $SonosDevice['IPAddress'],
-                'Type'       => $SonosDevice['Type'],
+                'Model'      => $SonosDevice['Model'],
                 'RINCON'     => $SonosDevice['RINCON'],
                 'instanceID' => 0
             ];
@@ -64,7 +64,8 @@ class SonosDiscovery extends ipsmodule
                     'moduleID'        => '{52F6586D-A1C7-AAC6-309B-E12A70F6EEF6}',
                     'configuration'   => [
                         'IPAddress' => $SonosDevice['IPAddress'],
-                        'RINCON'    => $SonosDevice['RINCON']
+                        'RINCON'    => $SonosDevice['RINCON'],
+                        'Model'     => $SonosDevice['Model']
                     ]
                 ],
                 [
@@ -79,7 +80,7 @@ class SonosDiscovery extends ipsmodule
             $Values[] = [
                 'name'       => IPS_GetLocation($InstanceID),
                 'IPAddress'  => IPS_GetProperty($InstanceID, 'IPAddress'),
-                'Type'       => '',
+                'Medel'      => '',
                 'RINCON'     => $RINCON,
                 'instanceID' => $InstanceID
             ];
@@ -97,7 +98,7 @@ class SonosDiscovery extends ipsmodule
             'columns' => [
                 ['caption' => 'Name',       'name' => 'name',      'width' => 'auto'],
                 ['caption' => 'IP Address', 'name' => 'IPAddress', 'width' => '160px'],
-                ['caption' => 'Type',       'name' => 'Type',      'width' => '100px'],
+                ['caption' => 'Model',      'name' => 'Model',     'width' => '100px'],
                 ['caption' => 'RINCON',     'name' => 'RINCON',    'width' => '250px']
             ],
             'values'  => $Values
@@ -152,7 +153,7 @@ class SonosDiscovery extends ipsmodule
                             $description = new SimpleXMLElement((string) $zoneGroupMember->attributes()['Location'], 0, true);
                             $SonosDevices[(string) $zoneGroupMember->attributes()['UUID']] = [
                                 'Name'      => strval($zoneGroupMember->attributes()['ZoneName']),
-                                'Type'      => strval($description->device->displayName),
+                                'Model'     => strval($description->device->displayName),
                                 'RINCON'    => strval($zoneGroupMember->attributes()['UUID']),
                                 'IPAddress' => $ip_match[0]
                             ];
