@@ -296,9 +296,14 @@ class SonosPlayer extends IPSModule
             $showRINCONButton = true;
         }
 
-        $ipSetting = $this->ReadPropertyString('IPAddress');
+        $Model = $this->ReadPropertyString('Model');
+        if ($Model) {
+            $showModelButton = false;
+        } else {
+            $showModelButton = true;
+        }
 
-        if ($ipSetting) {
+        if ($this->ReadPropertyString('IPAddress')) {
             $showRINCONMessage = false;
         } else {
             $showRINCONMessage = true;
@@ -316,14 +321,6 @@ class SonosPlayer extends IPSModule
         ];
 
         // in case a model in unknown, but handed in via discovery, be tolerant
-        $Model = $this->ReadPropertyString('Model');
-
-        if (!$Model && $ipSetting) {
-            $ip = gethostbyname($ipSetting);
-            $description = new SimpleXMLElement('http://' . $ip . ':1400/xml/device_description.xml', 0, true);
-            $Model = (string) $description->device->displayName;
-        }
-
         $ModelKnown = false;
 
         foreach ($knownModels as $key => $knownModel) {
@@ -358,7 +355,13 @@ class SonosPlayer extends IPSModule
                         ['name' => 'rinconMessage', 'type' => 'Label',             'caption' => 'RINCON can be read automatically, once IP-Address/Host was entered', 'visible'  => $showRINCONMessage]
                     ]
                 ],
-                ['name' => 'Model',                 'type' => 'Select',            'caption' => 'Model', 'options'  => $knownModels, 'value' => $Model],
+                [
+                    'type' => 'RowLayout', 'items' => [
+                        ['name' => 'Model',        'type' => 'Select',            'caption' => 'Model', 'options'  => $knownModels],
+                        ['name' => 'modelButton',  'type' => 'Button',            'caption' => 'read Model', 'onClick'  => 'SNS_getModel($id,$IPAddress);', 'visible' => $showModelButton],
+                        ['name' => 'modelMessage', 'type' => 'Label',             'caption' => 'Model can be read automatically, once IP-Address/Host was entered', 'visible'  => $showModelMessage]
+                    ]
+                ],
                 ['name' => 'TimeOut',               'type' => 'NumberSpinner',     'caption' => 'Maximal ping timeout', 'suffix' => 'ms'],
                 ['name' => 'DefaultVolume',         'type' => 'NumberSpinner',     'caption' => 'Default volume',       'suffix' => '%'],
                 ['name' => 'RejoinGroup',           'type' => 'CheckBox',          'caption' => 'Rejoin group after unavailability'],
@@ -2315,6 +2318,7 @@ class SonosPlayer extends IPSModule
     {
         if ($ip) {
             $this->UpdateFormField('rinconMessage', 'visible', false);
+            $this->UpdateFormField('modelMessage', 'visible', false);
             $ipAddress = gethostbyname($ip);
         } else {
             return;
@@ -2330,7 +2334,9 @@ class SonosPlayer extends IPSModule
 
         if (!$result) {
             $this->UpdateFormField('rinconMessage', 'visible', true);
+            $this->UpdateFormField('modelMessage', 'visible', true);
             $this->UpdateFormField('rinconMessage', 'caption', 'Could not connect to "' . $ip . '"');
+            $this->UpdateFormField('modelMessage', 'caption', 'Could not connect to "' . $ip . '"');
             return;
         }
 
@@ -2342,6 +2348,43 @@ class SonosPlayer extends IPSModule
         } else {
             $this->UpdateFormField('rinconMessage', 'visible', true);
             $this->UpdateFormField('rinconMessage', 'caption', 'RINCON could not be read from "' . $ip . '"');
+        }
+    }
+
+    public function getModel(string $ip)
+    {
+        if ($ip) {
+            $this->UpdateFormField('rinconMessage', 'visible', false);
+            $this->UpdateFormField('modelMessage', 'visible', false);
+            $ipAddress = gethostbyname($ip);
+        } else {
+            return;
+        }
+
+        $curl = curl_init();
+        curl_setopt_array($curl, [
+            CURLOPT_RETURNTRANSFER => 1,
+            CURLOPT_URL            => 'http://' . $ipAddress . ':1400/xml/device_description.xml'
+        ]);
+
+        $result = curl_exec($curl);
+
+        if (!$result) {
+            $this->UpdateFormField('rinconMessage', 'visible', true);
+            $this->UpdateFormField('modelMessage', 'visible', true);
+            $this->UpdateFormField('rinconMessage', 'caption', 'Could not connect to "' . $ip . '"');
+            $this->UpdateFormField('modelMessage', 'caption', 'Could not connect to "' . $ip . '"');
+            return;
+        }
+
+        $xmlr = new SimpleXMLElement($result);
+        $model = (string) $description->device->displayName;
+        if ($model) {
+            $this->UpdateFormField('Model', 'value', $model);
+            $this->UpdateFormField('modelButton', 'visible', false);
+        } else {
+            $this->UpdateFormField('modelMessage', 'visible', true);
+            $this->UpdateFormField('modelMessage', 'caption', 'Model could not be read from "' . $ip . '"');
         }
     }
 
