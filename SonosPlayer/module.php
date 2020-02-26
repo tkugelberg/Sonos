@@ -2320,7 +2320,6 @@ class SonosPlayer extends IPSModule
     {
         if ($ip) {
             $this->UpdateFormField('rinconMessage', 'visible', false);
-            $this->UpdateFormField('modelMessage', 'visible', false);
             $ipAddress = gethostbyname($ip);
         } else {
             return;
@@ -2336,9 +2335,7 @@ class SonosPlayer extends IPSModule
 
         if (!$result) {
             $this->UpdateFormField('rinconMessage', 'visible', true);
-            $this->UpdateFormField('modelMessage', 'visible', true);
-            $this->UpdateFormField('rinconMessage', 'caption', 'Could not connect to "' . $ip . '"');
-            $this->UpdateFormField('modelMessage', 'caption', 'Could not connect to "' . $ip . '"');
+            $this->UpdateFormField('rinconMessage', 'caption', sprintf($this->translate('Could not connect to %s'), $ip));
             return;
         }
 
@@ -2349,14 +2346,13 @@ class SonosPlayer extends IPSModule
             $this->UpdateFormField('rinconButton', 'visible', false);
         } else {
             $this->UpdateFormField('rinconMessage', 'visible', true);
-            $this->UpdateFormField('rinconMessage', 'caption', 'RINCON could not be read from "' . $ip . '"');
+            $this->UpdateFormField('rinconMessage', 'caption', sprintf($this->translate('RINCON could not be read from %s'), $ip));
         }
     }
 
     public function getModel(string $ip)
     {
         if ($ip) {
-            $this->UpdateFormField('rinconMessage', 'visible', false);
             $this->UpdateFormField('modelMessage', 'visible', false);
             $ipAddress = gethostbyname($ip);
         } else {
@@ -2372,10 +2368,8 @@ class SonosPlayer extends IPSModule
         $result = curl_exec($curl);
 
         if (!$result) {
-            $this->UpdateFormField('rinconMessage', 'visible', true);
             $this->UpdateFormField('modelMessage', 'visible', true);
-            $this->UpdateFormField('rinconMessage', 'caption', 'Could not connect to "' . $ip . '"');
-            $this->UpdateFormField('modelMessage', 'caption', 'Could not connect to "' . $ip . '"');
+            $this->UpdateFormField('modelMessage', 'caption', sprintf($this->translate('Could not connect to %s'), $ip));
             return;
         }
 
@@ -2386,7 +2380,7 @@ class SonosPlayer extends IPSModule
             $this->UpdateFormField('modelButton', 'visible', false);
         } else {
             $this->UpdateFormField('modelMessage', 'visible', true);
-            $this->UpdateFormField('modelMessage', 'caption', 'Model could not be read from "' . $ip . '"');
+            $this->UpdateFormField('modelMessage', 'caption', sprintf($this->translate('Model could not be read from %s'), $ip));
         }
     }
 
