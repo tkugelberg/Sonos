@@ -305,8 +305,10 @@ class SonosPlayer extends IPSModule
 
         if ($this->ReadPropertyString('IPAddress')) {
             $showRINCONMessage = false;
+            $showModelMessage = false;
         } else {
             $showRINCONMessage = true;
+            $showModelMessage = true;
         }
 
         $knownModels = [
