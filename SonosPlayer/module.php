@@ -2380,7 +2380,7 @@ class SonosPlayer extends IPSModule
         }
 
         $xmlr = new SimpleXMLElement($result);
-        $model = (string) $description->device->displayName;
+        $model = (string) $xmlr->device->displayName;
         if ($model) {
             $this->UpdateFormField('Model', 'value', $model);
             $this->UpdateFormField('modelButton', 'visible', false);
