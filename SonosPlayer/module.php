@@ -54,7 +54,13 @@ class SonosPlayer extends IPSModule
         // Diese Zeile nicht löschen
         parent::ApplyChanges();
 
-        $this->SetSummary($this->ReadPropertyString('IPAddress'));
+        $Summary = $this->ReadPropertyString('IPAddress');
+        $Model = $this->ReadPropertyString('Model');
+        if ($Model) {
+            $Summary .= ' (' . $Model . ')';
+        }
+        $this->SetSummary($Summary);
+
         // Set status to "Instanz ist aktiv"
         $this->SetStatus(102);
 
@@ -133,7 +139,6 @@ class SonosPlayer extends IPSModule
 
         // NightMode
         if ($this->ReadPropertyBoolean('NightModeControl')) {
-            $Model = $this->ReadPropertyString('Model');
             if ($Model == 'Playbar' || $Model == 'Playbase' || $Model == 'Beam' || $Model == '') {
                 if (!@$this->GetIDForIdent('NightMode')) {
                     $this->RegisterVariableBoolean('NightMode', $this->Translate('Night Mode'), 'SONOS.Switch', $positions['NightMode']);
