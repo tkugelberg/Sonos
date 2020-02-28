@@ -474,14 +474,9 @@ class SonosPlayer extends IPSModule
                 $this->SendDebug(__FUNCTION__ . '->prepareAllPlayGrouping: clear buffer', '', 0);
                 $this->SetBuffer($this->InstanceID . 'PlayFilesGrouping', '');
 
-                if (array_search($this->InstanceID, $input['involvedInstances']) === false) {
+                if (array_search($this->InstanceID, $input['involvedInstances']) === false && array_search(GetValue($this->GetIDForIdent('MemberOfGroup')), $input['involvedInstances']) === false) {
                     $this->SendDebug(__FUNCTION__ . '->prepareAllPlayGrouping', 'Player is not involved, do not touch', 0);
-                    return; // Not directly involved
-                }
-
-                if (array_search(GetValue($this->GetIDForIdent('MemberOfGroup')), $input['involvedInstances']) === false) {
-                    $this->SendDebug(__FUNCTION__ . '->prepareAllPlayGrouping', 'Player is not involved, do not touch', 0);
-                    return; // Not indirectly involved
+                    return;
                 }
 
                 try {
