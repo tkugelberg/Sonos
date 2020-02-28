@@ -16,7 +16,8 @@ class SonosPlayer extends IPSModule
         parent::Create();
 
         $this->ConnectParent('{27B601A0-6EA4-89E3-27AD-2D902307BD8C}'); // Connect To Splitter
-        $this->SetReceiveDataFilter('.*"targetInstance":(' . $this->InstanceID . '|null).*');
+        // listen for JSON strings containg own InstanceID, null or an array of Instance IDs including own InstanceID in filed targetInstance
+        $this->SetReceiveDataFilter('.*"targetInstance":(' . $this->InstanceID . '|null|\[[\d,]*' . $this->InstanceID . '[\d,]*\]).*');
 
         $this->RegisterPropertyString('IPAddress', '');
         $this->RegisterPropertyString('RINCON', '');
@@ -472,6 +473,17 @@ class SonosPlayer extends IPSModule
             case 'prepareAllPlayGrouping':
                 $this->SendDebug(__FUNCTION__ . '->prepareAllPlayGrouping: clear buffer', '', 0);
                 $this->SetBuffer($this->InstanceID . 'PlayFilesGrouping', '');
+
+                if (array_search($this->InstanceID, $input['involvedInstances']) === false) {
+                    $this->SendDebug(__FUNCTION__ . '->prepareAllPlayGrouping', 'Player is not involved, do not touch', 0);
+                    return; // Not directly involved
+                }
+
+                if (array_search(GetValue($this->GetIDForIdent('MemberOfGroup')), $input['involvedInstances']) === false) {
+                    $this->SendDebug(__FUNCTION__ . '->prepareAllPlayGrouping', 'Player is not involved, do not touch', 0);
+                    return; // Not indirectly involved
+                }
+
                 try {
                     $ip = $this->getIP();
                 } catch (Exception $e) {
@@ -1231,15 +1243,19 @@ class SonosPlayer extends IPSModule
 
         $ip = $this->getIP();
 
+        $instancesArray = json_decode($instances, true);
+        $involvedInstances = array_keys($instancesArray);
+        $involvedInstances[] = $this->InstanceID;
+
         $data = json_encode([
-            'DataID'         => '{731D7808-F7C4-FA98-2132-0FAB19A802C1}',
-            'type'           => 'prepareAllPlayGrouping',
-            'targetInstance' => null
+            'DataID'            => '{731D7808-F7C4-FA98-2132-0FAB19A802C1}',
+            'type'              => 'prepareAllPlayGrouping',
+            'targetInstance'    => null,
+            'involvedInstances' => $involvedInstances
         ]);
         $this->SendDebug(__FUNCTION__ . '->SendDataToParent', $data, 0);
         $this->SendDataToParent($data);
 
-        $instancesArray = json_decode($instances, true);
         $sonos = new SonosAccess($ip);
         $transportURI = 'x-rincon:' . $this->ReadPropertyString('RINCON');
 
@@ -1308,7 +1324,7 @@ class SonosPlayer extends IPSModule
         $data = json_encode([
             'DataID'         => '{731D7808-F7C4-FA98-2132-0FAB19A802C1}',
             'type'           => 'preResetPlayGrouping',
-            'targetInstance' => null
+            'targetInstance' => $involvedInstances
         ]);
         $this->SendDebug(__FUNCTION__ . '->SendDataToParent', $data, 0);
         $this->SendDataToParent($data);
