@@ -318,6 +318,8 @@ class SonosPlayer extends IPSModule
         // in case a model in unknown, but handed in via discovery, be tolerant
         $ModelKnown = false;
 
+        $Model = $this->ReadPropertyString('Model');
+
         foreach ($knownModels as $key => $knownModel) {
             if ($knownModel['caption'] === $Model) {
                 $ModelKnown = true;
