@@ -2251,10 +2251,10 @@ class SonosPlayer extends IPSModule
             if ($e->getMessage() == 'Error during Soap Call: Could not connect to host HTTP') {
                 // not sure how often and why this happens...
                 $this->SendDebug(__FUNCTION__, (string) $e->getMessage(), 0);
-                $this->SendDebug(__FUNCTION__, $e->getFile()." (".$e->getLine().")", 0);
-                foreach ($e->getTrace() as $trace ){
-                    $this->SendDebug(__FUNCTION__, $trace['file']." (".$trace['line'].")", 0);
-                }                
+                $this->SendDebug(__FUNCTION__, $e->getFile() . ' (' . $e->getLine() . ')', 0);
+                foreach ($e->getTrace() as $trace) {
+                    $this->SendDebug(__FUNCTION__, $trace['file'] . ' (' . $trace['line'] . ')', 0);
+                }
             } else {
                 throw $e;
             }
