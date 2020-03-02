@@ -136,37 +136,51 @@ Falls man in Sonos unter "TuneIn Radio" -> "Meine Radiosender" favoriten gepfleg
 Dies ist der Hostname oder die IP-Adresse des Players. Sofern die Insanz aus der Discovery Instanz angelegt wurde, ist dieser Wert automatisch gefüllt.
 2. __RINCON__  
 RINCON ist die eindeutige Bezeichnung eines Lautsprechers. Sofern die Insanz aus der Discovery Instanz angelegt wurde, ist dieser Wert automatisch gefüllt.  
-Wenn die Instanz manuell angelegt wurde und die RINCON nicht bekannt ist, kann der Knopf "RINCON auslesen" (wird eingeblendet, wenn dieses Feld leer ist) verwendet werden, um die RINCON zu ermittelt. Hierfür muss allerdings "IP-Adresse/Host" gefüllt sein.
-3. __Maximale Dauer bis zur Zeitüberschreitung des ping__  
+Wenn die Instanz manuell angelegt wurde und die RINCON nicht bekannt ist, kann der Knopf "RINCON auslesen" verwendet werden, um die RINCON zu ermittelt. Hierfür muss allerdings "IP-Adresse/Host" gefüllt sein.
+3. __Modell__  
+Hier sollte das Modell des Players ausgewählt werden. Sofern die Insanz aus der Discovery Instanz angelegt wurde, ist dieser Wert automatisch gefüllt.  
+Mit dem Knopf "Modell auslesen" kann man diesen Wert aber auch auslesen, wenn "IP-Adresse/Host" mit dem richtigen Wert gefüllt ist.  
+Es ist eine Liste der aktuell bekannten Player in der Drop-Down Liste gepflegt, welche derzeit die folgenden Werte umfasst:
+  - Connect
+  - Connect:Amp
+  - Play:1
+  - Play:3
+  - Play:5
+  - Playbar
+  - Playbase
+  - SYMFONISK
+Wenn ein anderes Modell beim auslesen erkannt wird, wird es automatisch der Liste hinzugefügt. Falls dies der Fall ist, wäre es aber hilfreich, wenn ich dieses Modell genannt bekäme, um es hinzuzufügen.  
+Das Modell hat auswirkungen auf die angeotenen Features. So mann man z.B. die "Nachtmodus-Steuerung" nur für die Modelle "Playbar" und "Playbase" einschalten.
+4. __Maximale Dauer bis zur Zeitüberschreitung des ping__  
 Bevor ein Lautsprecher kontaktiert wird, wird versucht diesen per Ping zu erreichen. Wenn der Lautsprecher diese Zeil lang nicht antwortet, wird er als "nicht erreichbar" erachtet.  
 Wenn der Parameter auf 0 gesetzt wird, wird die Erreichbarkeit nicht überprüft.
-4. __Standard Lautstärke__  
+5. __Standard Lautstärke__  
 Diese Lautstärke wird verwendet, wenn die Funktion SNS_SetDefaultVolume() aufgerufen wird.
-5. Nach nicht Verfügbarkeit der Gruppe automatisch wieder beitreten  
+6. Nach nicht Verfügbarkeit der Gruppe automatisch wieder beitreten  
 Wenn dies Option aktiviert ist wird ein Lautsprecher, der zuvor als "vanished" markiert war, wieder der vor dem verschwinden zugeordneten Gruppe hinzugefügt, solbald er wieder verfügbar ist.
-6. __Mute-Steuerung__  
+7. __Mute-Steuerung__  
 Diese Option legt eine Variable "Mute" an und aktiviert dass diese über SNS_updateStatus() mit dem aktuellen Wert gepflegt wird. Weiterhin taucht dann auch eine Konpf auf dem WebFront auf, über den man dies Steuern kann.
-7. __Loudness-Steuerung__  
+8. __Loudness-Steuerung__  
 Diese Option legt eine Variable "Loudness" an und aktiviert dass diese über SNS_updateStatus() mit dem aktuellen Wert gepflegt wird. Weiterhin taucht dann auch eine Konpf auf dem WebFront auf, über den man dies Steuern kann.
-8. __Tiefen-Steuerung__  
+9. __Tiefen-Steuerung__  
 Diese Option legt eine Variable "Tiefen" an und aktiviert dass diese über SNS_updateStatus() mit dem aktuellen Wert gepflegt wird. Weiterhin taucht dann auch einen Slider auf dem WebFront auf, über den man dies Steuern kann.
-9. __Höhen-Steuerung__  
+10. __Höhen-Steuerung__  
 Diese Option legt eine Variable "Höhen" an und aktiviert dass diese über SNS_updateStatus() mit dem aktuellen Wert gepflegt wird. Weiterhin taucht dann auch einen Slider auf dem WebFront auf, über den man dies Steuern kann.
-10. __Balance-Steuerung__  
+11. __Balance-Steuerung__  
 Diese Option legt eine Variable "Balance" an und aktiviert dass diese über SNS_updateStatus() mit dem aktuellen Wert gepflegt wird. Weiterhin taucht dann auch einen Slider auf dem WebFront auf, über den man dies Steuern kann.
-11. __Sleeptimer-Steuerung__  
+12. __Sleeptimer-Steuerung__  
 Diese Option legt eine Variable "Sleeptimer" an und aktiviert dass diese über SNS_updateStatus() mit dem aktuellen Wert gepflegt wird.
-12. __Playmode-Steuerung__  
+13. __Playmode-Steuerung__  
 Diese Option legt die Variablen "Play Mode" und "Crossfade" an und aktiviert dass diese über SNS_updateStatus() mit dem aktuellen Wert gepflegt wird.  
 Für "Play Mode" tauchen dann 6 Knöpfe und für "Crossfade" "Aus"/"An" auf dem Webfront auf, mit denen diese Funktionen gesteuert werden können.
-13. __Nachtmodus-Steuerung__  
+14. __Nachtmodus-Steuerung__  
 Diese Option legt die Variablen "Nachmodus" und "Dialogverbesserung" an und aktiviert dass diese über SNS_updateStatus() mit dem aktuellen Wert gepflegt wird.  
 Für beide tauchen "Aus"/"An" auf dem Webfront auf, mit denen diese Funktionen gesteuert werden können.
-14. __Detaillierte Informationen__  
+15. __Detaillierte Informationen__  
 Diese Option legt die Variablen "Details", "Cover URL", "Content Stream", "Artist", "Künstler", "Titel", "Album", "Titellänge", "Position" und "Sender ID" an, die über SNS_updateStatus() gefüllt werden.  
 Weiterhin wird ein Medienobjekt "Cover" angelegt, welches mit dem Bild hinter "Cover URL" gefüllt.  
 In der Variablen "Details" wird eine HTMLBox erzeugt, die am WebFront auch zu sehen ist. Alle anderen Variablen werden versteckt.
-15. __Variablensortierung erzwingen__  
+16. __Variablensortierung erzwingen__  
 Wenn diese Option gesetzt ist, wird beim Speichern die vom Modul vorgeschlagene Reihenfolge der Vaiablen wieder hergestellt.
 
 ## 6. Variablen
@@ -363,7 +377,7 @@ SNS_PlayFiles(17265, json_encode( Array( "//ipsymcon.fritz.box/sonos/bla.mp3",
 ```
 - __SNS_PlayFilesGrouping(int $InstanceID, string $instances, string $files, string $volumeChange)__  
 Diese Funktion ruft die Funktion SNS_PlayFiles() auf. Dementsprechend ist das (als JSON encodierte) array $files gleich aufgebaut.  
-Vorher werden die in $instances mitgegebenen Instanzen zu der gruppe von $InstanceID hinzugefügt.  
+Vorher werden die in $instances mitgegebenen Instanzen zu der gruppe von $InstanceID hinzugefügt. Fall eine der Instanzen ein Gruppenkoordinator ist, werden alle Player während der Wiedergabe der Datei(en) aus der Gruppe entfernt.   
 Das (als JSON encodierte) array $instances beinhaltet pro hinzuzufügender instanz einen Eintrag mit dem Key "&lt;instance ID&gt;" der hinzuzufügenden instanz und einem Array mit settings. Diese Array kennt derzeit lediglich einen Eintrag mit dem Key "volume" mit dem Volume Wert entsprechend dem $volumeChange aus der Funktion SNS_PlayFiles.  
 Beispiel:
 ```php
