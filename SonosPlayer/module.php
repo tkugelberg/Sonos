@@ -1924,326 +1924,341 @@ class SonosPlayer extends IPSModule
 
         $AlbumArtHeight = $this->ReadAttributeInteger('AlbumArtHeight');
 
-        $sonos = new SonosAccess($ip);
-        $status = $sonos->GetTransportInfo();
+        try {
+            $sonos = new SonosAccess($ip);
+            $status = $sonos->GetTransportInfo();
 
-        SetValueInteger($vidVolume, $sonos->GetVolume());
-        if ($sonos->GetOutputFixed()) {
-            if ($this->ReadAttributeBoolean('OutputFixed') == false) {
-                $this->WriteAttributeBoolean('OutputFixed', true);
-                $this->DisableAction('Volume');
-            }
-        } else {
-            if ($this->ReadAttributeBoolean('OutputFixed') == true) {
-                $this->WriteAttributeBoolean('OutputFixed', false);
-                $this->EnableAction('Volume');
-            }
-        }
-
-        if ($vidMute) {
-            SetValue($vidMute, $sonos->GetMute());
-        }
-
-        if ($vidNightMode) {
-            try {
-                SetValue($vidNightMode, $sonos->GetNightMode());
-            } catch (Exception $e) {
-                if ($e->getMessage() == 'Error during Soap Call: UPnPError s:Client 402 (UNKNOWN)') {
-                    throw new Exception($this->translate('This device does not support NightMode'));
-                } else {
-                    throw $e;
+            SetValueInteger($vidVolume, $sonos->GetVolume());
+            if ($sonos->GetOutputFixed()) {
+                if ($this->ReadAttributeBoolean('OutputFixed') == false) {
+                    $this->WriteAttributeBoolean('OutputFixed', true);
+                    $this->DisableAction('Volume');
                 }
-            }
-        }
-        if ($vidDialogLevel) {
-            try {
-                SetValue($vidDialogLevel, $sonos->GetDialogLevel());
-            } catch (Exception $e) {
-                if ($e->getMessage() == 'Error during Soap Call: UPnPError s:Client 402 (UNKNOWN)') {
-                    throw new Exception($this->translate('This device does not support DialogLevel'));
-                } else {
-                    throw $e;
-                }
-            }
-        }
-        if ($vidLoudness) {
-            SetValue($vidLoudness, $sonos->GetLoudness());
-        }
-        if ($vidBass) {
-            SetValueInteger($vidBass, $sonos->GetBass());
-        }
-        if ($vidTreble) {
-            SetValueInteger($vidTreble, $sonos->GetTreble());
-        }
-        if ($vidCrossfade) {
-            SetValue($vidCrossfade, $sonos->GetCrossfade());
-        }
-        if ($vidPlaymode) {
-            SetValueInteger($vidPlaymode, $sonos->GetTransportsettings());
-        }
-
-        if ($vidBalance) {
-            $leftVolume = $sonos->GetVolume('LF');
-            $rightVolume = $sonos->GetVolume('RF');
-
-            if ($leftVolume == $rightVolume) {
-                SetValueInteger($vidBalance, 0);
-            } elseif ($leftVolume > $rightVolume) {
-                SetValueInteger($vidBalance, $rightVolume - 100);
             } else {
-                SetValueInteger($vidBalance, 100 - $leftVolume);
-            }
-        }
-
-        $MemberOfGroup = 0;
-        if ($vidMemberOfGroup) {
-            $MemberOfGroup = GetValueInteger($vidMemberOfGroup);
-        }
-
-        if ($MemberOfGroup) {
-            // If Sonos is member of a group, use values of Group Coordinator
-            // TODO: switch to DataFLow once 5.4 is out
-            SetValueInteger($vidStatus, GetValueInteger(IPS_GetObjectIDByIdent('Status', $MemberOfGroup)));
-            $actuallyPlaying = GetValueString(IPS_GetObjectIDByIdent('nowPlaying', $MemberOfGroup));
-            SetValueInteger($vidRadio, GetValueInteger(IPS_GetObjectIDByIdent('Radio', $MemberOfGroup)));
-            if ($vidSleeptimer) {
-                SetValueInteger($vidSleeptimer, @GetValueInteger(IPS_GetObjectIDByIdent('Sleeptimer', $MemberOfGroup)));
-            }
-            if ($vidCoverURL) {
-                SetValueString($vidCoverURL, @GetValueString(IPS_GetObjectIDByIdent('CoverURL', $MemberOfGroup)));
-            }
-            if ($vidContentStream) {
-                SetValueString($vidContentStream, @GetValueString(IPS_GetObjectIDByIdent('ContentStream', $MemberOfGroup)));
-            }
-            if ($vidArtist) {
-                SetValueString($vidArtist, @GetValueString(IPS_GetObjectIDByIdent('Artist', $MemberOfGroup)));
-            }
-            if ($vidAlbum) {
-                SetValueString($vidAlbum, @GetValueString(IPS_GetObjectIDByIdent('Album', $MemberOfGroup)));
-            }
-            if ($vidTrackDuration) {
-                SetValueString($vidTrackDuration, @GetValueString(IPS_GetObjectIDByIdent('TrackDuration', $MemberOfGroup)));
-            }
-            if ($vidPosition) {
-                SetValueString($vidPosition, @GetValueString(IPS_GetObjectIDByIdent('Position', $MemberOfGroup)));
-            }
-            if ($vidTitle) {
-                SetValueString($vidTitle, @GetValueString(IPS_GetObjectIDByIdent('Title', $MemberOfGroup)));
-            }
-            if ($vidDetails) {
-                SetValueString($vidDetails, @GetValueString(IPS_GetObjectIDByIdent('Details', $MemberOfGroup)));
-            }
-        } else {
-            SetValueInteger($vidStatus, $status);
-
-            // Titelanzeige
-            $currentStation = 0;
-
-            if ($status != 1) {
-                // No title if not playing
-                $actuallyPlaying = '';
-            } else {
-                $positionInfo = $sonos->GetPositionInfo();
-                $mediaInfo = $sonos->GetMediaInfo();
-
-                if ($positionInfo['streamContent']) {
-                    $actuallyPlaying = $positionInfo['streamContent'];
-                } else {
-                    $actuallyPlaying = $positionInfo['title'] . ' | ' . $positionInfo['artist'];
+                if ($this->ReadAttributeBoolean('OutputFixed') == true) {
+                    $this->WriteAttributeBoolean('OutputFixed', false);
+                    $this->EnableAction('Volume');
                 }
+            }
 
-                // start find current Radio in VariableProfile
-                $radioStations = json_decode($this->ReadAttributeString('RadioStations'), true);
+            if ($vidMute) {
+                SetValue($vidMute, $sonos->GetMute());
+            }
 
-                $playingRadioStation = '';
-                foreach ($radioStations as $radioStation) {
-                    if ($radioStation['URL'] == htmlspecialchars_decode($mediaInfo['CurrentURI'])) {
-                        $playingRadioStation = $radioStation['name'];
-                        $image = $radioStation['imageURL'];
-                        break;
+            if ($vidNightMode) {
+                try {
+                    SetValue($vidNightMode, $sonos->GetNightMode());
+                } catch (Exception $e) {
+                    if ($e->getMessage() == 'Error during Soap Call: UPnPError s:Client 402 (UNKNOWN)') {
+                        throw new Exception($this->translate('This device does not support NightMode'));
+                    } else {
+                        throw $e;
                     }
                 }
+            }
+            if ($vidDialogLevel) {
+                try {
+                    SetValue($vidDialogLevel, $sonos->GetDialogLevel());
+                } catch (Exception $e) {
+                    if ($e->getMessage() == 'Error during Soap Call: UPnPError s:Client 402 (UNKNOWN)') {
+                        throw new Exception($this->translate('This device does not support DialogLevel'));
+                    } else {
+                        throw $e;
+                    }
+                }
+            }
+            if ($vidLoudness) {
+                SetValue($vidLoudness, $sonos->GetLoudness());
+            }
+            if ($vidBass) {
+                SetValueInteger($vidBass, $sonos->GetBass());
+            }
+            if ($vidTreble) {
+                SetValueInteger($vidTreble, $sonos->GetTreble());
+            }
+            if ($vidCrossfade) {
+                SetValue($vidCrossfade, $sonos->GetCrossfade());
+            }
+            if ($vidPlaymode) {
+                SetValueInteger($vidPlaymode, $sonos->GetTransportsettings());
+            }
 
-                if ($playingRadioStation == '') {
-                    foreach ((new SimpleXMLElement($sonos->BrowseContentDirectory('R:0/0')['Result']))->item as $item) {
-                        if ($item->res == htmlspecialchars_decode($mediaInfo['CurrentURI'])) {
-                            $playingRadioStation = (string) $item->xpath('dc:title')[0];
+            if ($vidBalance) {
+                $leftVolume = $sonos->GetVolume('LF');
+                $rightVolume = $sonos->GetVolume('RF');
+
+                if ($leftVolume == $rightVolume) {
+                    SetValueInteger($vidBalance, 0);
+                } elseif ($leftVolume > $rightVolume) {
+                    SetValueInteger($vidBalance, $rightVolume - 100);
+                } else {
+                    SetValueInteger($vidBalance, 100 - $leftVolume);
+                }
+            }
+
+            $MemberOfGroup = 0;
+            if ($vidMemberOfGroup) {
+                $MemberOfGroup = GetValueInteger($vidMemberOfGroup);
+            }
+
+            if ($MemberOfGroup) {
+                // If Sonos is member of a group, use values of Group Coordinator
+                // TODO: switch to DataFLow once 5.4 is out
+                SetValueInteger($vidStatus, GetValueInteger(IPS_GetObjectIDByIdent('Status', $MemberOfGroup)));
+                $actuallyPlaying = GetValueString(IPS_GetObjectIDByIdent('nowPlaying', $MemberOfGroup));
+                SetValueInteger($vidRadio, GetValueInteger(IPS_GetObjectIDByIdent('Radio', $MemberOfGroup)));
+                if ($vidSleeptimer) {
+                    SetValueInteger($vidSleeptimer, @GetValueInteger(IPS_GetObjectIDByIdent('Sleeptimer', $MemberOfGroup)));
+                }
+                if ($vidCoverURL) {
+                    SetValueString($vidCoverURL, @GetValueString(IPS_GetObjectIDByIdent('CoverURL', $MemberOfGroup)));
+                }
+                if ($vidContentStream) {
+                    SetValueString($vidContentStream, @GetValueString(IPS_GetObjectIDByIdent('ContentStream', $MemberOfGroup)));
+                }
+                if ($vidArtist) {
+                    SetValueString($vidArtist, @GetValueString(IPS_GetObjectIDByIdent('Artist', $MemberOfGroup)));
+                }
+                if ($vidAlbum) {
+                    SetValueString($vidAlbum, @GetValueString(IPS_GetObjectIDByIdent('Album', $MemberOfGroup)));
+                }
+                if ($vidTrackDuration) {
+                    SetValueString($vidTrackDuration, @GetValueString(IPS_GetObjectIDByIdent('TrackDuration', $MemberOfGroup)));
+                }
+                if ($vidPosition) {
+                    SetValueString($vidPosition, @GetValueString(IPS_GetObjectIDByIdent('Position', $MemberOfGroup)));
+                }
+                if ($vidTitle) {
+                    SetValueString($vidTitle, @GetValueString(IPS_GetObjectIDByIdent('Title', $MemberOfGroup)));
+                }
+                if ($vidDetails) {
+                    SetValueString($vidDetails, @GetValueString(IPS_GetObjectIDByIdent('Details', $MemberOfGroup)));
+                }
+            } else {
+                SetValueInteger($vidStatus, $status);
+
+                // Titelanzeige
+                $currentStation = 0;
+
+                if ($status != 1) {
+                    // No title if not playing
+                    $actuallyPlaying = '';
+                } else {
+                    $positionInfo = $sonos->GetPositionInfo();
+                    $mediaInfo = $sonos->GetMediaInfo();
+
+                    if ($positionInfo['streamContent']) {
+                        $actuallyPlaying = $positionInfo['streamContent'];
+                    } else {
+                        $actuallyPlaying = $positionInfo['title'] . ' | ' . $positionInfo['artist'];
+                    }
+
+                    // start find current Radio in VariableProfile
+                    $radioStations = json_decode($this->ReadAttributeString('RadioStations'), true);
+
+                    $playingRadioStation = '';
+                    foreach ($radioStations as $radioStation) {
+                        if ($radioStation['URL'] == htmlspecialchars_decode($mediaInfo['CurrentURI'])) {
+                            $playingRadioStation = $radioStation['name'];
+                            $image = $radioStation['imageURL'];
                             break;
                         }
                     }
-                }
 
-                if (isset($playingRadioStation)) {
-                    $Associations = IPS_GetVariableProfile('SONOS.Radio')['Associations'];
-                    foreach ($Associations as $key => $station) {
-                        if ($station['Name'] == $playingRadioStation) {
-                            $currentStation = $station['Value'];
-                            break;
-                        }
-                    }
-                }
-                // end find current Radio in VariableProfile
-            }
-            SetValueInteger($vidRadio, $currentStation);
-
-            // detailed Information
-            if ($vidContentStream) {
-                SetValueString($vidContentStream, @$positionInfo['streamContent']);
-            }
-            if ($vidArtist) {
-                SetValueString($vidArtist, @$positionInfo['artist']);
-            }
-            if ($vidAlbum) {
-                SetValueString($vidAlbum, @$positionInfo['album']);
-            }
-            if ($vidTrackDuration) {
-                SetValueString($vidTrackDuration, @$positionInfo['TrackDuration']);
-            }
-            if ($vidPosition) {
-                SetValueString($vidPosition, @$positionInfo['RelTime']);
-            }
-            if ($vidTitle) {
-                if (@$mediaInfo['title']) {
-                    SetValueString($vidTitle, @$mediaInfo['title']);
-                } else {
-                    SetValueString($vidTitle, @$positionInfo['title']);
-                }
-            }
-
-            if ($vidDetails) {
-                $stationID = '';
-                if (isset($positionInfo)) {
-                    // SPDIF and analog
-                    if (strpos($mediaInfo['title'], 'RINCON_') === 0) {
-                        $detailHTML = '';
-                    // Radio or stream(?)
-                    } elseif ($mediaInfo['title']) {
-                        // get stationID if playing via TuneIn
-                        $stationID = preg_replace("#(.*)x-sonosapi-stream:(.*?)\?sid(.*)#is", '$2', $mediaInfo['CurrentURI']);
-                        if (!isset($image)) {
-                            $image = '';
-                        }
-                        if ($stationID && $stationID[0] == 's') {
-                            if (@GetValueString($vidStationID) == $stationID) {
-                                $image = GetValueString($vidCoverURL);
-                            } else {
-                                $serial = substr($this->ReadPropertyString('RINCON'), 7, 12);
-                                $image = preg_replace('#(.*)<LOGO>(.*?)\</LOGO>(.*)#is', '$2', @file_get_contents('http://opml.radiotime.com/Describe.ashx?c=nowplaying&id=' . $stationID . '&partnerId=IAeIhU42&serial=' . $serial));
+                    if ($playingRadioStation == '') {
+                        foreach ((new SimpleXMLElement($sonos->BrowseContentDirectory('R:0/0')['Result']))->item as $item) {
+                            if ($item->res == htmlspecialchars_decode($mediaInfo['CurrentURI'])) {
+                                $playingRadioStation = (string) $item->xpath('dc:title')[0];
+                                break;
                             }
-                        } else {
-                            $stationID = '';
                         }
-                        $detailHTML = '<table width="100%"><tr><td><div style="text-align: right;"><div><b>' . $positionInfo['streamContent'] . '</b></div><div>&nbsp;</div><div>' . $mediaInfo['title'] . '</div></div></td>';
+                    }
 
-                        if (strlen($image) > 0) {
-                            $detailHTML .= '<td width="' . $AlbumArtHeight . 'px" valign="top">
+                    if (isset($playingRadioStation)) {
+                        $Associations = IPS_GetVariableProfile('SONOS.Radio')['Associations'];
+                        foreach ($Associations as $key => $station) {
+                            if ($station['Name'] == $playingRadioStation) {
+                                $currentStation = $station['Value'];
+                                break;
+                            }
+                        }
+                    }
+                    // end find current Radio in VariableProfile
+                }
+                SetValueInteger($vidRadio, $currentStation);
+
+                // detailed Information
+                if ($vidContentStream) {
+                    SetValueString($vidContentStream, @$positionInfo['streamContent']);
+                }
+                if ($vidArtist) {
+                    SetValueString($vidArtist, @$positionInfo['artist']);
+                }
+                if ($vidAlbum) {
+                    SetValueString($vidAlbum, @$positionInfo['album']);
+                }
+                if ($vidTrackDuration) {
+                    SetValueString($vidTrackDuration, @$positionInfo['TrackDuration']);
+                }
+                if ($vidPosition) {
+                    SetValueString($vidPosition, @$positionInfo['RelTime']);
+                }
+                if ($vidTitle) {
+                    if (@$mediaInfo['title']) {
+                        SetValueString($vidTitle, @$mediaInfo['title']);
+                    } else {
+                        SetValueString($vidTitle, @$positionInfo['title']);
+                    }
+                }
+
+                if ($vidDetails) {
+                    $stationID = '';
+                    if (isset($positionInfo)) {
+                        // SPDIF and analog
+                        if (strpos($mediaInfo['title'], 'RINCON_') === 0) {
+                            $detailHTML = '';
+                        // Radio or stream(?)
+                        } elseif ($mediaInfo['title']) {
+                            // get stationID if playing via TuneIn
+                            $stationID = preg_replace("#(.*)x-sonosapi-stream:(.*?)\?sid(.*)#is", '$2', $mediaInfo['CurrentURI']);
+                            if (!isset($image)) {
+                                $image = '';
+                            }
+                            if ($stationID && $stationID[0] == 's') {
+                                if (@GetValueString($vidStationID) == $stationID) {
+                                    $image = GetValueString($vidCoverURL);
+                                } else {
+                                    $serial = substr($this->ReadPropertyString('RINCON'), 7, 12);
+                                    $image = preg_replace('#(.*)<LOGO>(.*?)\</LOGO>(.*)#is', '$2', @file_get_contents('http://opml.radiotime.com/Describe.ashx?c=nowplaying&id=' . $stationID . '&partnerId=IAeIhU42&serial=' . $serial));
+                                }
+                            } else {
+                                $stationID = '';
+                            }
+                            $detailHTML = '<table width="100%"><tr><td><div style="text-align: right;"><div><b>' . $positionInfo['streamContent'] . '</b></div><div>&nbsp;</div><div>' . $mediaInfo['title'] . '</div></div></td>';
+
+                            if (strlen($image) > 0) {
+                                $detailHTML .= '<td width="' . $AlbumArtHeight . 'px" valign="top">
                                 <div style="width: ' . $AlbumArtHeight . 'px; height: ' . $AlbumArtHeight . 'px; perspective: ' . $AlbumArtHeight . 'px; right: 0px; margin-bottom: 10px;">
                               	<img src="' . @$image . '" style="max-width: ' . $AlbumArtHeight . 'px; max-height: ' . $AlbumArtHeight . 'px; -webkit-box-reflect: below 0 -webkit-gradient(linear, left top, left bottom, from(transparent), color-stop(0.88, transparent), to(rgba(255, 255, 255, 0.5))); transform: rotateY(-10deg) translateZ(-35px);">
                               </div></td>';
+                            }
+
+                            $detailHTML .= '</tr></table>';
+
+                        // normal files
+                        } else {
+                            $durationSeconds = 0;
+                            $currentPositionSeconds = 0;
+                            if ($positionInfo['TrackDuration'] && preg_match('/\d+:\d+:\d+/', $positionInfo['TrackDuration'])) {
+                                $durationArray = explode(':', $positionInfo['TrackDuration']);
+                                $currentPositionArray = explode(':', $positionInfo['RelTime']);
+                                $durationSeconds = $durationArray[0] * 3600 + $durationArray[1] * 60 + $durationArray[2];
+                                $currentPositionSeconds = $currentPositionArray[0] * 3600 + $currentPositionArray[1] * 60 + $currentPositionArray[2];
+                            }
+                            $detailHTML = '<table width="100%"><tr><td><div style="text-align: right;"><div><b>' . $positionInfo['title'] . '</b></div><div>&nbsp;</div><div>' . $positionInfo['artist'] . '</div><div>' . $positionInfo['album'] . '</div><div>&nbsp;</div><div>' . $positionInfo['RelTime'] . ' / ' . $positionInfo['TrackDuration'] . '</div></div></td>';
+
+                            if (isset($positionInfo['albumArtURI'])) {
+                                $detailHTML .= '<td width="' . $AlbumArtHeight . 'px" valign="top"><div style="width: ' . $AlbumArtHeight . 'px; height: ' . $AlbumArtHeight . 'px; perspective: ' . $AlbumArtHeight . 'px; right: 0px; margin-bottom: 10px;"><img src="' . @$positionInfo['albumArtURI'] . '" style="max-width: ' . $AlbumArtHeight . 'px; max-height: ' . $AlbumArtHeight . 'px; -webkit-box-reflect: below 0 -webkit-gradient(linear, left top, left bottom, from(transparent), color-stop(0.88, transparent), to(rgba(255, 255, 255, 0.5))); transform: rotateY(-10deg) translateZ(-35px);"></div></td>';
+                            }
+
+                            $detailHTML .= '</tr></table>';
                         }
-
-                        $detailHTML .= '</tr></table>';
-
-                    // normal files
-                    } else {
-                        $durationSeconds = 0;
-                        $currentPositionSeconds = 0;
-                        if ($positionInfo['TrackDuration'] && preg_match('/\d+:\d+:\d+/', $positionInfo['TrackDuration'])) {
-                            $durationArray = explode(':', $positionInfo['TrackDuration']);
-                            $currentPositionArray = explode(':', $positionInfo['RelTime']);
-                            $durationSeconds = $durationArray[0] * 3600 + $durationArray[1] * 60 + $durationArray[2];
-                            $currentPositionSeconds = $currentPositionArray[0] * 3600 + $currentPositionArray[1] * 60 + $currentPositionArray[2];
-                        }
-                        $detailHTML = '<table width="100%"><tr><td><div style="text-align: right;"><div><b>' . $positionInfo['title'] . '</b></div><div>&nbsp;</div><div>' . $positionInfo['artist'] . '</div><div>' . $positionInfo['album'] . '</div><div>&nbsp;</div><div>' . $positionInfo['RelTime'] . ' / ' . $positionInfo['TrackDuration'] . '</div></div></td>';
-
-                        if (isset($positionInfo['albumArtURI'])) {
-                            $detailHTML .= '<td width="' . $AlbumArtHeight . 'px" valign="top"><div style="width: ' . $AlbumArtHeight . 'px; height: ' . $AlbumArtHeight . 'px; perspective: ' . $AlbumArtHeight . 'px; right: 0px; margin-bottom: 10px;"><img src="' . @$positionInfo['albumArtURI'] . '" style="max-width: ' . $AlbumArtHeight . 'px; max-height: ' . $AlbumArtHeight . 'px; -webkit-box-reflect: below 0 -webkit-gradient(linear, left top, left bottom, from(transparent), color-stop(0.88, transparent), to(rgba(255, 255, 255, 0.5))); transform: rotateY(-10deg) translateZ(-35px);"></div></td>';
-                        }
-
-                        $detailHTML .= '</tr></table>';
                     }
-                }
-                @SetValueString($vidDetails, $detailHTML);
-                if ($vidCoverURL) {
-                    $oldURL = GetValueString($vidCoverURL);
-                    $imageContent = 'notSet';
-                    if ((isset($image)) && (strlen($image) > 0)) {
-                        if ($oldURL != $image) {
-                            SetValueString($vidCoverURL, $image);
-                            $imageContentResponse = @Sys_GetURLContent($image);
-                            if ($imageContentResponse) {
-                                $imageContent = base64_encode($imageContentResponse);
+                    @SetValueString($vidDetails, $detailHTML);
+                    if ($vidCoverURL) {
+                        $oldURL = GetValueString($vidCoverURL);
+                        $imageContent = 'notSet';
+                        if ((isset($image)) && (strlen($image) > 0)) {
+                            if ($oldURL != $image) {
+                                SetValueString($vidCoverURL, $image);
+                                $imageContentResponse = @Sys_GetURLContent($image);
+                                if ($imageContentResponse) {
+                                    $imageContent = base64_encode($imageContentResponse);
+                                }
+                            }
+                        } elseif (isset($positionInfo['albumArtURI']) && (strlen($positionInfo['albumArtURI']) > 0)) {
+                            if ($oldURL != $positionInfo['albumArtURI']) {
+                                SetValueString($vidCoverURL, $positionInfo['albumArtURI']);
+                                $imageContentResponse = @Sys_GetURLContent($positionInfo['albumArtURI']);
+                                if ($imageContentResponse) {
+                                    $imageContent = base64_encode($imageContentResponse);
+                                }
+                            }
+                        } else {
+                            if ($oldURL != '') {
+                                SetValueString($vidCoverURL, '');
+                                $imageContent = 'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII='; // transparent picture
                             }
                         }
-                    } elseif (isset($positionInfo['albumArtURI']) && (strlen($positionInfo['albumArtURI']) > 0)) {
-                        if ($oldURL != $positionInfo['albumArtURI']) {
-                            SetValueString($vidCoverURL, $positionInfo['albumArtURI']);
-                            $imageContentResponse = @Sys_GetURLContent($positionInfo['albumArtURI']);
-                            if ($imageContentResponse) {
-                                $imageContent = base64_encode($imageContentResponse);
-                            }
+                        $MediaID = @$this->GetIDForIdent('Cover');
+                        if ($MediaID && IPS_MediaExists($MediaID) && $imageContent != 'notSet') {
+                            IPS_SetMediaContent($MediaID, $imageContent);
+                            IPS_SendMediaEvent($MediaID);
+                        }
+                    }
+                    SetValueString($vidStationID, $stationID);
+                }
+
+                // Sleeptimer
+                if ($vidSleeptimer) {
+                    try {
+                        $sleeptimer = $sonos->GetSleeptimer();
+                    } catch (Exception $e) {
+                        if ($e->getMessage() == 'Error during Soap Call: UPnPError s:Client 800 (UNKNOWN)') {
+                            // INVALID_TRANSITION happens e.g. when no resource set
+                            $this->SendDebug(__FUNCTION__ . '->GetSleeptimer', (string) $e->getMessage(), 0);
+                        } else {
+                            throw $e;
+                            $sleeptimer = false;
+                        }
+                    }
+
+                    if ($sleeptimer) {
+                        $SleeptimerArray = explode(':', $sleeptimer);
+                        $SleeptimerMinutes = $SleeptimerArray[0] * 60 + $SleeptimerArray[1];
+                        if ($SleeptimerArray[2]) {
+                            $SleeptimerMinutes = $SleeptimerMinutes + 1;
                         }
                     } else {
-                        if ($oldURL != '') {
-                            SetValueString($vidCoverURL, '');
-                            $imageContent = 'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII='; // transparent picture
-                        }
+                        $SleeptimerMinutes = 0;
                     }
-                    $MediaID = @$this->GetIDForIdent('Cover');
-                    if ($MediaID && IPS_MediaExists($MediaID) && $imageContent != 'notSet') {
-                        IPS_SetMediaContent($MediaID, $imageContent);
-                        IPS_SendMediaEvent($MediaID);
-                    }
+
+                    SetValueInteger($vidSleeptimer, $SleeptimerMinutes);
                 }
-                SetValueString($vidStationID, $stationID);
             }
 
-            // Sleeptimer
-            if ($vidSleeptimer) {
-                try {
-                    $sleeptimer = $sonos->GetSleeptimer();
-                } catch (Exception $e) {
-                    if ($e->getMessage() != 'Error during Soap Call: UPnPError s:Client 800 (UNKNOWN)') {
-                        // INVALID_TRANSITION happens e.g. when no resource set
-                        throw $e;
-                    }
-                    $sleeptimer = false;
-                }
+            $nowPlaying = GetValueString($vidNowPlaying);
+            if ($actuallyPlaying != $nowPlaying) {
+                SetValueString($vidNowPlaying, $actuallyPlaying);
+            }
 
-                if ($sleeptimer) {
-                    $SleeptimerArray = explode(':', $sleeptimer);
-                    $SleeptimerMinutes = $SleeptimerArray[0] * 60 + $SleeptimerArray[1];
-                    if ($SleeptimerArray[2]) {
-                        $SleeptimerMinutes = $SleeptimerMinutes + 1;
-                    }
-                } else {
-                    $SleeptimerMinutes = 0;
-                }
+            // Set Group Volume
+            $groupMembers = $this->ReadAttributeString('GroupMembers');
+            $groupMembersArray = [];
+            if ($groupMembers) {
+                $groupMembersArray = array_map('intval', explode(',', $groupMembers));
+            }
+            $groupMembersArray[] = $this->InstanceID;
 
-                SetValueInteger($vidSleeptimer, $SleeptimerMinutes);
+            $GroupVolume = 0;
+            foreach ($groupMembersArray as $key => $ID) {
+                // TODO: switch to DataFLow once 5.4 is out
+                $GroupVolume += GetValueInteger(IPS_GetObjectIDByIdent('Volume', $ID));
+            }
+
+            SetValueInteger($vidGroupVolume, intval(round($GroupVolume / count($groupMembersArray))));
+        } catch (Exception $e) {
+            if ($e->getMessage() == 'Error during Soap Call: Could not connect to host HTTP') {
+                // not sure how often and why this happens...
+                $this->SendDebug(__FUNCTION__, (string) $e->getMessage(), 0);
+                $this->SendDebug(__FUNCTION__, $e->getFile()." (".$e->getLine().")", 0);
+                foreach ($e->getTrace() as $trace ){
+                    $this->SendDebug(__FUNCTION__, $trace['file']." (".$trace['line'].")", 0);
+                }                
+            } else {
+                throw $e;
             }
         }
-
-        $nowPlaying = GetValueString($vidNowPlaying);
-        if ($actuallyPlaying != $nowPlaying) {
-            SetValueString($vidNowPlaying, $actuallyPlaying);
-        }
-
-        // Set Group Volume
-        $groupMembers = $this->ReadAttributeString('GroupMembers');
-        $groupMembersArray = [];
-        if ($groupMembers) {
-            $groupMembersArray = array_map('intval', explode(',', $groupMembers));
-        }
-        $groupMembersArray[] = $this->InstanceID;
-
-        $GroupVolume = 0;
-        foreach ($groupMembersArray as $key => $ID) {
-            // TODO: switch to DataFLow once 5.4 is out
-            $GroupVolume += GetValueInteger(IPS_GetObjectIDByIdent('Volume', $ID));
-        }
-
-        SetValueInteger($vidGroupVolume, intval(round($GroupVolume / count($groupMembersArray))));
     } // END UpdateStatus
 
     public function RequestAction($Ident, $Value)
