@@ -296,19 +296,6 @@ class SonosPlayer extends IPSModule
 
     public function GetConfigurationForm()
     {
-        if ($this->ReadPropertyString('RINCON')) {
-            $showRINCONButton = false;
-        } else {
-            $showRINCONButton = true;
-        }
-
-        $Model = $this->ReadPropertyString('Model');
-        if ($Model) {
-            $showModelButton = false;
-        } else {
-            $showModelButton = true;
-        }
-
         if ($this->ReadPropertyString('IPAddress')) {
             $showRINCONMessage = false;
             $showModelMessage = false;
@@ -359,14 +346,14 @@ class SonosPlayer extends IPSModule
                 [
                     'type' => 'RowLayout', 'items' => [
                         ['name' => 'RINCON',        'type' => 'ValidationTextBox', 'caption' => 'RINCON',      'validate' => 'RINCON_[\dA-F]{12}01400'],
-                        ['name' => 'rinconButton',  'type' => 'Button',            'caption' => 'read RINCON', 'onClick'  => 'SNS_getRINCON($id,$IPAddress);', 'visible' => $showRINCONButton],
+                        ['name' => 'rinconButton',  'type' => 'Button',            'caption' => 'read RINCON', 'onClick'  => 'SNS_getRINCON($id,$IPAddress);'],
                         ['name' => 'rinconMessage', 'type' => 'Label',             'caption' => 'RINCON can be read automatically, once IP-Address/Host was entered', 'visible'  => $showRINCONMessage]
                     ]
                 ],
                 [
                     'type' => 'RowLayout', 'items' => [
                         ['name' => 'Model',        'type' => 'Select',            'caption' => 'Model', 'options'  => $knownModels],
-                        ['name' => 'modelButton',  'type' => 'Button',            'caption' => 'read Model', 'onClick'  => 'SNS_getModel($id,$IPAddress);', 'visible' => $showModelButton],
+                        ['name' => 'modelButton',  'type' => 'Button',            'caption' => 'read Model', 'onClick'  => 'SNS_getModel($id,$IPAddress);'],
                         ['name' => 'modelMessage', 'type' => 'Label',             'caption' => 'Model can be read automatically, once IP-Address/Host was entered', 'visible'  => $showModelMessage]
                     ]
                 ],
@@ -2359,7 +2346,6 @@ class SonosPlayer extends IPSModule
         $rincon = str_replace('uuid:', '', $xmlr->device->UDN);
         if ($rincon) {
             $this->UpdateFormField('RINCON', 'value', $rincon);
-            $this->UpdateFormField('rinconButton', 'visible', false);
         } else {
             $this->UpdateFormField('rinconMessage', 'visible', true);
             $this->UpdateFormField('rinconMessage', 'caption', sprintf($this->translate('RINCON could not be read from %s'), $ip));
@@ -2393,7 +2379,6 @@ class SonosPlayer extends IPSModule
         $model = (string) $xmlr->device->displayName;
         if ($model) {
             $this->UpdateFormField('Model', 'value', $model);
-            $this->UpdateFormField('modelButton', 'visible', false);
         } else {
             $this->UpdateFormField('modelMessage', 'visible', true);
             $this->UpdateFormField('modelMessage', 'caption', sprintf($this->translate('Model could not be read from %s'), $ip));
