@@ -149,8 +149,8 @@ Es ist eine Liste der aktuell bekannten Player in der Drop-Down Liste gepflegt, 
   - Playbar
   - Playbase
   - SYMFONISK
-  
-Wenn ein anderes Modell beim auslesen erkannt wird, wird es automatisch der Liste hinzugefügt. Falls dies der Fall ist, wäre es aber hilfreich, wenn ich dieses Modell genannt bekäme, um es hinzuzufügen.  
+
+  Wenn ein anderes Modell beim auslesen erkannt wird, wird es automatisch der Liste hinzugefügt. Falls dies der Fall ist, wäre es aber hilfreich, wenn ich dieses Modell genannt bekäme, um es hinzuzufügen.  
 Das Modell hat auswirkungen auf die angeotenen Features. So mann man z.B. die "Nachtmodus-Steuerung" nur für die Modelle "Playbar" und "Playbase" einschalten.
 4. __Maximale Dauer bis zur Zeitüberschreitung des ping__  
 Bevor ein Lautsprecher kontaktiert wird, wird versucht diesen per Ping zu erreichen. Wenn der Lautsprecher diese Zeil lang nicht antwortet, wird er als "nicht erreichbar" erachtet.  
