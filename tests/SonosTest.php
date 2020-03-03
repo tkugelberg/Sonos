@@ -57,5 +57,4 @@ class SonosTest extends TestCase
 
         $playerInterface->Play($playerID);
     } */
-    
 }

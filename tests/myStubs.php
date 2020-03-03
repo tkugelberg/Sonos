@@ -7,4 +7,4 @@ function Sys_Ping(string $Host, int $Timeout)
 {
     return true;
 }
-*/
+ */
