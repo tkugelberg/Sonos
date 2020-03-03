@@ -2248,7 +2248,8 @@ class SonosPlayer extends IPSModule
 
             SetValueInteger($vidGroupVolume, intval(round($GroupVolume / count($groupMembersArray))));
         } catch (Exception $e) {
-            if ($e->getMessage() == 'Error during Soap Call: Could not connect to host HTTP') {
+            $eMessage = $e->getMessage();
+            if ($eMessage == 'Error during Soap Call: Could not connect to host HTTP' || $eMessage == 'Error during Soap Call: Error Fetching http headers HTTP') {
                 // not sure how often and why this happens...
                 $this->SendDebug(__FUNCTION__, (string) $e->getMessage(), 0);
                 $this->SendDebug(__FUNCTION__, $e->getFile() . ' (' . $e->getLine() . ')', 0);
