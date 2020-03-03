@@ -500,7 +500,7 @@ class SonosSplitter extends IPSModule
         $this->SendDebug('"' . __FUNCTION__ . '" called', '', 0);
         $Associations = [];
         $PlaylistImport = $this->ReadPropertyInteger('PlaylistImport');
-        $this->SendDebug(__FUNCTION__ . ': PlaylistImport set to', $PlaylistImport, 0);
+        $this->SendDebug(__FUNCTION__ . ': PlaylistImport set to', (string) $PlaylistImport, 0);
         $Value = 1;
 
         if ($PlaylistImport != 0) {

@@ -2518,7 +2518,7 @@ class SonosPlayer extends IPSModule
 
         $memberOfGroup = GetValueInteger($this->GetIDForIdent('MemberOfGroup'));
         if ($memberOfGroup) {
-            $this->SendDebug(__FUNCTION__ . '->Forwarding to ', $memberOfGroup, 0);
+            $this->SendDebug(__FUNCTION__ . '->Forwarding to ', (string) $memberOfGroup, 0);
             return $memberOfGroup;
         }
         throw new Exception($this->Translate('Instance is not a coordinator and group coordinator could not be determined'));
