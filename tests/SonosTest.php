@@ -8,7 +8,6 @@ include_once __DIR__ . '/stubs/GlobalStubs.php';
 include_once __DIR__ . '/stubs/KernelStubs.php';
 include_once __DIR__ . '/stubs/ModuleStubs.php';
 include_once __DIR__ . '/stubs/MessageStubs.php';
-include_once __DIR__ . '/myStubs.php';
 
 class SonosTest extends TestCase
 {
@@ -40,10 +39,11 @@ class SonosTest extends TestCase
         IPS_CreateVariableProfile('~HTMLBox', 3);
 
         IPS_SetProperty($playerID, 'IPAddress', '192.168.1.2');
-        IPS_SetProperty($playerID, 'SleeptimerControl', true );
-        IPS_SetProperty($playerID, 'PlayModeControl', true );
-        IPS_SetProperty($playerID, 'DetailedInformation', true );
-        IPS_ApplyChanges($playerID);
+        IPS_SetProperty($playerID, 'DisableHiding', true);
+        //IPS_SetProperty($playerID, 'SleeptimerControl', true );
+        //IPS_SetProperty($playerID, 'PlayModeControl', true );
+        // IPS_SetProperty($playerID, 'DetailedInformation', true );
+         IPS_ApplyChanges($playerID);
 
         $playerInterface->ReceiveData(json_encode([
             'DataID'         => '{36EA4430-7047-C11D-0854-43391B14E0D7}',
