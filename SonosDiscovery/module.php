@@ -150,13 +150,18 @@ class SonosDiscovery extends ipsmodule
                 if (!isset($zoneGroupMember->attributes()['Invisible'])) {
                     if (preg_match('/\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}/', (string) $zoneGroupMember->attributes()['Location'], $ip_match)) {
                         if (Sys_ping($ip_match[0], 1000)) {
-                            $description = new SimpleXMLElement((string) $zoneGroupMember->attributes()['Location'], 0, true);
-                            $SonosDevices[(string) $zoneGroupMember->attributes()['UUID']] = [
-                                'Name'      => strval($zoneGroupMember->attributes()['ZoneName']),
-                                'Model'     => strval($description->device->displayName),
-                                'RINCON'    => strval($zoneGroupMember->attributes()['UUID']),
-                                'IPAddress' => $ip_match[0]
-                            ];
+                            $xml = @file_get_contents((string) $zoneGroupMember->attributes()['Location']);
+                            if ($xml) {
+                                $description = new SimpleXMLElement($xml);
+                                $SonosDevices[(string) $zoneGroupMember->attributes()['UUID']] = [
+                                    'Name'      => strval($zoneGroupMember->attributes()['ZoneName']),
+                                    'Model'     => strval($description->device->displayName),
+                                    'RINCON'    => strval($zoneGroupMember->attributes()['UUID']),
+                                    'IPAddress' => $ip_match[0]
+                                ];
+                            } else {
+                                $this->SendDebug(__FUNCTION__, 'nothing returned from ' . (string) $zoneGroupMember->attributes()['Location'], 0);
+                            }
                         }
                     }
                 }
