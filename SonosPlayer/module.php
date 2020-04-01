@@ -305,6 +305,7 @@ class SonosPlayer extends IPSModule
         }
 
         $knownModels = [
+            ['caption' => 'Beam',         'value' => 'Beam'],
             ['caption' => 'Connect',      'value' => 'Connect'],
             ['caption' => 'Connect:Amp',  'value' => 'Connect:Amp'],
             ['caption' => 'Play:1',       'value' => 'Play:1'],
@@ -469,13 +470,11 @@ class SonosPlayer extends IPSModule
                 }
 
                 try {
-                    $ip = $this->getIP();
+                    $sonos = $this->getSonosAccess();
                 } catch (Exception $e) {
                     $this->SendDebug(__FUNCTION__ . '->prepareAllPlayGrouping', 'Player is not available', 0);
                     return; // player is not available, skip
                 }
-
-                $sonos = new SonosAccess($ip);
 
                 // remember settings in all players
                 $Settings = [];
@@ -513,13 +512,11 @@ class SonosPlayer extends IPSModule
                 $Settings = json_decode($buffer, true);
 
                 try {
-                    $ip = $this->getIP();
+                    $sonos = $this->getSonosAccess();
                 } catch (Exception $e) {
                     $this->SendDebug(__FUNCTION__ . '->preparePlayGrouping', 'Player is not available', 0);
                     return; // player is not available, skip
                 }
-
-                $sonos = new SonosAccess($ip);
 
                 // Set Volume
                 if ($this->ReadAttributeBoolean('OutputFixed') == false) {
@@ -548,13 +545,12 @@ class SonosPlayer extends IPSModule
                 break;
             case 'preResetPlayGrouping':
                 try {
-                    $ip = $this->getIP();
+                    $sonos = $this->getSonosAccess();
                 } catch (Exception $e) {
                     $this->SendDebug(__FUNCTION__ . '->preResetAllPlayGrouping', 'Player is not available', 0);
                     return; // player is not available, skip
                 }
 
-                $sonos = new SonosAccess($ip);
                 $this->SendDebug(__FUNCTION__ . '->preRestPlayGrouping->sonos', 'SetAVTransportURI(\'\')', 0);
                 $sonos->SetAVTransportURI('');
                 break;
@@ -567,13 +563,11 @@ class SonosPlayer extends IPSModule
                 $Settings = json_decode($buffer, true);
 
                 try {
-                    $ip = $this->getIP();
+                    $sonos = $this->getSonosAccess();
                 } catch (Exception $e) {
                     $this->SendDebug(__FUNCTION__ . '->resetAllPlayGrouping', 'Player is not available', 0);
                     return; // player is not available, skip
                 }
-
-                $sonos = new SonosAccess($ip);
 
                 $this->SendDebug(__FUNCTION__ . '->resetPlayGrouping->sonos', sprintf('SetAVTransportURI(%s,%s)', $Settings['mediaInfo']['CurrentURI'], $Settings['mediaInfo']['CurrentURIMetaData']), 0);
                 $sonos->SetAVTransportURI($Settings['mediaInfo']['CurrentURI'], $Settings['mediaInfo']['CurrentURIMetaData']);
@@ -875,12 +869,12 @@ class SonosPlayer extends IPSModule
         }
 
         // execute sonos change
-        $ip = $this->getIP();
+        $sonos = $this->getSonosAccess();
 
         // Is executed on own Instance, but with RINCON of new Coordinator
         $RINCON = IPS_GetProperty($newGroupCoordinator, 'RINCON');
         $this->SendDebug(__FUNCTION__ . '->sonos', sprintf('DelegateGroupCoordinationTo(%s, %s)', $RINCON, $rejoinGroup ? 'true' : 'false'), 0);
-        (new SonosAccess($ip))->DelegateGroupCoordinationTo($RINCON, $rejoinGroup);
+        $sonos->DelegateGroupCoordinationTo($RINCON, $rejoinGroup);
 
         // get old membersOf and remove involved instances
         $currentMembers = explode(',', $this->ReadAttributeString('GroupMembers'));
@@ -1003,10 +997,10 @@ class SonosPlayer extends IPSModule
         $targetInstance = $this->findTarget();
 
         if ($targetInstance === $this->InstanceID) {
-            $ip = $this->getIP();
+            $sonos = $this->getSonosAccess();
 
             $this->SendDebug(__FUNCTION__ . '->sonos', 'SetSleeptimer(0, 0, 0)', 0);
-            (new SonosAccess($ip))->SetSleeptimer(0, 0, 0);
+            $sonos->SetSleeptimer(0, 0, 0);
         } else {
             $data = json_encode([
                 'DataID'         => '{731D7808-F7C4-FA98-2132-0FAB19A802C1}',
@@ -1025,10 +1019,10 @@ class SonosPlayer extends IPSModule
         $targetInstance = $this->findTarget();
 
         if ($targetInstance === $this->InstanceID) {
-            $ip = $this->getIP();
+            $sonos = $this->getSonosAccess();
 
             $this->SendDebug(__FUNCTION__ . '->sonos', 'Next()', 0);
-            (new SonosAccess($ip))->Next();
+            $sonos->Next();
         } else {
             $data = json_encode([
                 'DataID'         => '{731D7808-F7C4-FA98-2132-0FAB19A802C1}',
@@ -1053,11 +1047,11 @@ class SonosPlayer extends IPSModule
         $targetInstance = $this->findTarget();
 
         if ($targetInstance === $this->InstanceID) {
-            $ip = $this->getIP();
+            $sonos = $this->getSonosAccess();
 
             SetValue($this->GetIDForIdent('Status'), 1);
             $this->SendDebug(__FUNCTION__ . '->sonos', 'Play()', 0);
-            (new SonosAccess($ip))->Play();
+            $sonos->Play();
         } else {
             $data = json_encode([
                 'DataID'         => '{731D7808-F7C4-FA98-2132-0FAB19A802C1}',
@@ -1083,8 +1077,7 @@ class SonosPlayer extends IPSModule
             }
         }
 
-        $ip = $this->getIP();
-        $sonos = new SonosAccess($ip);
+        $sonos = $this->getSonosAccess();
 
         $positionInfo = $sonos->GetPositionInfo();
         $this->SendDebug(__FUNCTION__ . ': current positionInfo', json_encode($positionInfo), 0);
@@ -1225,7 +1218,7 @@ class SonosPlayer extends IPSModule
             }
         }
 
-        $ip = $this->getIP();
+        $sonos = $this->getSonosAccess();
 
         $instancesArray = json_decode($instances, true);
         $involvedInstances = array_keys($instancesArray);
@@ -1240,7 +1233,6 @@ class SonosPlayer extends IPSModule
         $this->SendDebug(__FUNCTION__ . '->SendDataToParent', $data, 0);
         $this->SendDataToParent($data);
 
-        $sonos = new SonosAccess($ip);
         $transportURI = 'x-rincon:' . $this->ReadPropertyString('RINCON');
 
         foreach ($instancesArray as $instanceID => $settings) {
@@ -1329,10 +1321,10 @@ class SonosPlayer extends IPSModule
         $targetInstance = $this->findTarget();
 
         if ($targetInstance === $this->InstanceID) {
-            $ip = $this->getIP();
+            $sonos = $this->getSonosAccess();
 
             $this->SendDebug(__FUNCTION__ . '->sonos', 'Previous()', 0);
-            (new SonosAccess($ip))->Previous();
+            $sonos->Previous();
         } else {
             $data = json_encode([
                 'DataID'         => '{731D7808-F7C4-FA98-2132-0FAB19A802C1}',
@@ -1349,18 +1341,18 @@ class SonosPlayer extends IPSModule
     {
         $this->SendDebug('"' . __FUNCTION__ . '" called with', sprintf('$rampType=%s $volume=%d', $rampType, $volume), 0);
         if ($this->ReadAttributeBoolean('OutputFixed') == false) {
-            $ip = $this->getIP();
+            $sonos = $this->getSonosAccess();
 
             SetValue($this->GetIDForIdent('Volume'), $volume);
             $this->SendDebug(__FUNCTION__ . '->sonos', sprintf('RampToVolume(%s, %d)', $rampType, $volume), 0);
-            (new SonosAccess($ip))->RampToVolume($rampType, $volume);
+            $sonos->RampToVolume($rampType, $volume);
         }
     } // END RampToVolume
 
     public function SetAnalogInput(int $input_instance)
     {
         $this->SendDebug('"' . __FUNCTION__ . '" called with', sprintf('$input_instance=%d', $input_instance), 0);
-        $ip = $this->getIP();
+        $sonos = $this->getSonosAccess();
 
         if (@GetValue($this->GetIDForIdent('MemberOfGroup'))) {
             $this->SetGroup(0);
@@ -1368,13 +1360,13 @@ class SonosPlayer extends IPSModule
 
         $uri = 'x-rincon-stream:' . IPS_GetProperty($input_instance, 'RINCON');
         $this->SendDebug(__FUNCTION__ . '->sonos', sprintf('SetAVTransportURI(%s)', $uri), 0);
-        (new SonosAccess($ip))->SetAVTransportURI($uri);
+        $sonos->SetAVTransportURI($uri);
     }    // END SetAnalogInput
 
     public function SetBalance(int $balance)
     {
         $this->SendDebug('"' . __FUNCTION__ . '" called with', sprintf('$balance=%d', $balance), 0);
-        $ip = $this->getIP();
+        $sonos = $this->getSonosAccess();
 
         $leftVolume = 100;
         $rightVolume = 100;
@@ -1384,7 +1376,6 @@ class SonosPlayer extends IPSModule
             $leftVolume = 100 - $balance;
         }
 
-        $sonos = (new SonosAccess($ip));
         $this->SendDebug(__FUNCTION__ . '->sonos', sprintf('SetVolume(%d, \'LF\')', $leftVolume), 0);
         $sonos->SetVolume($leftVolume, 'LF');
         $this->SendDebug(__FUNCTION__ . '->sonos', sprintf('SetVolume(%d, \'RF\')', $rightVolume), 0);
@@ -1397,10 +1388,10 @@ class SonosPlayer extends IPSModule
     public function SetBass(int $bass)
     {
         $this->SendDebug('"' . __FUNCTION__ . '" called with', sprintf('$bass=%d', $bass), 0);
-        $ip = $this->getIP();
+        $sonos = $this->getSonosAccess();
 
         $this->SendDebug(__FUNCTION__ . '->sonos', sprintf('SetBass(%d)', $bass), 0);
-        (new SonosAccess($ip))->SetBass($bass);
+        $sonos->SetBass($bass);
         if (!$this->ReadPropertyBoolean('BassControl')) {
             SetValue($this->GetIDForIdent('Bass'), $bass);
         }
@@ -1412,10 +1403,10 @@ class SonosPlayer extends IPSModule
         $targetInstance = $this->findTarget();
 
         if ($targetInstance === $this->InstanceID) {
-            $ip = $this->getIP();
+            $sonos = $this->getSonosAccess();
 
             $this->SendDebug(__FUNCTION__ . '->sonos', sprintf('SetCrossfade(%s)', $crossfade ? 'true' : 'false'), 0);
-            (new SonosAccess($ip))->SetCrossfade($crossfade);
+            $sonos->SetCrossfade($crossfade);
             if ($this->ReadPropertyBoolean('PlayModeControl')) {
                 SetValue($this->GetIDForIdent('Crossfade'), $crossfade);
             }
@@ -1483,11 +1474,11 @@ class SonosPlayer extends IPSModule
     public function SetDialogLevel(bool $dialogLevel)
     {
         $this->SendDebug('"' . __FUNCTION__ . '" called with', sprintf('$dialogLevel=%s', $dialogLevel ? 'true' : 'false'), 0);
-        $ip = $this->getIP();
+        $sonos = $this->getSonosAccess();
 
         try {
             $this->SendDebug(__FUNCTION__ . '->sonos', sprintf('SetDialogLevel(%s)', $dialogLevel ? 'true' : 'false'), 0);
-            (new SonosAccess($ip))->SetDialogLevel($dialogLevel);
+            $sonos->SetDialogLevel($dialogLevel);
         } catch (Exception $e) {
             if ($e->getMessage() == 'Error during Soap Call: UPnPError s:Client 402 (UNKNOWN)') {
                 throw new Exception($this->translate('This device does not support DialogLevel'));
@@ -1517,7 +1508,7 @@ class SonosPlayer extends IPSModule
         $startGroupCoordinator = GetValue($this->GetIDForIdent('MemberOfGroup'));
         $this->SendDebug(__FUNCTION__ . ': old coordinator', (string) $startGroupCoordinator, 0);
 
-        $ip = $this->getIP();
+        $sonos = $this->getSonosAccess();
 
         // cleanup old group
         if ($startGroupCoordinator) {
@@ -1577,7 +1568,7 @@ class SonosPlayer extends IPSModule
         @IPS_SetHidden($this->GetIDForIdent('MemberOfGroup'), false);
 
         $this->SendDebug(__FUNCTION__ . '->sonos', sprintf('SetAVTransportURI(%s)', $uri), 0);
-        (new SonosAccess($ip))->SetAVTransportURI($uri);
+        $sonos->SetAVTransportURI($uri);
     } // END SetGroup
 
     public function SetGroupVolume(int $volume)
@@ -1600,10 +1591,10 @@ class SonosPlayer extends IPSModule
     public function SetLoudness(bool $loudness)
     {
         $this->SendDebug('"' . __FUNCTION__ . '" called with', sprintf('$loudness=%s', $loudness ? 'true' : 'false'), 0);
-        $ip = $this->getIP();
+        $sonos = $this->getSonosAccess();
 
         $this->SendDebug(__FUNCTION__ . '->sonos', sprintf('SetLoudness(%s)', $loudness ? 'true' : 'false'), 0);
-        (new SonosAccess($ip))->SetLoudness($loudness);
+        $sonos->SetLoudness($loudness);
         if ($this->ReadPropertyBoolean('LoudnessControl')) {
             SetValue($this->GetIDForIdent('Loudness'), $loudness);
         }
@@ -1612,10 +1603,10 @@ class SonosPlayer extends IPSModule
     public function SetMute(bool $mute)
     {
         $this->SendDebug('"' . __FUNCTION__ . '" called with', sprintf('$mute=%s', $mute ? 'true' : 'false'), 0);
-        $ip = $this->getIP();
+        $sonos = $this->getSonosAccess();
 
         $this->SendDebug(__FUNCTION__ . '->sonos', sprintf('SetMute(%s)', $mute ? 'true' : 'false'), 0);
-        (new SonosAccess($ip))->SetMute($mute);
+        $sonos->SetMute($mute);
         if ($this->ReadPropertyBoolean('MuteControl')) {
             SetValue($this->GetIDForIdent('Mute'), $mute);
         }
@@ -1658,11 +1649,11 @@ class SonosPlayer extends IPSModule
     public function SetNightMode(bool $nightMode)
     {
         $this->SendDebug('"' . __FUNCTION__ . '" called with', sprintf('$nightMode=%s', $nightMode ? 'true' : 'false'), 0);
-        $ip = $this->getIP();
+        $sonos = $this->getSonosAccess();
 
         try {
             $this->SendDebug(__FUNCTION__ . '->sonos', sprintf('SetNightMode(%s)', $nightMode ? 'true' : 'false'), 0);
-            (new SonosAccess($ip))->SetNightMode($nightMode);
+            $sonos->SetNightMode($nightMode);
         } catch (Exception $e) {
             if ($e->getMessage() == 'Error during Soap Call: UPnPError s:Client 402 (UNKNOWN)') {
                 throw new Exception($this->translate('This device does not support NightMode'));
@@ -1679,13 +1670,11 @@ class SonosPlayer extends IPSModule
     public function SetPlaylist(string $name)
     {
         $this->SendDebug('"' . __FUNCTION__ . '" called with', sprintf('$name=%s', $name), 0);
-        $ip = $this->getIP();
+        $sonos = $this->getSonosAccess();
 
         if (@GetValue($this->GetIDForIdent('MemberOfGroup'))) {
             $this->SetGroup(0);
         }
-
-        $sonos = new SonosAccess($ip);
 
         $uri = '';
         $meta = '';
@@ -1741,10 +1730,10 @@ class SonosPlayer extends IPSModule
         $targetInstance = $this->findTarget();
 
         if ($targetInstance === $this->InstanceID) {
-            $ip = $this->getIP();
+            $sonos = $this->getSonosAccess();
 
             $this->SendDebug(__FUNCTION__ . '->sonos', sprintf('SetPlayMode(%d)', $playMode), 0);
-            (new SonosAccess($ip))->SetPlayMode($playMode);
+            $sonos->SetPlayMode($playMode);
             if ($this->ReadPropertyBoolean('PlayModeControl')) {
                 SetValue($this->GetIDForIdent('PlayMode'), $playMode);
             }
@@ -1764,13 +1753,11 @@ class SonosPlayer extends IPSModule
     public function SetRadio(string $radio)
     {
         $this->SendDebug('"' . __FUNCTION__ . '" called with', sprintf('$radio=%s', $radio), 0);
-        $ip = $this->getIP();
+        $sonos = $this->getSonosAccess();
 
         if (@GetValue($this->GetIDForIdent('MemberOfGroup'))) {
             $this->SetGroup(0);
         }
-
-        $sonos = new SonosAccess($ip);
 
         $uri = '';
 
@@ -1805,7 +1792,7 @@ class SonosPlayer extends IPSModule
         $targetInstance = $this->findTarget();
 
         if ($targetInstance === $this->InstanceID) {
-            $ip = $this->getIP();
+            $sonos = $this->getSonosAccess();
 
             $hours = 0;
 
@@ -1815,7 +1802,7 @@ class SonosPlayer extends IPSModule
             }
 
             $this->SendDebug(__FUNCTION__ . '->sonos', sprintf('SetSleeptimer(%d, %d, 0)', $hours, $minutes), 0);
-            (new SonosAccess($ip))->SetSleeptimer($hours, $minutes, 0);
+            $sonos->SetSleeptimer($hours, $minutes, 0);
         } else {
             $data = json_encode([
                 'DataID'         => '{731D7808-F7C4-FA98-2132-0FAB19A802C1}',
@@ -1832,7 +1819,7 @@ class SonosPlayer extends IPSModule
     public function SetSpdifInput(int $input_instance)
     {
         $this->SendDebug('"' . __FUNCTION__ . '" called with', sprintf('$input_instance=%d', $input_instance), 0);
-        $ip = $this->getIP();
+        $sonos = $this->getSonosAccess();
 
         if (@GetValue($this->GetIDForIdent('MemberOfGroup'))) {
             $this->SetGroup(0);
@@ -1840,29 +1827,29 @@ class SonosPlayer extends IPSModule
 
         $uri = 'x-sonos-htastream:' . IPS_GetProperty($input_instance, 'RINCON') . ':spdif';
         $this->SendDebug(__FUNCTION__ . '->sonos', sprintf('SetAVTransportURI(%s)', $uri), 0);
-        (new SonosAccess($ip))->SetAVTransportURI($uri);
+        $sonos->SetAVTransportURI($uri);
     } // END SetSpdifInput
 
     public function SetTransportURI(string $uri)
     {
         $this->SendDebug('"' . __FUNCTION__ . '" called with', sprintf('$uri=%s', $uri), 0);
-        $ip = $this->getIP();
+        $sonos = $this->getSonosAccess();
 
         if (@GetValue($this->GetIDForIdent('MemberOfGroup'))) {
             $this->SetGroup(0);
         }
 
         $this->SendDebug(__FUNCTION__ . '->sonos', sprintf('SetAVTransportURI(%s)', $uri), 0);
-        (new SonosAccess($ip))->SetAVTransportURI($uri);
+        $sonos->SetAVTransportURI($uri);
     } // END SetTransportURI
 
     public function SetTreble(int $treble)
     {
         $this->SendDebug('"' . __FUNCTION__ . '" called with', sprintf('$treble=%d', $treble), 0);
-        $ip = $this->getIP();
+        $sonos = $this->getSonosAccess();
 
         $this->SendDebug(__FUNCTION__ . '->sonos', sprintf('SetTreble(%d)', $treble), 0);
-        (new SonosAccess($ip))->SetTreble($treble);
+        $sonos->SetTreble($treble);
         if (!$this->ReadPropertyBoolean('TrebleControl')) {
             SetValue($this->GetIDForIdent('Treble'), $treble);
         }
@@ -1872,11 +1859,11 @@ class SonosPlayer extends IPSModule
     {
         $this->SendDebug('"' . __FUNCTION__ . '" called with', sprintf('$volume=%d', $volume), 0);
         if ($this->ReadAttributeBoolean('OutputFixed') == false) {
-            $ip = $this->getIP();
+            $sonos = $this->getSonosAccess();
 
             SetValue($this->GetIDForIdent('Volume'), $volume);
             $this->SendDebug(__FUNCTION__ . '->sonos', sprintf('SetVolume(%d)', $volume), 0);
-            (new SonosAccess($ip))->SetVolume($volume);
+            $sonos->SetVolume($volume);
         }
     } // END SetVolume
 
@@ -1891,7 +1878,7 @@ class SonosPlayer extends IPSModule
     public function updateStatus()
     {
         try {
-            $ip = $this->getIP(false);
+            $sonos = $this->getSonosAccess();
         } catch (Exception $e) {
             return;
         }
@@ -1925,7 +1912,6 @@ class SonosPlayer extends IPSModule
         $AlbumArtHeight = $this->ReadAttributeInteger('AlbumArtHeight');
 
         try {
-            $sonos = new SonosAccess($ip);
             $status = $sonos->GetTransportInfo();
 
             SetValueInteger($vidVolume, $sonos->GetVolume());
@@ -2409,10 +2395,9 @@ class SonosPlayer extends IPSModule
         $targetInstance = $this->findTarget();
 
         if ($targetInstance === $this->InstanceID) {
-            $ip = $this->getIP();
+            $sonos = $this->getSonosAccess();
 
             SetValue($this->GetIDForIdent('Status'), 2);
-            $sonos = new SonosAccess($ip);
             $this->SendDebug(__FUNCTION__ . '->sonos', 'GetTransportInfo()', 0);
             if ($sonos->GetTransportInfo() == 1) {
                 $this->SendDebug(__FUNCTION__ . '->sonos', 'Pause()', 0);
@@ -2436,10 +2421,9 @@ class SonosPlayer extends IPSModule
         $targetInstance = $this->findTarget();
 
         if ($targetInstance === $this->InstanceID) {
-            $ip = $this->getIP();
+            $sonos = $this->getSonosAccess();
 
             SetValue($this->GetIDForIdent('Status'), 3);
-            $sonos = new SonosAccess($ip);
             $this->SendDebug(__FUNCTION__ . '->sonos', 'GetTransportInfo()', 0);
             if ($sonos->GetTransportInfo() == 1) {
                 $this->SendDebug(__FUNCTION__ . '->sonos', 'Stop()', 0);
@@ -2475,7 +2459,7 @@ class SonosPlayer extends IPSModule
         }
     }
 
-    private function getIP(bool $writeDebug = true)
+    private function getSonosAccess(bool $writeDebug = true)
     {
         if ($this->ReadAttributeBoolean('Vanished')) {
             throw new Exception($this->Translate('Sonos Player is currently marked as "vanished" in Sonos. Maybe switched off?!'));
@@ -2502,8 +2486,8 @@ class SonosPlayer extends IPSModule
                 }
             }
         }
-        return $ip;
-    } // End getIP
+        return new SonosAccess($ip);
+    } // End getSonosAccess
 
     private function findTarget()
     {
