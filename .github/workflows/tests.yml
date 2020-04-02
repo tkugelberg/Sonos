@@ -13,7 +13,8 @@ jobs:
       with:
           submodules: true
 
-    - uses: shivammathur/setup-php@v1
+    - name: Install latest PHPUnit
+      run: wget https://phar.phpunit.de/phpunit.phar
 
     - name: Run Tests
       run: phpdbg -qrr phpunit.phar tests --configuration tests/phpunit.xml
