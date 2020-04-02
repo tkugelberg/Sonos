@@ -13,9 +13,19 @@ jobs:
       with:
           submodules: true
 
-    - name: Install latest PHPUnit
-      run: wget https://phar.phpunit.de/phpunit.phar
+    - name: "Install PHP with extensions"
+      uses: "shivammathur/setup-php@v1"
+      with:
+        php-version: "8.0"
+        coverage: "pcov"
 
-    - name: Run Tests
-      run: phpdbg -qrr phpunit.phar tests --configuration tests/phpunit.xml
+    - name: "Cache dependencies installed with composer"
+      uses: "actions/cache@v1"
+      with:
+        path: "~/.composer/cache"
+        key: "php8.0-composer-highest-${{ hashFiles('**/composer.json') }}"
+        restore-keys: "php8.0-composer-highest-"
+
+    - name: "Run tests with phpunit/phpunit"
+      run: "vendor/bin/phpunit --coverage-clover=coverage.xml"
       
