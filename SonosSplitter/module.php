@@ -557,7 +557,7 @@ class SonosSplitter extends IPSModule
             if (($PlaylistImport === 4 || $PlaylistImport === 5 || $PlaylistImport === 6 || $PlaylistImport === 7) && $Value < 33) { // Spotify Playlist saved as Sonos Favorite
                 $this->SendDebug(__FUNCTION__ . '->sonos', 'BrowseContentDirectory(\'FV:2\')', 0);
                 foreach ((new SimpleXMLElement($sonos->BrowseContentDirectory('FV:2')['Result']))->item as $item) {
-                    $this->SendDebug(__FUNCTION__ . ': Found PlayList', (string) $container->xpath('dc:title')[0], 0);
+                    $this->SendDebug(__FUNCTION__ . ': Found PlayList', (string) $item->xpath('dc:title')[0], 0);
                     $Associations[] = [$Value++, (string) preg_replace($this->getPlaylistReplacementFrom(), $this->getPlaylistReplacementTo(), $item->xpath('dc:title')[0]), '', -1];
                     // associations only support up to 128 variables
                     if ($Value === 129) {

@@ -59,9 +59,9 @@ class SonosTest extends TestCase
             ]
         ]));
 
-        $playerInterface->Play($playerID);
+        SNS_Play($playerID);
     }
-     */
+    */
 
     private function createPlayer()
     {
