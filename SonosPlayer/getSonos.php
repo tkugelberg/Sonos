@@ -5,7 +5,6 @@ declare(strict_types=1);
 if (defined('PHPUNIT_TESTSUITE')) {
     trait GetSonos
     {
-
         private $SonosDouble = '';
 
         public function setSonos($SonosDouble)
