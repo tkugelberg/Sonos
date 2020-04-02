@@ -9,12 +9,11 @@ jobs:
     runs-on: ubuntu-latest
  
     steps:
-    - uses: actions/checkout@v1
+    - uses: actions/checkout@v2
       with:
           submodules: true
 
-    - name: Install latest PHPUnit
-      run: wget https://phar.phpunit.de/phpunit.phar
+    - uses: shivammathur/setup-php@v1
 
     - name: Run Tests
       run: phpdbg -qrr phpunit.phar tests --configuration tests/phpunit.xml
