@@ -5,11 +5,13 @@ declare(strict_types=1);
 require_once __DIR__ . '/../libs/sonosAccess.php'; // SOAP Access to Sonos
 require_once __DIR__ . '/../libs/VariableProfile.php';
 require_once __DIR__ . '/../libs/CommonFunctions.php';
+require_once __DIR__ . '/getSonos.php';
 
 class SonosPlayer extends IPSModule
 {
     use VariableProfile;
     use CommonFunctions;
+    use GetSonos;
 
     public function Create()
     {
@@ -2486,7 +2488,7 @@ class SonosPlayer extends IPSModule
                 }
             }
         }
-        return new SonosAccess($ip);
+        return $this->getSonos($ip);
     } // End getSonosAccess
 
     private function findTarget()

@@ -8,7 +8,7 @@ include_once __DIR__ . '/stubs/GlobalStubs.php';
 include_once __DIR__ . '/stubs/KernelStubs.php';
 include_once __DIR__ . '/stubs/ModuleStubs.php';
 include_once __DIR__ . '/stubs/MessageStubs.php';
-//include_once __DIR__ . '/sonosAccessStubs.php';
+include_once __DIR__ . '/sonosAccessDouble.php';
 
 class SonosTest extends TestCase
 {
@@ -32,11 +32,12 @@ class SonosTest extends TestCase
         $this->assertEquals(1, 1);
     }
 
-    /*
     public function testPlay()
     {
-
         $playerID = $this->createPlayer();
+
+        $sonosDouble = new SonosAccessDouble();
+        SNS_setSonos($playerID, $sonosDouble);
 
         $playerInterface = IPS\InstanceManager::getInstanceInterface($playerID);
 
@@ -60,8 +61,8 @@ class SonosTest extends TestCase
         ]));
 
         SNS_Play($playerID);
+        $this->assertEquals($sonosDouble->GetCalls(), ['Play' => 1]);
     }
-     */
 
     private function createPlayer()
     {
