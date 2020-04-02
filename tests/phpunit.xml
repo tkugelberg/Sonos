@@ -3,4 +3,11 @@
     <php>
         <const name="PHPUNIT_TESTSUITE" value="true"/>
     </php>
+    <filter>
+        <whitelist processUncoveredFilesFromWhitelist="true">
+            <directory suffix=".php">../SonosDiscovery</directory>
+            <directory suffix=".php">../SonosPlayer</directory>
+            <directory suffix=".php">../SonosSpliter</directory>
+        </whitelist>
+    </filter>
 </phpunit>

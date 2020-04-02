@@ -61,7 +61,9 @@ class SonosTest extends TestCase
         ]));
 
         SNS_Play($playerID);
-        $this->assertEquals($sonosDouble->GetCalls(), ['Play' => 1]);
+
+        $this->assertEquals(['Play' => 1], $sonosDouble->GetCalls());
+        $this->assertEquals(1, GetValueInteger(IPS_GetVariableIDByName('Status', $playerID)));
     }
 
     private function createPlayer()

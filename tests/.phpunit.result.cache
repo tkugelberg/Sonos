@@ -1,1 +1,1 @@
-C:37:"PHPUnit\Runner\DefaultTestResultCache":146:{a:2:{s:7:"defects";a:1:{s:19:"SonosTest::testPlay";i:3;}s:5:"times";a:2:{s:19:"SonosTest::testPlay";d:0.154;s:20:"SonosTest::testDummy";d:0.035;}}}
+C:37:"PHPUnit\Runner\DefaultTestResultCache":146:{a:2:{s:7:"defects";a:1:{s:19:"SonosTest::testPlay";i:3;}s:5:"times";a:2:{s:19:"SonosTest::testPlay";d:0.066;s:20:"SonosTest::testDummy";d:0.038;}}}
