@@ -7,7 +7,7 @@
         <whitelist processUncoveredFilesFromWhitelist="true">
             <directory suffix=".php">../SonosDiscovery</directory>
             <directory suffix=".php">../SonosPlayer</directory>
-            <directory suffix=".php">../SonosSpliter</directory>
+            <directory suffix=".php">../SonosSplitter</directory>
         </whitelist>
     </filter>
 </phpunit>

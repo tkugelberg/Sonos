@@ -310,6 +310,7 @@ class SonosPlayer extends IPSModule
             ['caption' => 'Beam',         'value' => 'Beam'],
             ['caption' => 'Connect',      'value' => 'Connect'],
             ['caption' => 'Connect:Amp',  'value' => 'Connect:Amp'],
+            ['caption' => 'One',          'value' => 'One'],
             ['caption' => 'Play:1',       'value' => 'Play:1'],
             ['caption' => 'Play:3',       'value' => 'Play:3'],
             ['caption' => 'Play:5',       'value' => 'Play:5'],
