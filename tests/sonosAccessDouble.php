@@ -6,6 +6,7 @@ class SonosAccessDouble
 {
     private $calls = [];
     private $return = [];
+    private $IP = '';
 
     public function AddToQueue($file, $meta = '')
     {
@@ -233,6 +234,11 @@ class SonosAccessDouble
         $this->return = $response;
     }
 
+    public function SetIP(string $ip)
+    {
+        $this->IP = $ip;
+    }
+
     private function getReturn(string $function)
     {
         if (isset($this->return[$function])) {
@@ -248,9 +254,13 @@ class SonosAccessDouble
     private function addCall(string $function)
     {
         if (!isset($this->calls[$function])) {
-            $this->calls[$function] = 1;
+            $this->calls[$function] = [$this->IP => 1];
         } else {
-            $this->calls[$function] += 1;
+            if (!isset($this->calls[$function][$this->IP])) {
+                $this->calls[$function][$this->IP] = 1;
+            } else {
+                $this->calls[$function][$this->IP] += 1;
+            }
         }
     }
 }

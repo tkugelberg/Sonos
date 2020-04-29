@@ -387,6 +387,7 @@ class SonosPlayer extends IPSModule
         $this->SendDebug('"' . __FUNCTION__ . '" called with', sprintf('$JSONstring=%s', $JSONstring), 0);
 
         $input = json_decode($JSONstring, true);
+
         switch ($input['type']) {
             case 'grouping':
                 if ($input['data']['vanished']) {

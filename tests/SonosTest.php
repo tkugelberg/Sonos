@@ -80,10 +80,49 @@ class SonosTest extends TestCase
 
         SNS_Play($playerID);
 
-        $this->assertEquals(['Play' => 1], $sonosDouble->GetCalls());
+        $this->assertEquals(['Play' => ['192.168.1.2' => 1]], $sonosDouble->GetCalls());
         $this->assertEquals(1, GetValueInteger(IPS_GetVariableIDByName('Status', $playerID)));
     }
 
+    /*
+    public function testPlayForward()
+    {
+        $playerID2 = $this->createPlayer('192.168.1.3');
+
+        $playerID1 = IPS_CreateInstance($this->playerModulID);
+
+        $playerInterface = IPS\InstanceManager::getInstanceInterface($playerID1);
+
+        IPS_SetProperty($playerID1, 'IPAddress', '192.168.1.2');
+        IPS_SetProperty($playerID1, 'DisableHiding', true);
+        IPS_SetProperty($playerID1, 'SleeptimerControl', true);
+        IPS_SetProperty($playerID1, 'PlayModeControl', true);
+        IPS_SetProperty($playerID1, 'DetailedInformation', true);
+        IPS_ApplyChanges($playerID1);
+
+        $playerInterface->ReceiveData(json_encode([
+            'DataID'         => '{36EA4430-7047-C11D-0854-43391B14E0D7}',
+            'type'           => 'grouping',
+            'targetInstance' => $playerID1,
+            'data'           => [
+                'isCoordinator' => false,
+                'vanished'      => false,
+                'GroupMember'   => [],
+                'Coordinator'   => $playerID2
+            ]
+        ]));
+
+
+        $sonosDouble = new SonosAccessDouble();
+        SNS_setSonos($playerID1, $sonosDouble);
+        SNS_setSonos($playerID2, $sonosDouble);
+
+        SNS_Play($playerID1);
+
+        $this->assertEquals(['Play' => ['192.168.1.3' => 1]], $sonosDouble->GetCalls());
+        $this->assertEquals(1, GetValueInteger(IPS_GetVariableIDByName('Status', $playerID2)));
+    }
+     */
     public function testPause()
     {
         $playerID = $this->createPlayer('192.168.1.2');
@@ -94,11 +133,11 @@ class SonosTest extends TestCase
 
         SNS_Pause($playerID);
 
-        $this->assertEquals(['Pause' => 1, 'GetTransportInfo' => 1], $sonosDouble->GetCalls());
+        $this->assertEquals(['Pause' => ['192.168.1.2' => 1], 'GetTransportInfo' => ['192.168.1.2' => 1]], $sonosDouble->GetCalls());
         $this->assertEquals(2, GetValueInteger(IPS_GetVariableIDByName('Status', $playerID)));
 
         SNS_Pause($playerID);
-        $this->assertEquals(['Pause' => 1, 'GetTransportInfo' => 2], $sonosDouble->GetCalls());
+        $this->assertEquals(['Pause' => ['192.168.1.2' => 1], 'GetTransportInfo' => ['192.168.1.2' => 2]], $sonosDouble->GetCalls());
         $this->assertEquals(2, GetValueInteger(IPS_GetVariableIDByName('Status', $playerID)));
     }
 

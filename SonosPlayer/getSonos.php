@@ -13,6 +13,7 @@ if (defined('PHPUNIT_TESTSUITE')) {
         }
         private function getSonos(string $ip)
         {
+            $this->SonosDouble->SetIP( $ip );
             return $this->SonosDouble;
         }
     }
