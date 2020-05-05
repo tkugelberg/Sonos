@@ -487,6 +487,7 @@ class SonosPlayer extends IPSModule
                 $Settings['positionInfo'] = $sonos->GetPositionInfo();
                 $Settings['transportInfo'] = $sonos->GetTransportInfo();
                 $Settings['volume'] = $sonos->GetVolume();
+                $Settings['mute'] = $sonos->GetMute();
 
                 // pause all players
                 if ($Settings['transportInfo'] == 1) {
@@ -547,6 +548,11 @@ class SonosPlayer extends IPSModule
                 // set source
                 $this->SendDebug(__FUNCTION__ . '->preparePlayGrouping->sonos', sprintf('SetAVTransportURI(%s)', (string) $input['transportURI']), 0);
                 $sonos->SetAVTransportURI($input['transportURI']);
+                // unmute
+                if ($Settings['mute']) {
+                    $this->SendDebug(__FUNCTION__ . '->preparePlayGrouping->sonos', 'SetMute(false)', 0);
+                    $sonos->SetMute(false);
+                }
                 break;
             case 'preResetPlayGrouping':
                 try {
@@ -594,6 +600,11 @@ class SonosPlayer extends IPSModule
                 if ($this->ReadAttributeBoolean('OutputFixed') == false) {
                     $this->SendDebug(__FUNCTION__ . '->resetPlayGrouping->sonos', sprintf('SetVolume(%d)', $Settings['volume']), 0);
                     $sonos->SetVolume($Settings['volume']);
+                }
+
+                if ($Settings['mute']) {
+                    $this->SendDebug(__FUNCTION__ . '->preparePlayGrouping->sonos', 'SetMute(true)', 0);
+                    $sonos->SetMute(true);
                 }
 
                 // play again
