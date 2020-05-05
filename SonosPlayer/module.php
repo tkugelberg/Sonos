@@ -505,6 +505,7 @@ class SonosPlayer extends IPSModule
                 // ungroup all players
                 $this->SendDebug(__FUNCTION__ . '->prepareAllPlayGrouping->sonos', 'SetAVTransportURI(\' \')', 0);
                 $sonos->SetAVTransportURI('');
+                // write Buffer
                 $buffer = json_encode($Settings);
                 $this->SendDebug(__FUNCTION__ . '->prepareAllPlayGrouping: write buffer', $buffer, 0);
                 $this->SetBuffer($this->InstanceID . 'PlayFilesGrouping', $buffer);
@@ -1288,6 +1289,11 @@ class SonosPlayer extends IPSModule
                 $this->SendDebug(__FUNCTION__ . '->sonos', sprintf('SetVolume(%d)', $newVolume), 0);
                 $sonos->SetVolume($newVolume);
             }
+        }
+        // also unmute this instance if muted
+        if ($sonos->GetMute()) {
+            $this->SendDebug(__FUNCTION__ . '->sonos', 'SetMute(false)', 0);
+            $sonos->SetMute(false);
         }
 
         // play files
