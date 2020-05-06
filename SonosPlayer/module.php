@@ -1030,6 +1030,11 @@ class SonosPlayer extends IPSModule
         }
     }  // END DeleteSleepTimer
 
+    public function IsCoordinator(): bool
+    {
+        return $this->ReadAttributeBoolean('Coordinator');     
+    } 
+
     public function Next()
     {
         $this->SendDebug('"' . __FUNCTION__ . '" called', '', 0);

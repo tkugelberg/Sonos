@@ -71,99 +71,151 @@ class SonosTest extends TestCase
         IPS_CreateVariableProfile('~HTMLBox', 3); // needed for Details
     }
 
+    public function testIsCoordinator()
+    {
+        $players = [
+            'coordinator'   => [
+                'IP'             => '192.168.1.2',
+                'isCoordinator'  => true,
+                'vanished'       => false,
+                'GroupMember'    => ['member'],
+                'coordinator'    => ''
+            ],
+            'member' => [
+                'IP'             => '192.168.1.3',
+                'isCoordinator'  => false,
+                'vanished'       => false,
+                'GroupMember'    => [],
+                'coordinator'    => 'coordinator'
+            ]
+        ];
+        $this->createPlayers($players);
+        
+        
+        $this->assertEquals(true, SNS_IsCoordinator($players['coordinator']['ID']));
+        $this->assertEquals(false, SNS_IsCoordinator($players['member']['ID']));
+    }
+
     public function testPlay()
     {
-        $playerID = $this->createPlayer('192.168.1.2');
+        $players = [
+            0   => [
+                'IP'             => '192.168.1.2',
+                'isCoordinator'  => true,
+                'vanished'       => false,
+                'GroupMember'    => [],
+                'coordinator'    => ''
+            ]
+        ];
+        $this->createPlayers($players);
 
         $sonosDouble = new SonosAccessDouble();
-        SNS_setSonos($playerID, $sonosDouble);
+        SNS_setSonos($players[0]['ID'], $sonosDouble);
 
-        SNS_Play($playerID);
+        SNS_Play($players[0]['ID']);
 
         $this->assertEquals(['Play' => ['192.168.1.2' => 1]], $sonosDouble->GetCalls());
-        $this->assertEquals(1, GetValueInteger(IPS_GetVariableIDByName('Status', $playerID)));
+        $this->assertEquals(1, GetValueInteger(IPS_GetVariableIDByName('Status', $players[0]['ID'])));
     }
 
     public function testPlayForward()
     {
-        $Coordinator = $this->createPlayer('192.168.1.3');
-
-        $Member = IPS_CreateInstance($this->playerModulID);
-
-        $playerInterface = IPS\InstanceManager::getInstanceInterface($Member);
-
-        IPS_SetProperty($Member, 'IPAddress', '192.168.1.2');
-        IPS_SetProperty($Member, 'DisableHiding', true);
-        IPS_SetProperty($Member, 'SleeptimerControl', true);
-        IPS_SetProperty($Member, 'PlayModeControl', true);
-        IPS_SetProperty($Member, 'DetailedInformation', true);
-        IPS_ApplyChanges($Member);
-
-        $playerInterface->ReceiveData(json_encode([
-            'DataID'         => '{36EA4430-7047-C11D-0854-43391B14E0D7}',
-            'type'           => 'grouping',
-            'targetInstance' => $Member,
-            'data'           => [
-                'isCoordinator' => false,
-                'vanished'      => false,
-                'GroupMember'   => [],
-                'Coordinator'   => $Coordinator
+        $players = [
+            'coordinator'   => [
+                'IP'             => '192.168.1.2',
+                'isCoordinator'  => true,
+                'vanished'       => false,
+                'GroupMember'    => ['member'],
+                'coordinator'    => ''
+            ],
+            'member' => [
+                'IP'             => '192.168.1.3',
+                'isCoordinator'  => false,
+                'vanished'       => false,
+                'GroupMember'    => [],
+                'coordinator'    => 'coordinator'
             ]
-        ]));
+        ];
+        $this->createPlayers($players);
 
         $sonosDouble = new SonosAccessDouble();
-        SNS_setSonos($Member, $sonosDouble);
-        SNS_setSonos($Coordinator, $sonosDouble);
+        SNS_setSonos($players['coordinator']['ID'], $sonosDouble);
+        SNS_setSonos($players['member']['ID'], $sonosDouble);
 
-        SNS_Play($Member);
+        SNS_Play($players['member']['ID']);
 
-        $this->assertEquals(['Play' => ['192.168.1.3' => 1]], $sonosDouble->GetCalls());
-        $this->assertEquals(1, GetValueInteger(IPS_GetVariableIDByName('Status', $Coordinator)));
+        $this->assertEquals(['Play' => ['192.168.1.2' => 1]], $sonosDouble->GetCalls());
+        $this->assertEquals(1, GetValueInteger(IPS_GetVariableIDByName('Status', $players['coordinator']['ID'])));
     }
 
     public function testPause()
     {
-        $playerID = $this->createPlayer('192.168.1.2');
+        $players = [
+            0   => [
+                'IP'             => '192.168.1.2',
+                'isCoordinator'  => true,
+                'vanished'       => false,
+                'GroupMember'    => [],
+                'coordinator'    => ''
+            ]
+        ];
+        $this->createPlayers($players);
+
         $sonosDouble = new SonosAccessDouble();
-        SNS_setSonos($playerID, $sonosDouble);
+        SNS_setSonos($players[0]['ID'], $sonosDouble);
 
         $sonosDouble->SetResponse(['GetTransportInfo' => [1, 2]]);
 
-        SNS_Pause($playerID);
+        SNS_Pause($players[0]['ID']);
 
         $this->assertEquals(['Pause' => ['192.168.1.2' => 1], 'GetTransportInfo' => ['192.168.1.2' => 1]], $sonosDouble->GetCalls());
-        $this->assertEquals(2, GetValueInteger(IPS_GetVariableIDByName('Status', $playerID)));
+        $this->assertEquals(2, GetValueInteger(IPS_GetVariableIDByName('Status', $players[0]['ID'])));
 
-        SNS_Pause($playerID);
+        SNS_Pause($players[0]['ID']);
         $this->assertEquals(['Pause' => ['192.168.1.2' => 1], 'GetTransportInfo' => ['192.168.1.2' => 2]], $sonosDouble->GetCalls());
-        $this->assertEquals(2, GetValueInteger(IPS_GetVariableIDByName('Status', $playerID)));
+        $this->assertEquals(2, GetValueInteger(IPS_GetVariableIDByName('Status', $players[0]['ID'])));
     }
 
-    private function createPlayer(string $ip)
+    private function createPlayers(array &$players)
     {
-        $playerID = IPS_CreateInstance($this->playerModulID);
+        // create players
+        foreach ($players as &$player) {
+            $player['ID'] = IPS_CreateInstance($this->playerModulID);
+            IPS_SetProperty($player['ID'], 'IPAddress', $player['IP']);
+            IPS_SetProperty($player['ID'], 'DisableHiding', true);
+            IPS_SetProperty($player['ID'], 'SleeptimerControl', true);
+            IPS_SetProperty($player['ID'], 'PlayModeControl', true);
+            IPS_SetProperty($player['ID'], 'DetailedInformation', true);
+            IPS_ApplyChanges($player['ID']);
+        }
 
-        $playerInterface = IPS\InstanceManager::getInstanceInterface($playerID);
+        unset($player); // remove reference, or it will be overwritten in next loop
 
-        IPS_SetProperty($playerID, 'IPAddress', $ip);
-        IPS_SetProperty($playerID, 'DisableHiding', true);
-        IPS_SetProperty($playerID, 'SleeptimerControl', true);
-        IPS_SetProperty($playerID, 'PlayModeControl', true);
-        IPS_SetProperty($playerID, 'DetailedInformation', true);
-        IPS_ApplyChanges($playerID);
+        foreach ($players as $player) {
+            $playerInterface = IPS\InstanceManager::getInstanceInterface($player['ID']);
 
-        $playerInterface->ReceiveData(json_encode([
-            'DataID'         => '{36EA4430-7047-C11D-0854-43391B14E0D7}',
-            'type'           => 'grouping',
-            'targetInstance' => $playerID,
-            'data'           => [
-                'isCoordinator' => true,
-                'vanished'      => false,
-                'GroupMember'   => [],
-                'Coordinator'   => 0
-            ]
-        ]));
+            if ($player['coordinator'] == '') {
+                $coordinator = 0;
+            } else {
+                $coordinator = $players['coordinator']['ID'];
+            }
 
-        return $playerID;
+            $GroupMember = [];
+            foreach ($player['GroupMember'] as $member) {
+                $GroupMember[] = $players[$member]['ID'];
+            }
+
+            $playerInterface->ReceiveData(json_encode([
+                'DataID'         => '{36EA4430-7047-C11D-0854-43391B14E0D7}',
+                'type'           => 'grouping',
+                'targetInstance' => $player['ID'],
+                'data'           => [
+                    'isCoordinator' => $player['isCoordinator'],
+                    'vanished'      => $player['vanished'],
+                    'GroupMember'   => $GroupMember,
+                    'Coordinator'   => $coordinator
+                ]
+            ]));
+        }
     }
 }
