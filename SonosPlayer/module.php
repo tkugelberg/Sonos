@@ -1032,8 +1032,8 @@ class SonosPlayer extends IPSModule
 
     public function IsCoordinator(): bool
     {
-        return $this->ReadAttributeBoolean('Coordinator');     
-    } 
+        return $this->ReadAttributeBoolean('Coordinator');
+    }
 
     public function Next()
     {

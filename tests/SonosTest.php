@@ -90,8 +90,7 @@ class SonosTest extends TestCase
             ]
         ];
         $this->createPlayers($players);
-        
-        
+
         $this->assertEquals(true, SNS_IsCoordinator($players['coordinator']['ID']));
         $this->assertEquals(false, SNS_IsCoordinator($players['member']['ID']));
     }
