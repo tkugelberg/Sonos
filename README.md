@@ -331,7 +331,10 @@ Bei der Ausführung dieser Funktion wird SNS_Pause() an alle Player geschickt, d
 
 ### 8.3. Sonos Player  
 - __SNS_alexaResponse(int $InstanceID)__  
-Diese Funktion dient dazu ein "Custom Skill für Alexa" bereitzustellen. Für den Endanwender eher uninteressant.
+Diese Funktion dient dazu ein "Custom Skill für Alexa" bereitzustellen. Für den Endanwender eher uninteressant.  
+- __SNS_BecomeCoordinator(int $InstanceID)__  
+Diese funktion schaut zunächst nach, ob der Player bereits ein Koordinator ist. Falls es so ist, beendet sie sich ohne etwas zu tun.  
+Falls der Player Teil einer Gruppe ist, ruft die Funktion automatisch die Funktion SNS_DelegateGroupCoordinationTo() bei dem aktuellen Koordinator auf und gibt seine eigene Instance ID als $newGroupCoordinator und true als $rejoinGroup mit.  
 - __SNS_ChangeGroupVolume(int $InstanceID, int $increment)__  
 Ändert die Lautstärke jedes Mitglieds einer Gruppe um den mitgelieferten Wert in $increment.  
 Kann positiv oder negativ sein.  
@@ -347,6 +350,8 @@ Wenn der Lautsprecher Box in der Gruppe bleiben soll, muss $rejoinGroup "true" s
 - __SNS_DeleteSleepTimer(int $InstanceID)__  
 Bricht den Sleeptimer ab.  
 Sollte das Kommando auf einem Gruppenmember ausgeführt werden, wird es automatisch an den zuständigen Koordinator weitergeleitet und gilt somit für die ganze Gruppe.  
+- __SNS_IsCoordinator(int $InstanceID): bool__  
+Diese Funktion liefert einen bool zurück, ob es sich bei dem Player zu diesem Zeitpunkt um einen Koordinator handelt.  
 - __SNS_Next(int $InstanceID)__  
 Springt zum nächsten Titel.  
 Sollte das Kommando auf einem Gruppenmember ausgeführt werden, wird es automatisch an den zuständigen Koordinator weitergeleitet und gilt somit für die ganze Gruppe.  
