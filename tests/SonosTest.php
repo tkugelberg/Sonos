@@ -89,10 +89,48 @@ class SonosTest extends TestCase
                 'coordinator'    => 'coordinator'
             ]
         ];
-        $this->createPlayers($players);
+        $sonosDouble = new SonosAccessDouble();
+        $this->createPlayers($players, $sonosDouble);
 
         $this->assertEquals(true, SNS_IsCoordinator($players['coordinator']['ID']));
         $this->assertEquals(false, SNS_IsCoordinator($players['member']['ID']));
+
+        $this->assertEquals([], $sonosDouble->GetCalls());
+    }
+
+    public function testBecomeCoordinator()
+    {
+        $players = [
+            'coordinator'   => [
+                'IP'             => '192.168.1.2',
+                'isCoordinator'  => true,
+                'vanished'       => false,
+                'GroupMember'    => ['member'],
+                'coordinator'    => ''
+            ],
+            'member' => [
+                'IP'             => '192.168.1.3',
+                'isCoordinator'  => false,
+                'vanished'       => false,
+                'GroupMember'    => [],
+                'coordinator'    => 'coordinator'
+            ]
+        ];
+        $sonosDouble = new SonosAccessDouble();
+        $this->createPlayers($players, $sonosDouble);
+
+        SNS_BecomeCoordinator($players['coordinator']['ID']);
+        $this->assertEquals([], $sonosDouble->GetCalls());
+        $this->assertEquals(true, SNS_IsCoordinator($players['coordinator']['ID'])); // still is coordinator
+        $this->assertEquals(false, SNS_IsCoordinator($players['member']['ID']));       // still is member
+
+        SNS_BecomeCoordinator($players['member']['ID']);
+        $this->assertEquals(['DelegateGroupCoordinationTo' => ['192.168.1.2' => 1]], $sonosDouble->GetCalls());
+        $this->assertEquals(false, SNS_IsCoordinator($players['coordinator']['ID'])); // is now a member
+        $this->assertEquals(true, SNS_IsCoordinator($players['member']['ID']));       // is now coordinator
+        $this->assertEquals($players['member']['ID'],GetValueInteger(IPS_GetObjectIDByIdent('MemberOfGroup', $players['coordinator']['ID']))); // Member of group has changed
+        $this->assertEquals(0,GetValueInteger(IPS_GetObjectIDByIdent('MemberOfGroup', $players['member']['ID']))); // Member of group has changed
+        // asserts for changed variables, etc.
     }
 
     public function testPlay()
@@ -106,10 +144,8 @@ class SonosTest extends TestCase
                 'coordinator'    => ''
             ]
         ];
-        $this->createPlayers($players);
-
         $sonosDouble = new SonosAccessDouble();
-        SNS_setSonos($players[0]['ID'], $sonosDouble);
+        $this->createPlayers($players, $sonosDouble);
 
         SNS_Play($players[0]['ID']);
 
@@ -135,11 +171,8 @@ class SonosTest extends TestCase
                 'coordinator'    => 'coordinator'
             ]
         ];
-        $this->createPlayers($players);
-
         $sonosDouble = new SonosAccessDouble();
-        SNS_setSonos($players['coordinator']['ID'], $sonosDouble);
-        SNS_setSonos($players['member']['ID'], $sonosDouble);
+        $this->createPlayers($players, $sonosDouble);
 
         SNS_Play($players['member']['ID']);
 
@@ -158,10 +191,9 @@ class SonosTest extends TestCase
                 'coordinator'    => ''
             ]
         ];
-        $this->createPlayers($players);
 
         $sonosDouble = new SonosAccessDouble();
-        SNS_setSonos($players[0]['ID'], $sonosDouble);
+        $this->createPlayers($players, $sonosDouble);
 
         $sonosDouble->SetResponse(['GetTransportInfo' => [1, 2]]);
 
@@ -175,7 +207,7 @@ class SonosTest extends TestCase
         $this->assertEquals(2, GetValueInteger(IPS_GetVariableIDByName('Status', $players[0]['ID'])));
     }
 
-    private function createPlayers(array &$players)
+    private function createPlayers(array &$players, object $sonosDouble)
     {
         // create players
         foreach ($players as &$player) {
@@ -215,6 +247,8 @@ class SonosTest extends TestCase
                     'Coordinator'   => $coordinator
                 ]
             ]));
+
+            SNS_setSonos($player['ID'], $sonosDouble);
         }
     }
 }

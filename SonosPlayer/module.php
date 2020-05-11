@@ -649,6 +649,9 @@ class SonosPlayer extends IPSModule
                     case 'ChangeVolume':
                         $this->ChangeVolume($input['volume']);
                         break;
+                    case 'DelegateGroupCoordinationTo':
+                        $this->DelegateGroupCoordinationTo($input['newGroupCoordinator'], $input['rejoinGroup']);
+                        break;
                     case 'DeleteSleepTimer':
                         $this->DeleteSleepTimer();
                         break;
@@ -810,6 +813,26 @@ class SonosPlayer extends IPSModule
         return $response;
     }
 
+    public function BecomeCoordinator()
+    {
+        $this->SendDebug('"' . __FUNCTION__ . '" called', '', 0);
+        if ($this->ReadAttributeBoolean('Coordinator')) {
+            $this->SendDebug(__FUNCTION__, 'already new Coordinator', 0);
+            return;
+        }
+
+        $data = json_encode([
+            'DataID'              => '{731D7808-F7C4-FA98-2132-0FAB19A802C1}',
+            'type'                => 'callFunction',
+            'targetInstance'      => GetValue($this->GetIDForIdent('MemberOfGroup')),
+            'function'            => 'DelegateGroupCoordinationTo',
+            'newGroupCoordinator' => $this->InstanceID,
+            'rejoinGroup'         => true
+        ]);
+        $this->SendDebug(__FUNCTION__ . '->SendDataToParent', $data, 0);
+        $this->SendDataToParent($data);
+    }
+
     public function ChangeGroupVolume(int $increment)
     {
         $this->SendDebug('"' . __FUNCTION__ . '" called with', sprintf('$increment=%d', $increment), 0);
@@ -910,17 +933,17 @@ class SonosPlayer extends IPSModule
                 $data = json_encode([
                     'DataID'         => '{731D7808-F7C4-FA98-2132-0FAB19A802C1}',
                     'type'           => 'setVariable',
-                    'targetInstance' => $ID,
+                    'targetInstance' => (int) $ID,
                     'variableType'   => 'int',
                     'variableIdent'  => 'MemberOfGroup',
-                    'variableValue'  => $newGroupCoordinator
+                    'variableValue'  => (int) $newGroupCoordinator
                 ]);
                 $newMembers[] = $ID;
             } else {
                 $data = json_encode([
                     'DataID'         => '{731D7808-F7C4-FA98-2132-0FAB19A802C1}',
                     'type'           => 'setVariable',
-                    'targetInstance' => $ID,
+                    'targetInstance' => (int) $ID,
                     'variableType'   => 'int',
                     'variableIdent'  => 'MemberOfGroup',
                     'variableValue'  => 0
@@ -1032,6 +1055,7 @@ class SonosPlayer extends IPSModule
 
     public function IsCoordinator(): bool
     {
+        $this->SendDebug('"' . __FUNCTION__ . '" called', '', 0);
         return $this->ReadAttributeBoolean('Coordinator');
     }
 
