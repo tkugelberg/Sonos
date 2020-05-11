@@ -128,8 +128,8 @@ class SonosTest extends TestCase
         $this->assertEquals(['DelegateGroupCoordinationTo' => ['192.168.1.2' => 1]], $sonosDouble->GetCalls());
         $this->assertEquals(false, SNS_IsCoordinator($players['coordinator']['ID'])); // is now a member
         $this->assertEquals(true, SNS_IsCoordinator($players['member']['ID']));       // is now coordinator
-        $this->assertEquals($players['member']['ID'],GetValueInteger(IPS_GetObjectIDByIdent('MemberOfGroup', $players['coordinator']['ID']))); // Member of group has changed
-        $this->assertEquals(0,GetValueInteger(IPS_GetObjectIDByIdent('MemberOfGroup', $players['member']['ID']))); // Member of group has changed
+        $this->assertEquals($players['member']['ID'], GetValueInteger(IPS_GetObjectIDByIdent('MemberOfGroup', $players['coordinator']['ID']))); // Member of group has changed
+        $this->assertEquals(0, GetValueInteger(IPS_GetObjectIDByIdent('MemberOfGroup', $players['member']['ID']))); // Member of group has changed
         // asserts for changed variables, etc.
     }
 
