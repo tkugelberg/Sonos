@@ -2244,6 +2244,7 @@ class SonosPlayer extends IPSModule
                         if ($e->getMessage() == 'Error during Soap Call: UPnPError s:Client 800 (UNKNOWN)') {
                             // INVALID_TRANSITION happens e.g. when no resource set
                             $this->SendDebug(__FUNCTION__ . '->GetSleeptimer', (string) $e->getMessage(), 0);
+                            $sleeptimer = false;
                         } else {
                             throw $e;
                             $sleeptimer = false;
