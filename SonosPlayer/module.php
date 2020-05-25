@@ -1742,7 +1742,7 @@ class SonosPlayer extends IPSModule
         if ($uri === '') {
             $this->SendDebug(__FUNCTION__ . '->sonos', 'BrowseContentDirectory(\'FV:2\', \'BrowseDirectChildren\', 999)', 0);
             foreach ((new SimpleXMLElement($sonos->BrowseContentDirectory('FV:2', 'BrowseDirectChildren', 999)['Result']))->item as $item) {
-                $this->SendDebug(__FUNCTION__ . ': Found Playlist', (string) $container->xpath('dc:title')[0], 0);
+                $this->SendDebug(__FUNCTION__ . ': Found Playlist', (string) $item->xpath('dc:title')[0], 0);
                 if (preg_replace($this->getPlaylistReplacementFrom(), $this->getPlaylistReplacementTo(), $item->xpath('dc:title')[0]) == $name) {
                     $uri = (string) $item->res;
                     $meta = (string) $item->xpath('r:resMD')[0];
