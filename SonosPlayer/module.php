@@ -2094,7 +2094,7 @@ class SonosPlayer extends IPSModule
 
                     // $playingRadioStation = '';
                     foreach ($radioStations as $radioStation) {
-                        if ($radioStation['URL'] == htmlspecialchars_decode($mediaInfo['CurrentURI'])) {
+                        if (htmlspecialchars_decode($radioStation['URL']) == htmlspecialchars_decode($mediaInfo['CurrentURI'])) {
                             //$playingRadioStation = $radioStation['name'];
                             $image = $radioStation['imageURL'];
 
