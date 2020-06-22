@@ -1963,8 +1963,6 @@ class SonosPlayer extends IPSModule
         $AlbumArtHeight = $this->ReadAttributeInteger('AlbumArtHeight');
 
         try {
-            $status = $sonos->GetTransportInfo();
-
             SetValueInteger($vidVolume, $sonos->GetVolume());
             if ($sonos->GetOutputFixed()) {
                 if ($this->ReadAttributeBoolean('OutputFixed') == false) {
@@ -2072,6 +2070,7 @@ class SonosPlayer extends IPSModule
                     SetValueString($vidDetails, @GetValueString(IPS_GetObjectIDByIdent('Details', $MemberOfGroup)));
                 }
             } else {
+                $status = $sonos->GetTransportInfo();
                 SetValueInteger($vidStatus, $status);
 
                 // Titelanzeige
@@ -2093,15 +2092,25 @@ class SonosPlayer extends IPSModule
                     // start find current Radio in VariableProfile
                     $radioStations = json_decode($this->ReadAttributeString('RadioStations'), true);
 
-                    $playingRadioStation = '';
+                    // $playingRadioStation = '';
                     foreach ($radioStations as $radioStation) {
                         if ($radioStation['URL'] == htmlspecialchars_decode($mediaInfo['CurrentURI'])) {
-                            $playingRadioStation = $radioStation['name'];
+                            //$playingRadioStation = $radioStation['name'];
                             $image = $radioStation['imageURL'];
+
+                            $Associations = IPS_GetVariableProfile('SONOS.Radio')['Associations'];
+                            foreach ($Associations as $key => $station) {
+                                if ($station['Name'] == $radioStation['name']) {
+                                    $currentStation = $station['Value'];
+                                    break;
+                                }
+                            }
                             break;
                         }
                     }
 
+                    /*
+                    // I do not think that thisis required any longer...
                     if ($playingRadioStation == '') {
                         foreach ((new SimpleXMLElement($sonos->BrowseContentDirectory('R:0/0')['Result']))->item as $item) {
                             if ($item->res == htmlspecialchars_decode($mediaInfo['CurrentURI'])) {
@@ -2111,7 +2120,7 @@ class SonosPlayer extends IPSModule
                         }
                     }
 
-                    if (isset($playingRadioStation)) {
+                    if ($playingRadioStation != '') {
                         $Associations = IPS_GetVariableProfile('SONOS.Radio')['Associations'];
                         foreach ($Associations as $key => $station) {
                             if ($station['Name'] == $playingRadioStation) {
@@ -2120,6 +2129,7 @@ class SonosPlayer extends IPSModule
                             }
                         }
                     }
+                     */
                     // end find current Radio in VariableProfile
                 }
                 SetValueInteger($vidRadio, $currentStation);

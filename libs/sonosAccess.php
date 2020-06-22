@@ -511,7 +511,7 @@ class SonosAccess
             'SetAVTransportURI',
             [
                 new SoapParam('0', 'InstanceID'),
-                new SoapParam(htmlspecialchars($tspuri), 'CurrentURI'),
+                new SoapParam(htmlspecialchars($tspuri, ENT_COMPAT | ENT_HTML401, ini_get('default_charset'), false), 'CurrentURI'),
                 new SoapParam($MetaData, 'CurrentURIMetaData')
             ]
         );
