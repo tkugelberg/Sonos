@@ -604,7 +604,7 @@ class SonosPlayer extends IPSModule
                 }
 
                 if ($Settings['mute']) {
-                    $this->SendDebug(__FUNCTION__ . '->preparePlayGrouping->sonos', 'SetMute(true)', 0);
+                    $this->SendDebug(__FUNCTION__ . '->resetPlayGrouping->sonos', 'SetMute(true)', 0);
                     $sonos->SetMute(true);
                 }
 
@@ -1292,7 +1292,7 @@ class SonosPlayer extends IPSModule
                 'DataID'         => '{731D7808-F7C4-FA98-2132-0FAB19A802C1}',
                 'type'           => 'preparePlayGrouping',
                 'targetInstance' => $instanceID,
-                'volumeChange'   => $volume,
+                'volumeChange'   => strval($volume),
                 'transportURI'   => $transportURI
             ]);
             $this->SendDebug(__FUNCTION__ . '->SendDataToParent', $data, 0);
