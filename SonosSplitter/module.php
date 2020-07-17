@@ -485,7 +485,7 @@ class SonosSplitter extends IPSModule
                 }
                 $alreadyIn = false;
                 foreach ($radioStations as $radioStation) {
-                    if ($radioStation['name'] == $name && $radioStation['URL'] == $url && $radioStation['imageURL'] == $imageurl) {
+                    if ($radioStation['name'] == $name && $radioStation['URL'] == $url) {
                         $alreadyIn = true;
                         break;
                     }
