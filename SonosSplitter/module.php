@@ -442,6 +442,7 @@ class SonosSplitter extends IPSModule
 
     public function ReadTunein()
     {
+        $this->SendDebug('"' . __FUNCTION__ . '" called', '', 0);
         // get all Player instances, including IP/Host and InstanceID
         $InstanceIDList = IPS_GetInstanceListByModuleID('{52F6586D-A1C7-AAC6-309B-E12A70F6EEF6}');
         $InstanceList = [];
@@ -456,6 +457,7 @@ class SonosSplitter extends IPSModule
         foreach ($InstanceList as $InstanceID => $Instance) {
             if (Sys_Ping($Instance['IPAddress'], $Instance['TimeOut']) == true) {
                 $sonos = new SonosAccess($Instance['IPAddress']);
+                $this->SendDebug(__FUNCTION__ . ': using Player', $Instance['IPAddress'], 0);
                 break;
             }
         }
@@ -470,11 +472,17 @@ class SonosSplitter extends IPSModule
 
             $radioStations = json_decode($this->ReadPropertyString('RadioStations'), true);
 
+            $this->SendDebug(__FUNCTION__ . ': following stations were returned', '', 0);
+
             foreach ($tuneinStations as $tuneinStation) {
                 $name = strval($tuneinStation->xpath('dc:title')[0]);
+                $this->SendDebug(__FUNCTION__ . ': Name', (string) $name, 0);
                 $url = strval($tuneinStation->res);
-                preg_match('/s\d{3,}/', $url, $station);
-                $imageurl = 'http://cdn-radiotime-logos.tunein.com/' . $station[0] . 'q.png';
+                $this->SendDebug(__FUNCTION__ . ': URL', (string) $url, 0);
+                if (preg_match('/s\d{3,}/', $url, $station)) {
+                    $imageurl = 'http://cdn-radiotime-logos.tunein.com/' . $station[0] . 'q.png';
+                    $this->SendDebug(__FUNCTION__ . ': Image', (string) $imageurl, 0);
+                }
                 $alreadyIn = false;
                 foreach ($radioStations as $radioStation) {
                     if ($radioStation['name'] == $name && $radioStation['URL'] == $url && $radioStation['imageURL'] == $imageurl) {
