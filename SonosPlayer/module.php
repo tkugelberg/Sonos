@@ -885,7 +885,7 @@ class SonosPlayer extends IPSModule
             $data = json_encode([
                 'DataID'              => '{731D7808-F7C4-FA98-2132-0FAB19A802C1}',
                 'type'                => 'getName',
-                'targetInstance'      => $groupMembers
+                'targetInstance'      => explode(',', $groupMembers)
             ]);
             $this->SendDebug(__FUNCTION__ . '->SendDataToParent', $data, 0);
             $responseJson = $this->SendDataToParent($data);
