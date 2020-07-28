@@ -204,11 +204,13 @@ class SonosSplitter extends IPSModule
               $this->SendDebug(__FUNCTION__ . '->SendDataToChildren', $data, 0);
               $this->SendDataToChildren($data);
               break;
-            case 'GetName':
+            case 'getName':
               $input['DataID'] = '{36EA4430-7047-C11D-0854-43391B14E0D7}'; // rewrite DataID
               $data = json_encode($input);                                 // just forward
               $this->SendDebug(__FUNCTION__ . '->SendDataToChildren', $data, 0);
-              return $this->SendDataToChildren($data);
+              $return = $this->SendDataToChildren($data);
+              $this->SendDebug(__FUNCTION__ . '->received from children', json_encode($return), 0);
+              return json_encode($return);
               break;
             default:
               throw new Exception(sprintf($this->Translate('unknown type %s in ForwardData'), $input['type']));

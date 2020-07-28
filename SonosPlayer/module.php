@@ -764,14 +764,14 @@ class SonosPlayer extends IPSModule
                     }
                 }
                 break;
-            case 'GetName':
+            case 'getName':
                 $result = [
                     'instanceID'        => $this->InstanceID,
                     'name'              => IPS_GetName($this->InstanceID)
                 ];
                 return json_encode($result);
                 break;
-            case 'GetCoordinatorValues':
+            case 'getCoordinatorValues':
                 if (!$this->ReadAttributeBoolean('Coordinator')) {
                     $this->SendDebug(__FUNCTION__ . '->GetCoordinatorValues', 'not a Coordinator', 0);
                     return;
@@ -884,7 +884,7 @@ class SonosPlayer extends IPSModule
         } else {
             $data = json_encode([
                 'DataID'              => '{731D7808-F7C4-FA98-2132-0FAB19A802C1}',
-                'type'                => 'GetName',
+                'type'                => 'getName',
                 'targetInstance'      => $groupMembers
             ]);
             $this->SendDebug(__FUNCTION__ . '->SendDataToParent', $data, 0);
