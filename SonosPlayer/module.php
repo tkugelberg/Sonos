@@ -749,6 +749,107 @@ class SonosPlayer extends IPSModule
                     }
                 }
                 break;
+            case 'getVariable':
+                $vid = @$this->GetIDForIdent($input['variableIdent']);
+                if ($vid) {
+                    switch ($input['variableType']) {
+                        case 'int':
+                            $result = [
+                                'instanceID'    => $this->InstanceID,
+                                'variableIdent' => $input['variableIdent'],
+                                'variavleValue' => GetValueInteger($vid, $input['variableValue'])
+                            ];
+                            return json_encode($result);
+                            break;
+                    }
+                }
+                break;
+            case 'GetName':
+                $result = [
+                    'instanceID'        => $this->InstanceID,
+                    'name'              => IPS_GetName($this->InstanceID)
+                ];
+                return json_encode($result);
+                break;
+            case 'GetCoordinatorValues':
+                if (!$this->ReadAttributeBoolean('Coordinator')) {
+                    $this->SendDebug(__FUNCTION__ . '->GetCoordinatorValues', 'not a Coordinator', 0);
+                    return;
+                }
+
+                $vidSleeptimer = @$this->GetIDForIdent('Sleeptimer');
+                $vidCoverURL = @$this->GetIDForIdent('CoverURL');
+                $vidContentStream = @$this->GetIDForIdent('ContentStream');
+                $vidArtist = @$this->GetIDForIdent('Artist');
+                $vidAlbum = @$this->GetIDForIdent('Album');
+                $vidTrackDuration = @$this->GetIDForIdent('TrackDuration');
+                $vidPosition = @$this->GetIDForIdent('Position');
+                $vidTitle = @$this->GetIDForIdent('Title');
+                $vidDetails = @$this->GetIDForIdent('Details');
+
+                if ($vidSleeptimer) {
+                    $sleeptimer = @GetValueInteger($vidSleeptimer);
+                } else {
+                    $sleeptimer = 0;
+                }
+                if ($vidCoverURL) {
+                    $coverURL = GetValueString($vidCoverURL);
+                } else {
+                    $coverURL = '';
+                }
+                if ($vidContentStream) {
+                    $contentStram = GetValueString($vidContentStream);
+                } else {
+                    $contentStram = '';
+                }
+                if ($vidArtist) {
+                    $artist = GetValueString($vidArtist);
+                } else {
+                    $artist = '';
+                }
+                if ($vidAlbum) {
+                    $album = GetValueString($vidAlbum);
+                } else {
+                    $album = '';
+                }
+                if ($vidTrackDuration) {
+                    $trackDuration = GetValueString($vidTrackDuration);
+                } else {
+                    $trackDuration = '';
+                }
+                if ($vidPosition) {
+                    $position = GetValueString($vidPosition);
+                } else {
+                    $position = '';
+                }
+                if ($vidTitle) {
+                    $title = GetValueString($vidTitle);
+                } else {
+                    $title = '';
+                }
+                if ($vidDetails) {
+                    $details = GetValueString($vidDetails);
+                } else {
+                    $details = '';
+                }
+
+                $result = [
+                    'instanceID'    => $this->InstanceID,
+                    'Status'        => GetValueInteger(@$this->GetIDForIdent('Status')),
+                    'nowPlaying'    => GetValueString(@$this->GetIDForIdent('nowPlaying')),
+                    'Radio'         => GetValueInteger(@$this->GetIDForIdent('Radio')),
+                    'Sleeptimer'    => $sleeptimer,
+                    'CoverURL'      => $coverURL,
+                    'ContentStream' => $contentStram,
+                    'Artist'        => $artist,
+                    'Album'         => $album,
+                    'TrackDuration' => $trackDuration,
+                    'Position'      => $position,
+                    'Title'         => $title,
+                    'Details'       => $details
+                ];
+                 return json_encode($result);
+                break;
             case 'setAttribute':
                 switch ($input['attributeType']) {
                     case 'string':
@@ -776,15 +877,25 @@ class SonosPlayer extends IPSModule
         }
 
         // Group Members
-        $name_array = [];
-        foreach (explode(',', $this->ReadAttributeString('GroupMembers')) as $key => $instanceID) {
-            if ($instanceID == 0) {
-                $name_array[] = 'none';
-            } else {
-                // TODO: switch to DataFLow once 5.4 is out
-                $name_array[] = IPS_GetName($instanceID);
+        $groupMembers = $this->ReadAttributeString('GroupMembers');
+        if ($groupMembers == 0) {
+            $this->SendDebug(__FUNCTION__, 'no group members', 0);
+            $name_array[] = 'none';
+        } else {
+            $data = json_encode([
+                'DataID'              => '{731D7808-F7C4-FA98-2132-0FAB19A802C1}',
+                'type'                => 'GetName',
+                'targetInstance'      => $groupMembers
+            ]);
+            $this->SendDebug(__FUNCTION__ . '->SendDataToParent', $data, 0);
+            $response = $this->SendDataToParent($data);
+            $this->SendDebug(__FUNCTION__ . '->received from parent', $response, 0);
+            $nameList = json_decode($response, true);
+            foreach ($nameList as $name) {
+                $name_array[] = json_decode($name, true)['name'];
             }
         }
+
         $response['GroupMembers'] = implode(',', $name_array);
 
         $this->alexa_get_value('MemberOfGroup', 'fromatted', $response);
