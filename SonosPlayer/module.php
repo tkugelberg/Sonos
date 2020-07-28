@@ -888,9 +888,9 @@ class SonosPlayer extends IPSModule
                 'targetInstance'      => $groupMembers
             ]);
             $this->SendDebug(__FUNCTION__ . '->SendDataToParent', $data, 0);
-            $response = $this->SendDataToParent($data);
-            $this->SendDebug(__FUNCTION__ . '->received from parent', $response, 0);
-            $nameList = json_decode($response, true);
+            $responseJson = $this->SendDataToParent($data);
+            $this->SendDebug(__FUNCTION__ . '->received from parent', $responseJson, 0);
+            $nameList = json_decode($responseJson, true);
             foreach ($nameList as $name) {
                 $name_array[] = json_decode($name, true)['name'];
             }
