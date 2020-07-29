@@ -749,6 +749,7 @@ class SonosPlayer extends IPSModule
                     }
                 }
                 break;
+            case 'getVariableNoDebug':
             case 'getVariable':
                 $vid = @$this->GetIDForIdent($input['variableIdent']);
                 if ($vid) {
@@ -2087,7 +2088,7 @@ class SonosPlayer extends IPSModule
     public function updateStatus()
     {
         try {
-            $sonos = $this->getSonosAccess();
+            $sonos = $this->getSonosAccess(false);
         } catch (Exception $e) {
             return;
         }
@@ -2431,7 +2432,7 @@ class SonosPlayer extends IPSModule
             $GroupVolume = 0;
             $data = json_encode([
                 'DataID'         => '{731D7808-F7C4-FA98-2132-0FAB19A802C1}',
-                'type'           => 'getVariable',
+                'type'           => 'getVariableNoDebug',
                 'targetInstance' => $groupMembersArray,
                 'variableIdent'  => 'Volume',
                 'variableType'   => 'int'
