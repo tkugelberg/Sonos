@@ -757,7 +757,7 @@ class SonosPlayer extends IPSModule
                             $result = [
                                 'instanceID'    => $this->InstanceID,
                                 'variableIdent' => $input['variableIdent'],
-                                'variavleValue' => GetValueInteger($vid, $input['variableValue'])
+                                'variableValue' => GetValueInteger($vid)
                             ];
                             return json_encode($result);
                             break;
@@ -978,9 +978,23 @@ class SonosPlayer extends IPSModule
         }
 
         $GroupVolume = GetValueInteger($this->GetIDForIdent('Volume'));
-        foreach ($groupMembersArray as $key => $ID) {
-            // TODO: switch to DataFLow once 5.4 is out
-            $GroupVolume += GetValueInteger(IPS_GetObjectIDByIdent('Volume', $ID));
+
+        if ($groupMembersArray) {
+            $data = json_encode([
+                'DataID'         => '{731D7808-F7C4-FA98-2132-0FAB19A802C1}',
+                'type'           => 'getVariable',
+                'targetInstance' => $groupMembersArray,
+                'variableIdent'  => 'Volume',
+                'variableType'   => 'int'
+            ]);
+
+            $this->SendDebug(__FUNCTION__ . '->SendDataToParent', $data, 0);
+            $parentResponseJSON = $this->SendDataToParent($data);
+            $this->SendDebug(__FUNCTION__ . '->received from parent', $parentResponseJSON, 0);
+            $memberVolumeList = json_decode($parentResponseJSON, true);
+            foreach ($memberVolumeList as $memberVolume) {
+                $GroupVolume += json_decode($memberVolume, true)['variableValue'];
+            }
         }
 
         SetValueInteger($this->GetIDForIdent('GroupVolume'), intval(round($GroupVolume / count($groupMembersArray))));
@@ -1014,8 +1028,19 @@ class SonosPlayer extends IPSModule
         }
 
         // $newGroupCoordinator is not part of group
-        // TODO: switch to DataFLow once 5.4 is out
-        if (GetValueInteger(IPS_GetObjectIDByIdent('MemberOfGroup', $newGroupCoordinator)) !== $this->InstanceID) {
+        $data = json_encode([
+            'DataID'         => '{731D7808-F7C4-FA98-2132-0FAB19A802C1}',
+            'type'           => 'getVariable',
+            'targetInstance' => $newGroupCoordinator,
+            'variableIdent'  => 'MemberOfGroup',
+            'variableType'   => 'int'
+        ]);
+
+        $this->SendDebug(__FUNCTION__ . '->SendDataToParent', $data, 0);
+        $parentResponseJSON = $this->SendDataToParent($data);
+        $this->SendDebug(__FUNCTION__ . '->received from parent', $parentResponseJSON, 0);
+        // check if returned vaiable value is this Instance ID
+        if (json_decode(json_decode($parentResponseJSON, true)[0], true)['variableValue'] !== $this->InstanceID) {
             throw new Exception(sprintf($this->translate('%s is not a member of this group'), $newGroupCoordinator));
         }
 
@@ -1255,8 +1280,19 @@ class SonosPlayer extends IPSModule
                     if ($groupMember == 0) {
                         continue;
                     }
-                    // TODO: switch to DataFLow once 5.4 is out
-                    $volumeList[$groupMember] = GetValueInteger(IPS_GetObjectIDByIdent('Volume', $groupMember)); // remember old setting
+
+                    $data = json_encode([
+                        'DataID'         => '{731D7808-F7C4-FA98-2132-0FAB19A802C1}',
+                        'type'           => 'getVariable',
+                        'targetInstance' => (int) $groupMember,
+                        'variableIdent'  => 'Volume',
+                        'variableType'   => 'int'
+                    ]);
+
+                    $this->SendDebug(__FUNCTION__ . '->SendDataToParent', $data, 0);
+                    $parentResponseJSON = $this->SendDataToParent($data);
+                    $this->SendDebug(__FUNCTION__ . '->received from parent', $parentResponseJSON, 0);
+                    $volumeList[$groupMember] = json_decode(json_decode($parentResponseJSON, true)[0], true)['variableValue']; // remember old setting
                 }
             }
             $this->SendDebug(__FUNCTION__ . ': remember volume', json_encode($volumeList), 0);
@@ -1615,9 +1651,20 @@ class SonosPlayer extends IPSModule
         }
 
         $GroupVolume = 0;
-        foreach ($groupMembersArray as $key => $ID) {
-            // TODO: switch to DataFLow once 5.4 is out
-            $GroupVolume += GetValueInteger(IPS_GetObjectIDByIdent('Volume', $ID));
+        $data = json_encode([
+            'DataID'         => '{731D7808-F7C4-FA98-2132-0FAB19A802C1}',
+            'type'           => 'getVariable',
+            'targetInstance' => $groupMembersArray,
+            'variableIdent'  => 'Volume',
+            'variableType'   => 'int'
+        ]);
+
+        $this->SendDebug(__FUNCTION__ . '->SendDataToParent', $data, 0);
+        $parentResponseJSON = $this->SendDataToParent($data);
+        $this->SendDebug(__FUNCTION__ . '->received from parent', $parentResponseJSON, 0);
+        $memberVolumeList = json_decode($parentResponseJSON, true);
+        foreach ($memberVolumeList as $memberVolume) {
+            $GroupVolume += json_decode($memberVolume, true)['variableValue'];
         }
 
         SetValueInteger($this->GetIDForIdent('GroupVolume'), intval(round($GroupVolume / count($groupMembersArray))));
@@ -1910,7 +1957,7 @@ class SonosPlayer extends IPSModule
             $this->SendDebug(__FUNCTION__ . '->SendDataToParent', $data, 0);
             $this->SendDataToParent($data);
         }
-    } // END etPlayMode
+    } // END SetPlayMode
 
     public function SetRadio(string $radio)
     {
@@ -2149,36 +2196,43 @@ class SonosPlayer extends IPSModule
 
             if ($MemberOfGroup) {
                 // If Sonos is member of a group, use values of Group Coordinator
-                // TODO: switch to DataFLow once 5.4 is out
-                SetValueInteger($vidStatus, GetValueInteger(IPS_GetObjectIDByIdent('Status', $MemberOfGroup)));
-                $actuallyPlaying = GetValueString(IPS_GetObjectIDByIdent('nowPlaying', $MemberOfGroup));
-                SetValueInteger($vidRadio, GetValueInteger(IPS_GetObjectIDByIdent('Radio', $MemberOfGroup)));
+                $data = json_encode([
+                    'DataID'         => '{731D7808-F7C4-FA98-2132-0FAB19A802C1}',
+                    'type'           => 'getCoordinatorValues',
+                    'targetInstance' => $MemberOfGroup
+                ]);
+                $parentResponseJSON = $this->SendDataToParent($data);
+                $coordinatorValues = json_decode(json_decode($parentResponseJSON, true)[0], true);
+
+                SetValueInteger($vidStatus, $coordinatorValues['Status']);
+                $actuallyPlaying = $coordinatorValues['nowPlaying'];
+                SetValueInteger($vidRadio, $coordinatorValues['Radio']);
                 if ($vidSleeptimer) {
-                    SetValueInteger($vidSleeptimer, @GetValueInteger(IPS_GetObjectIDByIdent('Sleeptimer', $MemberOfGroup)));
+                    SetValueInteger($vidSleeptimer, $coordinatorValues['Sleeptimer']);
                 }
                 if ($vidCoverURL) {
-                    SetValueString($vidCoverURL, @GetValueString(IPS_GetObjectIDByIdent('CoverURL', $MemberOfGroup)));
+                    SetValueString($vidCoverURL, $coordinatorValues['CoverURL']);
                 }
                 if ($vidContentStream) {
-                    SetValueString($vidContentStream, @GetValueString(IPS_GetObjectIDByIdent('ContentStream', $MemberOfGroup)));
+                    SetValueString($vidContentStream, $coordinatorValues['ContentStream']);
                 }
                 if ($vidArtist) {
-                    SetValueString($vidArtist, @GetValueString(IPS_GetObjectIDByIdent('Artist', $MemberOfGroup)));
+                    SetValueString($vidArtist, $coordinatorValues['Artist']);
                 }
                 if ($vidAlbum) {
-                    SetValueString($vidAlbum, @GetValueString(IPS_GetObjectIDByIdent('Album', $MemberOfGroup)));
+                    SetValueString($vidAlbum, $coordinatorValues['Album']);
                 }
                 if ($vidTrackDuration) {
-                    SetValueString($vidTrackDuration, @GetValueString(IPS_GetObjectIDByIdent('TrackDuration', $MemberOfGroup)));
+                    SetValueString($vidTrackDuration, $coordinatorValues['TrackDuration']);
                 }
                 if ($vidPosition) {
-                    SetValueString($vidPosition, @GetValueString(IPS_GetObjectIDByIdent('Position', $MemberOfGroup)));
+                    SetValueString($vidPosition, $coordinatorValues['Position']);
                 }
                 if ($vidTitle) {
-                    SetValueString($vidTitle, @GetValueString(IPS_GetObjectIDByIdent('Title', $MemberOfGroup)));
+                    SetValueString($vidTitle, $coordinatorValues['Title']);
                 }
                 if ($vidDetails) {
-                    SetValueString($vidDetails, @GetValueString(IPS_GetObjectIDByIdent('Details', $MemberOfGroup)));
+                    SetValueString($vidDetails, $coordinatorValues['Details']);
                 }
             } else {
                 $status = $sonos->GetTransportInfo();
@@ -2203,10 +2257,8 @@ class SonosPlayer extends IPSModule
                     // start find current Radio in VariableProfile
                     $radioStations = json_decode($this->ReadAttributeString('RadioStations'), true);
 
-                    // $playingRadioStation = '';
                     foreach ($radioStations as $radioStation) {
                         if (htmlspecialchars_decode($radioStation['URL']) == htmlspecialchars_decode($mediaInfo['CurrentURI'])) {
-                            //$playingRadioStation = $radioStation['name'];
                             $image = $radioStation['imageURL'];
 
                             $Associations = IPS_GetVariableProfile('SONOS.Radio')['Associations'];
@@ -2219,29 +2271,6 @@ class SonosPlayer extends IPSModule
                             break;
                         }
                     }
-
-                    /*
-                    // I do not think that thisis required any longer...
-                    if ($playingRadioStation == '') {
-                        foreach ((new SimpleXMLElement($sonos->BrowseContentDirectory('R:0/0')['Result']))->item as $item) {
-                            if ($item->res == htmlspecialchars_decode($mediaInfo['CurrentURI'])) {
-                                $playingRadioStation = (string) $item->xpath('dc:title')[0];
-                                break;
-                            }
-                        }
-                    }
-
-                    if ($playingRadioStation != '') {
-                        $Associations = IPS_GetVariableProfile('SONOS.Radio')['Associations'];
-                        foreach ($Associations as $key => $station) {
-                            if ($station['Name'] == $playingRadioStation) {
-                                $currentStation = $station['Value'];
-                                break;
-                            }
-                        }
-                    }
-                     */
-                    // end find current Radio in VariableProfile
                 }
                 SetValueInteger($vidRadio, $currentStation);
 
@@ -2400,9 +2429,18 @@ class SonosPlayer extends IPSModule
             $groupMembersArray[] = $this->InstanceID;
 
             $GroupVolume = 0;
-            foreach ($groupMembersArray as $key => $ID) {
-                // TODO: switch to DataFLow once 5.4 is out
-                $GroupVolume += GetValueInteger(IPS_GetObjectIDByIdent('Volume', $ID));
+            $data = json_encode([
+                'DataID'         => '{731D7808-F7C4-FA98-2132-0FAB19A802C1}',
+                'type'           => 'getVariable',
+                'targetInstance' => $groupMembersArray,
+                'variableIdent'  => 'Volume',
+                'variableType'   => 'int'
+            ]);
+
+            $parentResponseJSON = $this->SendDataToParent($data);
+            $memberVolumeList = json_decode($parentResponseJSON, true);
+            foreach ($memberVolumeList as $memberVolume) {
+                $GroupVolume += json_decode($memberVolume, true)['variableValue'];
             }
 
             SetValueInteger($vidGroupVolume, intval(round($GroupVolume / count($groupMembersArray))));

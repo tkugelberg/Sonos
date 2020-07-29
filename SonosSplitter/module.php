@@ -205,6 +205,8 @@ class SonosSplitter extends IPSModule
               $this->SendDataToChildren($data);
               break;
             case 'getName':
+            case 'getVariable':
+            case 'getCoordinatorValues':
               $input['DataID'] = '{36EA4430-7047-C11D-0854-43391B14E0D7}'; // rewrite DataID
               $data = json_encode($input);                                 // just forward
               $this->SendDebug(__FUNCTION__ . '->SendDataToChildren', $data, 0);
