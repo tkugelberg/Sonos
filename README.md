@@ -38,7 +38,7 @@ Die folgenden Funktionalitäten sind implementiert:
 Audiodateien von einem Samba-Share (z.B. Synology) oder HTTP Server abspielen und danach den vorherigen zustand wieder herstellen
 
 ## 2. Anforderungen
- - IPS >= 5.3
+ - IPS >= 5.4
  - Sonos audio system
 
 ## 3. Installation
