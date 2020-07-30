@@ -159,7 +159,7 @@ class SonosSplitter extends IPSModule
         $input = json_decode($JSONString, true);
 
         if ($input['type'] != 'getVariableNoDebug' && $input['type'] != 'getCoordinatorValues') {
-            $this->SendDebug('"' . __FUNCTION__ . '" called with', sprintf('$JSONstring=%s', $JSONstring), 0);
+            $this->SendDebug('"' . __FUNCTION__ . '" called with', sprintf('$JSONstring=%s', $JSONString), 0);
         }
 
         switch ($input['type']) {
@@ -341,8 +341,8 @@ class SonosSplitter extends IPSModule
                             'type'     => 'Label',
                             'caption'  => 'read grouping from sonos (normally executed automatically)'
                         ]
-                   ]
-                ]                        
+                    ]
+                ]
             ]
         ];
         return json_encode($Form);
