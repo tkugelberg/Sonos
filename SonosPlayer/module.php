@@ -384,9 +384,11 @@ class SonosPlayer extends IPSModule
 
     public function ReceiveData($JSONstring)
     {
-        $this->SendDebug('"' . __FUNCTION__ . '" called with', sprintf('$JSONstring=%s', $JSONstring), 0);
-
         $input = json_decode($JSONstring, true);
+
+        if ($input['type'] != 'getVariableNoDebug' && $input['type'] != 'getCoordinatorValues') {
+            $this->SendDebug('"' . __FUNCTION__ . '" called with', sprintf('$JSONstring=%s', $JSONstring), 0);
+        }
 
         switch ($input['type']) {
             case 'grouping':
@@ -839,6 +841,7 @@ class SonosPlayer extends IPSModule
                     'Status'        => GetValueInteger(@$this->GetIDForIdent('Status')),
                     'nowPlaying'    => GetValueString(@$this->GetIDForIdent('nowPlaying')),
                     'Radio'         => GetValueInteger(@$this->GetIDForIdent('Radio')),
+                    'GroupVolume'   => GetValueInteger(@$this->GetIDForIdent('GroupVolume')),
                     'Sleeptimer'    => $sleeptimer,
                     'CoverURL'      => $coverURL,
                     'ContentStream' => $contentStram,
@@ -998,7 +1001,7 @@ class SonosPlayer extends IPSModule
             }
         }
 
-        SetValueInteger($this->GetIDForIdent('GroupVolume'), intval(round($GroupVolume / count($groupMembersArray))));
+        SetValueInteger($this->GetIDForIdent('GroupVolume'), intval(round($GroupVolume / (count($groupMembersArray) + 1))));
     }
 
     public function ChangeVolume(int $increment)
@@ -2122,7 +2125,8 @@ class SonosPlayer extends IPSModule
         $AlbumArtHeight = $this->ReadAttributeInteger('AlbumArtHeight');
 
         try {
-            SetValueInteger($vidVolume, $sonos->GetVolume());
+            $volume = $sonos->GetVolume();
+            SetValueInteger($vidVolume, $volume);
             if ($sonos->GetOutputFixed()) {
                 if ($this->ReadAttributeBoolean('OutputFixed') == false) {
                     $this->WriteAttributeBoolean('OutputFixed', true);
@@ -2208,6 +2212,7 @@ class SonosPlayer extends IPSModule
                 SetValueInteger($vidStatus, $coordinatorValues['Status']);
                 $actuallyPlaying = $coordinatorValues['nowPlaying'];
                 SetValueInteger($vidRadio, $coordinatorValues['Radio']);
+                SetValueInteger($vidGroupVolume, $coordinatorValues['GroupVolume']);
                 if ($vidSleeptimer) {
                     SetValueInteger($vidSleeptimer, $coordinatorValues['Sleeptimer']);
                 }
@@ -2413,6 +2418,32 @@ class SonosPlayer extends IPSModule
                     }
 
                     SetValueInteger($vidSleeptimer, $SleeptimerMinutes);
+
+                    // Set Group Volume
+                    $groupMembers = $this->ReadAttributeString('GroupMembers');
+                    $groupMembersArray = [];
+                    if ($groupMembers) {
+                        $groupMembersArray = array_map('intval', explode(',', $groupMembers));
+                    }
+
+                    $GroupVolume = $volume; // add own volume
+                    if ($groupMembersArray) {
+                        $data = json_encode([
+                            'DataID'         => '{731D7808-F7C4-FA98-2132-0FAB19A802C1}',
+                            'type'           => 'getVariableNoDebug',
+                            'targetInstance' => $groupMembersArray,
+                            'variableIdent'  => 'Volume',
+                            'variableType'   => 'int'
+                        ]);
+
+                        $parentResponseJSON = $this->SendDataToParent($data);
+                        $memberVolumeList = json_decode($parentResponseJSON, true);
+                        foreach ($memberVolumeList as $memberVolume) {
+                            $GroupVolume += json_decode($memberVolume, true)['variableValue'];
+                        }
+                    }
+
+                    SetValueInteger($vidGroupVolume, intval(round($GroupVolume / (count($groupMembersArray) + 1))));
                 }
             }
 
@@ -2420,31 +2451,6 @@ class SonosPlayer extends IPSModule
             if ($actuallyPlaying != $nowPlaying) {
                 SetValueString($vidNowPlaying, $actuallyPlaying);
             }
-
-            // Set Group Volume
-            $groupMembers = $this->ReadAttributeString('GroupMembers');
-            $groupMembersArray = [];
-            if ($groupMembers) {
-                $groupMembersArray = array_map('intval', explode(',', $groupMembers));
-            }
-            $groupMembersArray[] = $this->InstanceID;
-
-            $GroupVolume = 0;
-            $data = json_encode([
-                'DataID'         => '{731D7808-F7C4-FA98-2132-0FAB19A802C1}',
-                'type'           => 'getVariableNoDebug',
-                'targetInstance' => $groupMembersArray,
-                'variableIdent'  => 'Volume',
-                'variableType'   => 'int'
-            ]);
-
-            $parentResponseJSON = $this->SendDataToParent($data);
-            $memberVolumeList = json_decode($parentResponseJSON, true);
-            foreach ($memberVolumeList as $memberVolume) {
-                $GroupVolume += json_decode($memberVolume, true)['variableValue'];
-            }
-
-            SetValueInteger($vidGroupVolume, intval(round($GroupVolume / count($groupMembersArray))));
         } catch (Exception $e) {
             $eMessage = $e->getMessage();
             if ($eMessage == 'Error during Soap Call: Could not connect to host HTTP' || $eMessage == 'Error during Soap Call: Error Fetching http headers HTTP') {

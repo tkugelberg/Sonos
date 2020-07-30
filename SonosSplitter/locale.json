@@ -25,6 +25,8 @@
 			"Unable to access any Sonos Instance": "Keine Sonos Instanz konnte erreicht werden",
 			"unknown type %s in ForwardData": "unbekannter type %s in ForwardData",
 			"read TuneIn favorites": "TuneIn Favoriten auslesen",
+			"update grouping": "update Grouping",
+			"read grouping from sonos (normally executed automatically)": "Gruppierung aus Sonos auslesen (passiert normalerweise automatisch)",
 			"Read parameters from \"My Radio Stations\" in TuneIn and add them to \"Radio Stations\" above": "Lese die Einstellungen aus \"Meine Radiosender\" bei TuneIn aus, und füge sie der Liste \"Radiosender\" hinzu",
 			"no playlist available": "Keine Playlisten vorhanden",
 			"previous": "Zurück",

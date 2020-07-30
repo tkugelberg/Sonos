@@ -156,8 +156,12 @@ class SonosSplitter extends IPSModule
 
     public function ForwardData($JSONString)
     {
-        $this->SendDebug('"' . __FUNCTION__ . '" called with', $JSONString, 0);
         $input = json_decode($JSONString, true);
+
+        if ($input['type'] != 'getVariableNoDebug' && $input['type'] != 'getCoordinatorValues') {
+            $this->SendDebug('"' . __FUNCTION__ . '" called with', sprintf('$JSONstring=%s', $JSONstring), 0);
+        }
+
         switch ($input['type']) {
             case 'AlbumArtRequest':
               $data = json_encode([
@@ -323,7 +327,22 @@ class SonosSplitter extends IPSModule
                             'caption'  => 'Read parameters from "My Radio Stations" in TuneIn and add them to "Radio Stations" above'
                         ]
                     ]
-                ]
+                ],
+                [
+                    'type' => 'RowLayout', 'items' => [
+                        [
+                            'name'     => 'updateGrouping',
+                            'type'     => 'Button',
+                            'caption'  => 'update grouping',
+                            'onClick'  => 'SNS_updateGrouping($id);'
+                        ],
+                        [
+                            'name'     => 'updateGroupingLabel',
+                            'type'     => 'Label',
+                            'caption'  => 'read grouping from sonos (normally executed automatically)'
+                        ]
+                   ]
+                ]                        
             ]
         ];
         return json_encode($Form);
