@@ -9,8 +9,7 @@ require_once __DIR__ . '/../libs/CommonFunctions.php';
 class SonosSplitter extends IPSModule
 {
     use VariableProfile;
-    use
-    CommonFunctions;
+    use CommonFunctions;
 
     public function Create()
     {
@@ -158,7 +157,7 @@ class SonosSplitter extends IPSModule
     {
         $input = json_decode($JSONString, true);
 
-        if ($input['type'] != 'getVariableNoDebug' && $input['type'] != 'getCoordinatorValues') {
+        if ($input['type'] != 'getVariableNoDebug' && $input['type'] != 'getCoordinatorValues' && $input['type'] != 'getProperties') {
             $this->SendDebug('"' . __FUNCTION__ . '" called with', sprintf('$JSONstring=%s', $JSONString), 0);
         }
 
@@ -219,6 +218,7 @@ class SonosSplitter extends IPSModule
               break;
             case 'getVariableNoDebug':
             case 'getCoordinatorValues':
+            case 'getProperties':
                 // no debug
                 $input['DataID'] = '{36EA4430-7047-C11D-0854-43391B14E0D7}'; // rewrite DataID
                 $data = json_encode($input);                                 // just forward
@@ -376,30 +376,25 @@ class SonosSplitter extends IPSModule
 
     public function updateGrouping()
     {
+        $instancePropertyList = $this->getInstanceList();
+        $sonos = $this->getSonos($instancePropertyList, false);
         // get all Player instances, including required data
-        $InstanceIDList = IPS_GetInstanceListByModuleID('{52F6586D-A1C7-AAC6-309B-E12A70F6EEF6}');
-        $InstanceList = [];
-        foreach ($InstanceIDList as $InstanceID) {
-            $InstanceList[IPS_GetProperty($InstanceID, 'RINCON')] = [
-                'IPAddress'     => gethostbyname(IPS_GetProperty($InstanceID, 'IPAddress')),
-                'TimeOut'       => 500,
-                'InstanceID'    => $InstanceID,
-            ];
-        }
 
-        // Get grouping info from one of these Instances
-        foreach ($InstanceList as $RINCON => $Instance) {
-            if (@Sys_Ping($Instance['IPAddress'], $Instance['TimeOut']) == true) {
-                $sonos = new SonosAccess($Instance['IPAddress']);
-                $SonosGrouping = new SimpleXMLElement($sonos->GetZoneGroupState());
-                if ($SonosGrouping) {
-                    break;
-                }
-            }
+        if (isset($sonos)) {
+            $SonosGrouping = new SimpleXMLElement($sonos->GetZoneGroupState());
         }
 
         if (!isset($SonosGrouping) || !$SonosGrouping) {
             return;
+        }
+
+        $InstanceList = [];
+        foreach ($instancePropertyList as $instanceProperty) {
+            $InstanceList[$instanceProperty['RINCON']] = [
+                'IPAddress'     => $instanceProperty['IPAddress'],
+                'TimeOut'       => $instanceProperty['TimeOut'],
+                'InstanceID'    => $instanceProperty['instanceID']
+            ];
         }
 
         $Grouping = [];
@@ -479,24 +474,8 @@ class SonosSplitter extends IPSModule
     public function ReadTunein()
     {
         $this->SendDebug('"' . __FUNCTION__ . '" called', '', 0);
-        // get all Player instances, including IP/Host and InstanceID
-        $InstanceIDList = IPS_GetInstanceListByModuleID('{52F6586D-A1C7-AAC6-309B-E12A70F6EEF6}');
-        $InstanceList = [];
-        foreach ($InstanceIDList as $InstanceID) {
-            $InstanceList[$InstanceID] = [
-                'IPAddress'  => gethostbyname(IPS_GetProperty($InstanceID, 'IPAddress')),
-                'TimeOut'    => IPS_GetProperty($InstanceID, 'TimeOut'),
-            ];
-        }
 
-        // Get grouping info from one of these Instances
-        foreach ($InstanceList as $InstanceID => $Instance) {
-            if (Sys_Ping($Instance['IPAddress'], $Instance['TimeOut']) == true) {
-                $sonos = new SonosAccess($Instance['IPAddress']);
-                $this->SendDebug(__FUNCTION__ . ': using Player', $Instance['IPAddress'], 0);
-                break;
-            }
-        }
+        $sonos = $this->getSonos($this->getInstanceList());
 
         if (!isset($sonos)) {
             throw new Exception($this->Translate('Unable to access any Sonos Instance'));
@@ -548,24 +527,7 @@ class SonosSplitter extends IPSModule
         $Value = 1;
 
         if ($PlaylistImport != 0) {
-            // get all Player instances, including IP/Host and InstanceID
-            $InstanceIDList = IPS_GetInstanceListByModuleID('{52F6586D-A1C7-AAC6-309B-E12A70F6EEF6}');
-            $InstanceList = [];
-            foreach ($InstanceIDList as $InstanceID) {
-                $InstanceList[$InstanceID] = [
-                    'IPAddress'  => gethostbyname(IPS_GetProperty($InstanceID, 'IPAddress')),
-                    'TimeOut'    => IPS_GetProperty($InstanceID, 'TimeOut'),
-                ];
-            }
-
-            // Get grouping info from one of these Instances
-            foreach ($InstanceList as $InstanceID => $Instance) {
-                if (Sys_Ping($Instance['IPAddress'], $Instance['TimeOut']) == true) {
-                    $sonos = new SonosAccess($Instance['IPAddress']);
-                    $this->SendDebug(__FUNCTION__ . ': using Instance', $InstanceID, 0);
-                    break;
-                }
-            }
+            $sonos = $this->getSonos($this->getInstanceList());
 
             if (!isset($sonos)) {
                 throw new Exception($this->Translate('Unable to access any Sonos Instance'));
@@ -633,4 +595,27 @@ class SonosSplitter extends IPSModule
             $this->SendDataToChildren($data);
         }
     } // End UpdatePlaylists
+
+    private function getInstanceList(): array
+    {
+        return $this->SendDataToChildren(json_encode([
+            'DataID'         => '{36EA4430-7047-C11D-0854-43391B14E0D7}',
+            'type'           => 'getProperties',
+            'targetInstance' => null
+        ]));
+    }
+
+    private function getSonos(array $instanceList, bool $writeDebug = true)
+    {
+        // find a working instance
+        foreach ($instanceList as $Instance) {
+            if (Sys_Ping($Instance['IPAddress'], $Instance['TimeOut']) == true) {
+                $sonos = new SonosAccess($Instance['IPAddress']);
+                if ($writeDebug) {
+                    $this->SendDebug(__FUNCTION__ . ': using Player', $Instance['IPAddress'], 0);
+                }
+                return $sonos;
+            }
+        }
+    }
 }

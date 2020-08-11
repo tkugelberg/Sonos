@@ -386,7 +386,7 @@ class SonosPlayer extends IPSModule
     {
         $input = json_decode($JSONstring, true);
 
-        if ($input['type'] != 'getVariableNoDebug' && $input['type'] != 'getCoordinatorValues') {
+        if ($input['type'] != 'getVariableNoDebug' && $input['type'] != 'getCoordinatorValues' && $input['type'] != 'getProperties') {
             $this->SendDebug('"' . __FUNCTION__ . '" called with', sprintf('$JSONstring=%s', $JSONstring), 0);
         }
 
@@ -864,6 +864,15 @@ class SonosPlayer extends IPSModule
                         break;
                 }
                 break;
+            case 'getProperties':
+                $result = [
+                    'instanceID'    => $this->InstanceID,
+                    'IPAddress'     => gethostbyname($this->ReadPropertyString('IPAddress')),
+                    'RINCON'        => $this->ReadPropertyString('RINCON'),
+                    'TimeOut'       => $this->ReadPropertyInteger('TimeOut')
+                ];
+                 return json_encode($result);
+                break;
             default:
                 throw new Exception(sprintf($this->Translate('unknown type %s in ReceiveData'), $input['type']));
         }
@@ -1052,7 +1061,7 @@ class SonosPlayer extends IPSModule
         $sonos = $this->getSonosAccess();
 
         // Is executed on own Instance, but with RINCON of new Coordinator
-        $RINCON = IPS_GetProperty($newGroupCoordinator, 'RINCON');
+        $RINCON = $this->getInstanceRINCON($newGroupCoordinator);
         $this->SendDebug(__FUNCTION__ . '->sonos', sprintf('DelegateGroupCoordinationTo(%s, %s)', $RINCON, $rejoinGroup ? 'true' : 'false'), 0);
         $sonos->DelegateGroupCoordinationTo($RINCON, $rejoinGroup);
 
@@ -1560,7 +1569,7 @@ class SonosPlayer extends IPSModule
             $this->SetGroup(0);
         }
 
-        $uri = 'x-rincon-stream:' . IPS_GetProperty($input_instance, 'RINCON');
+        $uri = 'x-rincon-stream:' . $this->getInstanceRINCON($input_instance);
         $this->SendDebug(__FUNCTION__ . '->sonos', sprintf('SetAVTransportURI(%s)', $uri), 0);
         $sonos->SetAVTransportURI($uri);
     }    // END SetAnalogInput
@@ -1747,7 +1756,8 @@ class SonosPlayer extends IPSModule
             $this->SendDebug(__FUNCTION__ . '->SendDataToParent', $data, 0);
             $this->SendDataToParent($data);
 
-            $uri = 'x-rincon:' . IPS_GetProperty($groupCoordinator, 'RINCON');
+            // get RINCON from Coordinator
+            $uri = 'x-rincon:' . $this->getInstanceRINCON($groupCoordinator);
             $this->WriteAttributeBoolean('Coordinator', false);
             @IPS_SetVariableProfileAssociation('SONOS.Groups', $this->InstanceID, '', '', -1);
         } else {
@@ -2038,7 +2048,7 @@ class SonosPlayer extends IPSModule
             $this->SetGroup(0);
         }
 
-        $uri = 'x-sonos-htastream:' . IPS_GetProperty($input_instance, 'RINCON') . ':spdif';
+        $uri = 'x-sonos-htastream:' . $this->getInstanceRINCON($input_instance) . ':spdif';
         $this->SendDebug(__FUNCTION__ . '->sonos', sprintf('SetAVTransportURI(%s)', $uri), 0);
         $sonos->SetAVTransportURI($uri);
     } // END SetSpdifInput
@@ -2605,6 +2615,25 @@ class SonosPlayer extends IPSModule
             $this->UpdateFormField('modelMessage', 'visible', true);
             $this->UpdateFormField('modelMessage', 'caption', sprintf($this->translate('Model could not be read from %s'), $ip));
         }
+    }
+
+    private function getInstanceRINCON(int $instanceID): string
+    {
+        if ($instanceID == $this->InstanceID) {
+            $data = json_encode([
+                'DataID'         => '{731D7808-F7C4-FA98-2132-0FAB19A802C1}',
+                'type'           => 'getProperties',
+                'targetInstance' => $instanceID
+            ]);
+            $this->SendDebug(__FUNCTION__ . '->SendDataToParent', $data, 0);
+            $parentResponseJSON = $this->SendDataToParent($data);
+            $this->SendDebug(__FUNCTION__ . '->received from parent', $parentResponseJSON, 0);
+
+            $RINCON = json_decode(json_decode($parentResponseJSON, true)[0], true)['RINCON'];
+        } else {
+            $RINCON = $this->ReadPropertyString('RINCON');
+        }
+        return $RINCON;
     }
 
     private function PauseInternal(bool $forward)

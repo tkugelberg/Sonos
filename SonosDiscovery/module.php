@@ -80,7 +80,7 @@ class SonosDiscovery extends ipsmodule
             $Values[] = [
                 'name'       => IPS_GetLocation($InstanceID),
                 'IPAddress'  => IPS_GetProperty($InstanceID, 'IPAddress'),
-                'Medel'      => '',
+                'Model'      => IPS_GetProperty($InstanceID, 'Model'),
                 'RINCON'     => $RINCON,
                 'instanceID' => $InstanceID
             ];
