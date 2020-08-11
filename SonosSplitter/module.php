@@ -389,7 +389,8 @@ class SonosSplitter extends IPSModule
         }
 
         $InstanceList = [];
-        foreach ($instancePropertyList as $instanceProperty) {
+        foreach ($instancePropertyList as $instancePropertyJson) {
+            $instanceProperty = json_decode($instancePropertyJson, true);
             $InstanceList[$instanceProperty['RINCON']] = [
                 'IPAddress'     => $instanceProperty['IPAddress'],
                 'TimeOut'       => $instanceProperty['TimeOut'],
@@ -608,7 +609,8 @@ class SonosSplitter extends IPSModule
     private function getSonos(array $instanceList, bool $writeDebug = true)
     {
         // find a working instance
-        foreach ($instanceList as $Instance) {
+        foreach ($instanceList as $InstanceJson) {
+            $Instance = json_decode($InstanceJson, true);
             if (Sys_Ping($Instance['IPAddress'], $Instance['TimeOut']) == true) {
                 $sonos = new SonosAccess($Instance['IPAddress']);
                 if ($writeDebug) {
