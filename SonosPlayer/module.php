@@ -2619,7 +2619,7 @@ class SonosPlayer extends IPSModule
 
     private function getInstanceRINCON(int $instanceID): string
     {
-        if ($instanceID == $this->InstanceID) {
+        if ($instanceID != $this->InstanceID) {
             $data = json_encode([
                 'DataID'         => '{731D7808-F7C4-FA98-2132-0FAB19A802C1}',
                 'type'           => 'getProperties',
