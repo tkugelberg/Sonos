@@ -142,7 +142,7 @@ class SonosPlayer extends IPSModule
 
         // NightMode
         if ($this->ReadPropertyBoolean('NightModeControl')) {
-            if ($Model == 'Playbar' || $Model == 'Playbase' || $Model == 'Beam' || $Model == '') {
+            if ($Model == 'Playbar' || $Model == 'Playbase' || $Model == 'Beam' || $Model == 'Arc' || $Model == '') {
                 if (!@$this->GetIDForIdent('NightMode')) {
                     $this->RegisterVariableBoolean('NightMode', $this->Translate('Night Mode'), 'SONOS.Switch', $positions['NightMode']);
                     $this->EnableAction('NightMode');
@@ -307,6 +307,7 @@ class SonosPlayer extends IPSModule
         }
 
         $knownModels = [
+            ['caption' => 'Arc',          'value' => 'Arc'],
             ['caption' => 'Beam',         'value' => 'Beam'],
             ['caption' => 'Connect',      'value' => 'Connect'],
             ['caption' => 'Connect:Amp',  'value' => 'Connect:Amp'],
@@ -338,7 +339,7 @@ class SonosPlayer extends IPSModule
 
         // hide NightMode on unsupported devices
         $NightMode = $this->ReadPropertyBoolean('NightModeControl');
-        if ($Model == 'Playbar' || $Model == 'Playbase' || $Model == 'Beam' || $NightMode === true) {
+        if ($Model == 'Playbar' || $Model == 'Playbase' || $Model == 'Beam' || $Model == 'Arc' || $NightMode === true) {
             $showNightMode = true;
         } else {
             $showNightMode = false;
@@ -2217,38 +2218,44 @@ class SonosPlayer extends IPSModule
                     'targetInstance' => $MemberOfGroup
                 ]);
                 $parentResponseJSON = $this->SendDataToParent($data);
-                $coordinatorValues = json_decode(json_decode($parentResponseJSON, true)[0], true);
+                $parentResponse = json_decode($parentResponseJSON, true);
 
-                SetValueInteger($vidStatus, $coordinatorValues['Status']);
-                $actuallyPlaying = $coordinatorValues['nowPlaying'];
-                SetValueInteger($vidRadio, $coordinatorValues['Radio']);
-                SetValueInteger($vidGroupVolume, $coordinatorValues['GroupVolume']);
-                if ($vidSleeptimer) {
-                    SetValueInteger($vidSleeptimer, $coordinatorValues['Sleeptimer']);
-                }
-                if ($vidCoverURL) {
-                    SetValueString($vidCoverURL, $coordinatorValues['CoverURL']);
-                }
-                if ($vidContentStream) {
-                    SetValueString($vidContentStream, $coordinatorValues['ContentStream']);
-                }
-                if ($vidArtist) {
-                    SetValueString($vidArtist, $coordinatorValues['Artist']);
-                }
-                if ($vidAlbum) {
-                    SetValueString($vidAlbum, $coordinatorValues['Album']);
-                }
-                if ($vidTrackDuration) {
-                    SetValueString($vidTrackDuration, $coordinatorValues['TrackDuration']);
-                }
-                if ($vidPosition) {
-                    SetValueString($vidPosition, $coordinatorValues['Position']);
-                }
-                if ($vidTitle) {
-                    SetValueString($vidTitle, $coordinatorValues['Title']);
-                }
-                if ($vidDetails) {
-                    SetValueString($vidDetails, $coordinatorValues['Details']);
+                if ($parentResponse) {
+                    $coordinatorValues = json_decode($parentResponse[0], true);
+
+                    SetValueInteger($vidStatus, $coordinatorValues['Status']);
+                    $actuallyPlaying = $coordinatorValues['nowPlaying'];
+                    SetValueInteger($vidRadio, $coordinatorValues['Radio']);
+                    SetValueInteger($vidGroupVolume, $coordinatorValues['GroupVolume']);
+                    if ($vidSleeptimer) {
+                        SetValueInteger($vidSleeptimer, $coordinatorValues['Sleeptimer']);
+                    }
+                    if ($vidCoverURL) {
+                        SetValueString($vidCoverURL, $coordinatorValues['CoverURL']);
+                    }
+                    if ($vidContentStream) {
+                        SetValueString($vidContentStream, $coordinatorValues['ContentStream']);
+                    }
+                    if ($vidArtist) {
+                        SetValueString($vidArtist, $coordinatorValues['Artist']);
+                    }
+                    if ($vidAlbum) {
+                        SetValueString($vidAlbum, $coordinatorValues['Album']);
+                    }
+                    if ($vidTrackDuration) {
+                        SetValueString($vidTrackDuration, $coordinatorValues['TrackDuration']);
+                    }
+                    if ($vidPosition) {
+                        SetValueString($vidPosition, $coordinatorValues['Position']);
+                    }
+                    if ($vidTitle) {
+                        SetValueString($vidTitle, $coordinatorValues['Title']);
+                    }
+                    if ($vidDetails) {
+                        SetValueString($vidDetails, $coordinatorValues['Details']);
+                    }
+                } else {
+                    $this->SendDebug(__FUNCTION__ . '->GetCoordinatorValues', 'No data returned', 0);
                 }
             } else {
                 $status = $sonos->GetTransportInfo();
