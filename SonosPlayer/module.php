@@ -420,7 +420,7 @@ class SonosPlayer extends IPSModule
                 }
 
                 asort($input['data']['GroupMember']);
-                
+
                 $groupMembers = implode(',', $input['data']['GroupMember']);
 
                 SetValueInteger($memberOfGroupID, $input['data']['Coordinator']);
@@ -619,9 +619,9 @@ class SonosPlayer extends IPSModule
                         $this->SendDebug(__FUNCTION__ . '->resetPlayGrouping->sonos', 'Play()', 0);
                         $sonos->Play();
                         $this->SendDebug(__FUNCTION__, 'waiting until it is really playing...', 0);
-                        for ($i = 0; $i < 10; $i++){
+                        for ($i = 0; $i < 10; $i++) {
                             $transportInfo = $sonos->GetTransportInfo();
-                            if ($transportInfo !== 1){
+                            if ($transportInfo !== 1) {
                                 IPS_Sleep(200);
                             } else {
                                 $this->SendDebug(__FUNCTION__, 'done, now it is playing.', 0);
@@ -1421,9 +1421,9 @@ class SonosPlayer extends IPSModule
             $this->SendDebug(__FUNCTION__ . '->sonos', 'Play()', 0);
             $sonos->Play();
             $this->SendDebug(__FUNCTION__, 'waiting until it is really playing...', 0);
-            for ($i = 0; $i < 10; $i++){
+            for ($i = 0; $i < 10; $i++) {
                 $transportInfo = $sonos->GetTransportInfo();
-                if ($transportInfo !== 1){
+                if ($transportInfo !== 1) {
                     IPS_Sleep(200);
                 } else {
                     $this->SendDebug(__FUNCTION__, 'done, now it is playing.', 0);
