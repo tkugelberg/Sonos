@@ -308,6 +308,7 @@ class SonosPlayer extends IPSModule
 
         $knownModels = [
             ['caption' => 'Arc',          'value' => 'Arc'],
+            ['caption' => 'Amp',          'value' => 'Amp'],
             ['caption' => 'Beam',         'value' => 'Beam'],
             ['caption' => 'Connect',      'value' => 'Connect'],
             ['caption' => 'Connect:Amp',  'value' => 'Connect:Amp'],
@@ -418,7 +419,7 @@ class SonosPlayer extends IPSModule
                     }
                 }
 
-                asort($input['data']['GroupMember']);
+                i
                 $groupMembers = implode(',', $input['data']['GroupMember']);
 
                 SetValueInteger($memberOfGroupID, $input['data']['Coordinator']);
@@ -616,6 +617,16 @@ class SonosPlayer extends IPSModule
                     try {
                         $this->SendDebug(__FUNCTION__ . '->resetPlayGrouping->sonos', 'Play()', 0);
                         $sonos->Play();
+                        $this->SendDebug(__FUNCTION__, 'waiting until it is really playing...', 0);
+                        for ($i = 0; $i < 10; $i++){
+                            $transportInfo = $sonos->GetTransportInfo();
+                            if ($transportInfo !== 1){
+                                IPS_Sleep(200);
+                            } else {
+                                $this->SendDebug(__FUNCTION__, 'done, now it is playing.', 0);
+                                break;
+                            }
+                        }
                     } catch (Exception $e) {
                         if ($e->getMessage() != 'Error during Soap Call: UPnPError s:Client 701 (ERROR_AV_UPNP_AVT_INVALID_TRANSITION)') {
                             // INVALID_TRANSITION happens e.g. when no resource set
@@ -1408,6 +1419,16 @@ class SonosPlayer extends IPSModule
         if ($transportInfo == 1) {
             $this->SendDebug(__FUNCTION__ . '->sonos', 'Play()', 0);
             $sonos->Play();
+            $this->SendDebug(__FUNCTION__, 'waiting until it is really playing...', 0);
+            for ($i = 0; $i < 10; $i++){
+                $transportInfo = $sonos->GetTransportInfo();
+                if ($transportInfo !== 1){
+                    IPS_Sleep(200);
+                } else {
+                    $this->SendDebug(__FUNCTION__, 'done, now it is playing.', 0);
+                    break;
+                }
+            }
         }
     } // END PlayFiles
 
