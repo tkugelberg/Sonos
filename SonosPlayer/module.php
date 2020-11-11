@@ -419,7 +419,8 @@ class SonosPlayer extends IPSModule
                     }
                 }
 
-                i
+                asort($input['data']['GroupMember']);
+                
                 $groupMembers = implode(',', $input['data']['GroupMember']);
 
                 SetValueInteger($memberOfGroupID, $input['data']['Coordinator']);
