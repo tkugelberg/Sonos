@@ -2016,7 +2016,7 @@ class SonosPlayer extends IPSModule
             // check in TuneIn Favorites
             $this->SendDebug(__FUNCTION__ . '->sonos', 'BrowseContentDirectory(\'R:0/0\')', 0);
             foreach ((new SimpleXMLElement($sonos->BrowseContentDirectory('R:0/0')['Result']))->item as $item) {
-                $this->SendDebug(__FUNCTION__ . ': Found radio', (string) $container->xpath('dc:title')[0], 0);
+                $this->SendDebug(__FUNCTION__ . ': Found radio', (string) $item->xpath('dc:title')[0], 0);
                 if ($item->xpath('dc:title')[0] == $radio) {
                     $uri = (string) $item->res;
                     break;
