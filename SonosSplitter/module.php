@@ -436,7 +436,7 @@ class SonosSplitter extends IPSModule
             if ($CoordinatorInstanceID == 0) {
                 // But members are, worth an exception
                 if (count($GroupMember) != 0) {
-                    throw new Exception($this->Translate('Coordinator is not configured as Symcon instance. This cannot work.'));
+                    throw new Exception(sprintf($this->Translate('Coordinator (%s) is not configured as Symcon instance. This cannot work.'), $CoordinatorRINCON));
                 } else {   // also the members are not in Symcon, can be ignored
                     continue;
                 }

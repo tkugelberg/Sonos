@@ -20,7 +20,7 @@
 			"Image URL": "Bild URL",
 			"Off": "Aus",
 			"On": "An",
-			"Coordinator is not configured as Symcon instance. This cannot work.": "Der Koordinator ist nicht als Symcon Instanz konfiguriert. Das kann nicht funktionieren.",
+			"Coordinator (%s) is not configured as Symcon instance. This cannot work.": "Der Koordinator (%s) ist nicht als Symcon Instanz konfiguriert. Das kann nicht funktionieren.",
 			"Radio station \"%s\" not found": "Der Radiosender \"%s\" konnte nicht gefunden werden",
 			"Unable to access any Sonos Instance": "Keine Sonos Instanz konnte erreicht werden",
 			"unknown type %s in ForwardData": "unbekannter type %s in ForwardData",
