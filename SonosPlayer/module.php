@@ -1260,7 +1260,11 @@ class SonosPlayer extends IPSModule
     {
         $groupMembers = $this->ReadAttributeString('GroupMembers');
 
-        return json_encode(array_map('intval', explode(',', $groupMembers)));
+        if ($groupMembers == 0) {
+            return '[]';
+        } else {
+            return json_encode(array_map('intval', explode(',', $groupMembers)));
+        }
     }
 
     public function Pause()
