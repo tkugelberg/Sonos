@@ -223,6 +223,9 @@ class SonosPlayer extends IPSModule
                 IPS_SetHidden($this->RegisterVariableString('StationID', $this->Translate('Station ID'), '', $positions['StationID']), true);
                 // in version 1 of sonos StationID was cleared once an hour, but not sure why. Lets see...
             }
+            if (!@$this->GetIDForIdent('Track')) {
+                IPS_SetHidden($this->RegisterVariableInteger('Track', $this->Translate('Track'), '', $positions['Track']), true);
+            }
             // Also create a Media File for the cover
             $MediaID = @$this->GetIDForIdent('Cover');
             if (!$MediaID) {
@@ -705,6 +708,9 @@ class SonosPlayer extends IPSModule
                     case 'SetSleepTimer':
                         $this->SetSleepTimer($input['sleeptimer']);
                         break;
+                    case 'SetSleepTimer':
+                        $this->SetTrack($input['track']);
+                        break;
                     case 'SetVolume':
                         $this->SetVolume($input['volume']);
                         break;
@@ -801,6 +807,7 @@ class SonosPlayer extends IPSModule
                 $vidTrackDuration = @$this->GetIDForIdent('TrackDuration');
                 $vidPosition = @$this->GetIDForIdent('Position');
                 $vidTitle = @$this->GetIDForIdent('Title');
+                $vidTrack = @$this->GetIDForIdent('Track');
                 $vidDetails = @$this->GetIDForIdent('Details');
 
                 if ($vidSleeptimer) {
@@ -843,6 +850,11 @@ class SonosPlayer extends IPSModule
                 } else {
                     $title = '';
                 }
+                if ($vidTrack) {
+                    $track = @GetValueInteger($vidTrack);
+                } else {
+                    $track = 0;
+                }
                 if ($vidDetails) {
                     $details = GetValueString($vidDetails);
                 } else {
@@ -863,6 +875,7 @@ class SonosPlayer extends IPSModule
                     'TrackDuration' => $trackDuration,
                     'Position'      => $position,
                     'Title'         => $title,
+                    'Track'         => $track,
                     'Details'       => $details
                 ];
                  return json_encode($result);
@@ -1242,6 +1255,13 @@ class SonosPlayer extends IPSModule
             $this->SendDataToParent($data);
         }
     } // END Next
+
+    public function GetMembers(): string
+    {
+        $groupMembers = $this->ReadAttributeString('GroupMembers');
+
+        return json_encode(array_map('intval', explode(',', $groupMembers)));
+    }
 
     public function Pause()
     {
@@ -2089,6 +2109,29 @@ class SonosPlayer extends IPSModule
         $sonos->SetAVTransportURI($uri);
     } // END SetTransportURI
 
+    public function SetTrack(int $track)
+    {
+        $this->SendDebug('"' . __FUNCTION__ . '" called', '', 0);
+        $targetInstance = $this->findTarget();
+
+        if ($targetInstance === $this->InstanceID) {
+            $sonos = $this->getSonosAccess();
+
+            $this->SendDebug(__FUNCTION__ . '->sonos', 'SetTrack(' . $track . ')', 0);
+            $sonos->SetTrack($track);
+        } else {
+            $data = json_encode([
+                'DataID'         => '{731D7808-F7C4-FA98-2132-0FAB19A802C1}',
+                'type'           => 'callFunction',
+                'targetInstance' => $targetInstance,
+                'function'       => 'SetTrack',
+                'track'          => $track
+            ]);
+            $this->SendDebug(__FUNCTION__ . '->SendDataToParent', $data, 0);
+            $this->SendDataToParent($data);
+        }
+    }
+
     public function SetTreble(int $treble)
     {
         $this->SendDebug('"' . __FUNCTION__ . '" called with', sprintf('$treble=%d', $treble), 0);
@@ -2148,6 +2191,7 @@ class SonosPlayer extends IPSModule
         $vidContentStream = @$this->GetIDForIdent('ContentStream');
         $vidArtist = @$this->GetIDForIdent('Artist');
         $vidTitle = @$this->GetIDForIdent('Title');
+        $vidTrack = @$this->GetIDForIdent('Track');
         $vidAlbum = @$this->GetIDForIdent('Album');
         $vidTrackDuration = @$this->GetIDForIdent('TrackDuration');
         $vidPosition = @$this->GetIDForIdent('Position');
@@ -2273,6 +2317,9 @@ class SonosPlayer extends IPSModule
                     if ($vidTitle) {
                         SetValueString($vidTitle, $coordinatorValues['Title']);
                     }
+                    if ($vidTrack) {
+                        SetValueInteger($vidTrack, $coordinatorValues['Track']);
+                    }
                     if ($vidDetails) {
                         SetValueString($vidDetails, $coordinatorValues['Details']);
                     }
@@ -2334,6 +2381,9 @@ class SonosPlayer extends IPSModule
                 }
                 if ($vidPosition) {
                     SetValueString($vidPosition, @$positionInfo['RelTime']);
+                }
+                if ($vidTrack) {
+                    SetValueInteger($vidTrack, @$positionInfo['Track']);
                 }
                 if ($vidTitle) {
                     if (@$mediaInfo['title']) {
@@ -2829,6 +2879,7 @@ class SonosPlayer extends IPSModule
             'Position'        => 27,
             'StationID'       => 28,
             'nowPlaying'      => 29,
+            'Track'           => 30,
             'Radio'           => 40,
             'Playlist'        => 41,
             'Status'          => 49,
