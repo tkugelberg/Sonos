@@ -1102,6 +1102,8 @@ class SonosPlayer extends IPSModule
             return $v != $this->InstanceID;
         });
 
+        $newMembers = [];
+
         // update memberOf in all members, and clear in new coordinator
         foreach ($currentMembers as $key => $ID) {
             if ($ID != $newGroupCoordinator) {
