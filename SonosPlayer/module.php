@@ -2239,11 +2239,11 @@ class SonosPlayer extends IPSModule
             }
 
             if ($vidBattery) {
-                SetVaule($vidBattery, $sonos->GetBatteryLevel());
+                SetValue($vidBattery, $sonos->GetBatteryLevel());
             }
 
             if ($vidPowerSource) {
-                SetVaule($vidPowerSource, $sonos->GetPowerSource());
+                SetValue($vidPowerSource, $sonos->GetPowerSource());
             }
 
             if ($vidNightMode) {
