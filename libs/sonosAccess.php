@@ -84,6 +84,24 @@ class SonosAccess
         );
     }
 
+    public function GetBatteryLevel(): int
+    {
+
+        // this is not UPNP based...
+        $level = 0;
+        $result = file_get_contents('http://' . $this->address . ':1400/status/batterystatus');
+
+        $xml = new SimpleXMLElement($result);
+        if (isset($xml->LocalBatteryStatus->Data)) {
+            foreach ($xml->LocalBatteryStatus->Data as $data) {
+                if ($data->attributes()['name'] == 'Level') {
+                    $level = intval($data);
+                }
+            }
+        }
+        return $level;
+    }
+
     public function GetCrossfade(): bool
     {
         $crossfade = (int) $this->processSoapCall(
@@ -278,6 +296,29 @@ class SonosAccess
         }
 
         return $positionInfo;
+    }
+
+    public function GetPowerSource(): int
+    {
+
+        // this is not UPNP based...
+        $power_source = 0;
+        $result = file_get_contents('http://' . $this->address . ':1400/status/batterystatus');
+
+        $xml = new SimpleXMLElement($result);
+        if (isset($xml->LocalBatteryStatus->Data)) {
+            foreach ($xml->LocalBatteryStatus->Data as $data) {
+                if ($data->attributes()['name'] == 'PowerSource') {
+                    $power_source = strval($data);
+                    if ($data == 'BATTERY') {
+                        $power_source = 1;
+                    } elseif ($data == 'SONOS_CHARGING_RING') {
+                        $power_source = 2;
+                    }
+                }
+            }
+        }
+        return $power_source;
     }
 
     public function GetSleeptimer(): string

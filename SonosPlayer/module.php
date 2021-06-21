@@ -98,6 +98,15 @@ class SonosPlayer extends IPSModule
 
         $this->checkPlaylistAction();
 
+        if ($Model == 'Move') {
+            if (!@$this->GetIDForIdent('Battery')) {
+                $this->RegisterVariableInteger('Battery', $this->Translate('Battery'), '~Battery.100', $positions['Battery']);
+            }
+            if (!@$this->GetIDForIdent('PowerSource')) {
+                $this->RegisterVariableInteger('PowerSource', $this->Translate('PowerSource'), 'SONOS.PowerSource', $positions['PowerSource']);
+            }
+        }
+
         // 2) Add/Remove according to feature activation
 
         // Bass
@@ -315,6 +324,7 @@ class SonosPlayer extends IPSModule
             ['caption' => 'Beam',         'value' => 'Beam'],
             ['caption' => 'Connect',      'value' => 'Connect'],
             ['caption' => 'Connect:Amp',  'value' => 'Connect:Amp'],
+            ['caption' => 'Move',         'value' => 'Move'],
             ['caption' => 'One',          'value' => 'One'],
             ['caption' => 'One SL',       'value' => 'One SL'],
             ['caption' => 'Play:1',       'value' => 'Play:1'],
@@ -2204,6 +2214,8 @@ class SonosPlayer extends IPSModule
         $vidCrossfade = @$this->GetIDForIdent('Crossfade');
         $vidPlaymode = @$this->GetIDForIdent('PlayMode');
         $vidGroupVolume = @$this->GetIDForIdent('GroupVolume');
+        $vidBattery = @$this->GetIDForIdent('Battery');
+        $vidPowerSource = @$this->GetIDForIdent('PowerSource');
 
         $AlbumArtHeight = $this->ReadAttributeInteger('AlbumArtHeight');
 
@@ -2224,6 +2236,14 @@ class SonosPlayer extends IPSModule
 
             if ($vidMute) {
                 SetValue($vidMute, $sonos->GetMute());
+            }
+
+            if ($vidBattery) {
+                SetVaule($vidBattery, $sonos->GetBatteryLevel());
+            }
+
+            if ($vidPowerSource) {
+                SetVaule($vidPowerSource, $sonos->GetPowerSource());
             }
 
             if ($vidNightMode) {
@@ -2875,6 +2895,8 @@ class SonosPlayer extends IPSModule
         return [
             'MemberOfGroup'   => 12,
             'GroupVolume'     => 13,
+            'Battery'         => 16,
+            'PowerSource'     => 17,
             'Details'         => 20,
             'CoverURL'        => 21,
             'ContentStream'   => 22,

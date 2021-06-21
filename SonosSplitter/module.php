@@ -55,6 +55,11 @@ class SonosSplitter extends IPSModule
             [4, $this->Translate('Shuffle'),            '', -1],
             [5, $this->Translate('Shuffle repeat one'), '', -1]
         ]);
+        $this->RegisterProfileIntegerEx('SONOS.PowerSource', 'EnergyStorage', '', '', [
+            [0, $this->Translate('unknown'),            '', -1],
+            [1, $this->Translate('Battery'),            '', -1],
+            [2, $this->Translate('Charging Ring'),      '', -1]
+        ]);
         $this->RegisterProfileInteger('SONOS.Volume', 'Intensity', '', ' %', 0, 100, 1);
         $this->RegisterProfileInteger('SONOS.Tone', 'Intensity', '', ' %', -10, 10, 1);
         $this->RegisterProfileInteger('SONOS.Balance', 'Intensity', '', ' %', -100, 100, 1);

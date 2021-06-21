@@ -40,7 +40,10 @@
 			"Repeat one": "Repeat one",
 			"Shuffle no repeat": "Shuffle no repeat",
 			"Shuffle": "Shuffle",
-			"Shuffle repeat one": "Shuffle repeat one"
+			"Shuffle repeat one": "Shuffle repeat one",
+			"unknown": "unbekannt",
+			"Battery": "Batterie",
+			"Charging Ring": "Ladestation"
 		}
 	}
 }
