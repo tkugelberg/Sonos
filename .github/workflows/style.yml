@@ -10,8 +10,10 @@ jobs:
     runs-on: ubuntu-latest
  
     steps:
-    uses: shivammathur/setup-php@v2
-    with: php-version: '7.4'
+    - uses: shivammathur/setup-php@v2
+      with: 
+         php-version: '7.4'
+         
     - uses: actions/checkout@v1
 
     - name: Only fetch Style PHP submodule
