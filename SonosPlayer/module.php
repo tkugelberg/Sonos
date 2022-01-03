@@ -319,21 +319,21 @@ class SonosPlayer extends IPSModule
         }
 
         $knownModels = [
-            ['caption' => 'Arc',          'value' => 'Arc'],
-            ['caption' => 'Amp',          'value' => 'Amp'],
-            ['caption' => 'Beam',         'value' => 'Beam'],
-            ['caption' => 'Connect',      'value' => 'Connect'],
-            ['caption' => 'Connect:Amp',  'value' => 'Connect:Amp'],
-            ['caption' => 'Move',         'value' => 'Move'],
-            ['caption' => 'One',          'value' => 'One'],
-            ['caption' => 'One SL',       'value' => 'One SL'],
-            ['caption' => 'Play:1',       'value' => 'Play:1'],
-            ['caption' => 'Play:3',       'value' => 'Play:3'],
-            ['caption' => 'Play:5',       'value' => 'Play:5'],
-            ['caption' => 'Playbar',      'value' => 'Playbar'],
-            ['caption' => 'Playbase',     'value' => 'Playbase'],
-            ['caption' => 'Roam',         'value' => 'Roam'],
-            ['caption' => 'SYMFONISK',    'value' => 'SYMFONISK']
+            ['caption' => 'Arc',         'value' => 'Arc'],
+            ['caption' => 'Amp',         'value' => 'Amp'],
+            ['caption' => 'Beam',        'value' => 'Beam'],
+            ['caption' => 'Connect',     'value' => 'Connect'],
+            ['caption' => 'Connect:Amp', 'value' => 'Connect:Amp'],
+            ['caption' => 'Move',        'value' => 'Move'],
+            ['caption' => 'One',         'value' => 'One'],
+            ['caption' => 'One SL',      'value' => 'One SL'],
+            ['caption' => 'Play:1',      'value' => 'Play:1'],
+            ['caption' => 'Play:3',      'value' => 'Play:3'],
+            ['caption' => 'Play:5',      'value' => 'Play:5'],
+            ['caption' => 'Playbar',     'value' => 'Playbar'],
+            ['caption' => 'Playbase',    'value' => 'Playbase'],
+            ['caption' => 'Roam',        'value' => 'Roam'],
+            ['caption' => 'SYMFONISK',   'value' => 'SYMFONISK']
         ];
 
         // in case a model in unknown, but handed in via discovery, be tolerant
