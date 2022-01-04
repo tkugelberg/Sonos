@@ -2413,7 +2413,7 @@ class SonosPlayer extends IPSModule
                     SetValueInteger($vidTrack, @$positionInfo['Track']);
                 }
                 if ($vidTitle) {
-                    if (@$positionInfo['title']) {
+                    if (@$positionInfo['title'] && @substr_compare($positionInfo['title'], 'stream', 0, 6)) {
                         SetValueString($vidTitle, @$positionInfo['title']);
                     } else {
                         SetValueString($vidTitle, @$mediaInfo['title']);
