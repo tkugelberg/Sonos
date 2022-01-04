@@ -2413,10 +2413,10 @@ class SonosPlayer extends IPSModule
                     SetValueInteger($vidTrack, @$positionInfo['Track']);
                 }
                 if ($vidTitle) {
-                    if (@$mediaInfo['title']) {
-                        SetValueString($vidTitle, @$mediaInfo['title']);
-                    } else {
+                    if (@$positionInfo['title']) {
                         SetValueString($vidTitle, @$positionInfo['title']);
+                    } else {
+                        SetValueString($vidTitle, @$mediaInfo['title']);
                     }
                 }
 
@@ -2450,11 +2450,11 @@ class SonosPlayer extends IPSModule
                                     $playing = $playing . '<div><b>' . $positionInfo['title'] . '</b></div>';
                                 }
                                 if (isset($positionInfo['artist'])) {
-                                    $playing = $playing . '<div><b>' . $positionInfo['artist'];
+                                    $playing = $playing . '<div>' . $positionInfo['artist'];
                                     if (isset($mediaInfo['title'])) {
-                                        $playing = $playing . ' - ' . $mediaInfo['title'] . '</b></div>';
+                                        $playing = $playing . ' - ' . $mediaInfo['title'] . '</div>';
                                     } else {
-                                        $playing = $playing . '</b></div>';
+                                        $playing = $playing . '</div>';
                                     }
                                 }
                             }
