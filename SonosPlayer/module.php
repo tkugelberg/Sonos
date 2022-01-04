@@ -2457,7 +2457,6 @@ class SonosPlayer extends IPSModule
                                         $playing = $playing . '</b></div>';
                                     }
                                 }
-                                $playing = '<div><b>' . $positionInfo['streamContent'] . '</b></div><div>&nbsp;</div><div>' . $mediaInfo['title'] . '</div>';
                             }
                             $detailHTML = '<table width="100%"><tr><td><div style="text-align: right;">' . $playing . '</div></td>';
 
