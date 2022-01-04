@@ -2446,20 +2446,20 @@ class SonosPlayer extends IPSModule
                                     $image = $positionInfo['albumArtURI'];
                                 }
                                 $playing = '';
-                                if (isset($positionInfo['title'])){
+                                if (isset($positionInfo['title'])) {
                                     $playing = $playing . '<div><b>' . $positionInfo['title'] . '</b></div>';
                                 }
-                                if (isset($positionInfo['artist'])){
+                                if (isset($positionInfo['artist'])) {
                                     $playing = $playing . '<div><b>' . $positionInfo['artist'];
-                                    if (isset($mediaInfo['title'])){
+                                    if (isset($mediaInfo['title'])) {
                                         $playing = $playing . ' - ' . $mediaInfo['title'] . '</b></div>';
-                                    }else{
+                                    } else {
                                         $playing = $playing . '</b></div>';
                                     }
                                 }
-                                $playing = '<div><b>' . $positionInfo['streamContent'] . '</b></div><div>&nbsp;</div><div>' . $mediaInfo['title'] . '</div>';                                
+                                $playing = '<div><b>' . $positionInfo['streamContent'] . '</b></div><div>&nbsp;</div><div>' . $mediaInfo['title'] . '</div>';
                             }
-                            $detailHTML = '<table width="100%"><tr><td><div style="text-align: right;">' . $playing .'</div></td>';
+                            $detailHTML = '<table width="100%"><tr><td><div style="text-align: right;">' . $playing . '</div></td>';
 
                             if (strlen($image) > 0) {
                                 $detailHTML .= '<td width="' . $AlbumArtHeight . 'px" valign="top">
