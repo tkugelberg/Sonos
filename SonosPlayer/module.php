@@ -2437,8 +2437,9 @@ class SonosPlayer extends IPSModule
                                 if (@GetValueString($vidStationID) == $stationID) {
                                     $image = GetValueString($vidCoverURL);
                                 } else {
-                                    $serial = substr($this->ReadPropertyString('RINCON'), 7, 12);
-                                    $image = preg_replace('#(.*)<LOGO>(.*?)\</LOGO>(.*)#is', '$2', @file_get_contents('http://opml.radiotime.com/Describe.ashx?c=nowplaying&id=' . $stationID . '&partnerId=IAeIhU42&serial=' . $serial));
+                                    //$serial = substr($this->ReadPropertyString('RINCON'), 7, 12);
+                                    //$image = preg_replace('#(.*)<LOGO>(.*?)\</LOGO>(.*)#is', '$2', @file_get_contents('http://opml.radiotime.com/Describe.ashx?c=nowplaying&id=' . $stationID . '&partnerId=IAeIhU42&serial=' . $serial));
+                                    $image = 'https://cdn-profiles.tunein.com/' . $stationID . '/images/logod.png?t=1';
                                 }
                             } else {
                                 $stationID = '';
