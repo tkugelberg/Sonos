@@ -2437,17 +2437,29 @@ class SonosPlayer extends IPSModule
                                 if (@GetValueString($vidStationID) == $stationID) {
                                     $image = GetValueString($vidCoverURL);
                                 } else {
-                                    //$serial = substr($this->ReadPropertyString('RINCON'), 7, 12);
-                                    //$image = preg_replace('#(.*)<LOGO>(.*?)\</LOGO>(.*)#is', '$2', @file_get_contents('http://opml.radiotime.com/Describe.ashx?c=nowplaying&id=' . $stationID . '&partnerId=IAeIhU42&serial=' . $serial));
                                     $image = 'https://cdn-profiles.tunein.com/' . $stationID . '/images/logod.png?t=1';
                                 }
+                                $playing = '<div><b>' . $positionInfo['streamContent'] . '</b></div><div>&nbsp;</div><div>' . $mediaInfo['title'] . '</div>';
                             } else {
                                 $stationID = '';
                                 if (isset($positionInfo['albumArtURI'])) {
                                     $image = $positionInfo['albumArtURI'];
                                 }
+                                $playing = '';
+                                if (isset($positionInfo['title'])){
+                                    $playing = $playing . '<div><b>' . $positionInfo['title'] . '</b></div>';
+                                }
+                                if (isset($positionInfo['artist'])){
+                                    $playing = $playing . '<div><b>' . $positionInfo['artist'];
+                                    if (isset($mediaInfo['title'])){
+                                        $playing = $playing . ' - ' . $mediaInfo['title'] . '</b></div>';
+                                    }else{
+                                        $playing = $playing . '</b></div>';
+                                    }
+                                }
+                                $playing = '<div><b>' . $positionInfo['streamContent'] . '</b></div><div>&nbsp;</div><div>' . $mediaInfo['title'] . '</div>';                                
                             }
-                            $detailHTML = '<table width="100%"><tr><td><div style="text-align: right;"><div><b>' . $positionInfo['streamContent'] . '</b></div><div>&nbsp;</div><div>' . $mediaInfo['title'] . '</div></div></td>';
+                            $detailHTML = '<table width="100%"><tr><td><div style="text-align: right;">' . $playing .'</div></td>';
 
                             if (strlen($image) > 0) {
                                 $detailHTML .= '<td width="' . $AlbumArtHeight . 'px" valign="top">
