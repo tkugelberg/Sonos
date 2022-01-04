@@ -2483,6 +2483,7 @@ class SonosPlayer extends IPSModule
 
                             if (isset($positionInfo['albumArtURI'])) {
                                 $detailHTML .= '<td width="' . $AlbumArtHeight . 'px" valign="top"><div style="width: ' . $AlbumArtHeight . 'px; height: ' . $AlbumArtHeight . 'px; perspective: ' . $AlbumArtHeight . 'px; right: 0px; margin-bottom: 10px;"><img src="' . @$positionInfo['albumArtURI'] . '" style="max-width: ' . $AlbumArtHeight . 'px; max-height: ' . $AlbumArtHeight . 'px; -webkit-box-reflect: below 0 -webkit-gradient(linear, left top, left bottom, from(transparent), color-stop(0.88, transparent), to(rgba(255, 255, 255, 0.5))); transform: rotateY(-10deg) translateZ(-35px);"></div></td>';
+                                $image = $positionInfo['albumArtURI'];
                             }
 
                             $detailHTML .= '</tr></table>';
