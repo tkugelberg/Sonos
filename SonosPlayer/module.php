@@ -2443,6 +2443,9 @@ class SonosPlayer extends IPSModule
                                 }
                             } else {
                                 $stationID = '';
+                                if (isset($positionInfo['albumArtURI'])) {
+                                    $image = $positionInfo['albumArtURI'];
+                                }
                             }
                             $detailHTML = '<table width="100%"><tr><td><div style="text-align: right;"><div><b>' . $positionInfo['streamContent'] . '</b></div><div>&nbsp;</div><div>' . $mediaInfo['title'] . '</div></div></td>';
 
