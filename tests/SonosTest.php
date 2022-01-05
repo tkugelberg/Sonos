@@ -11,50 +11,6 @@ include_once __DIR__ . '/stubs/MessageStubs.php';
 include_once __DIR__ . '/stubs/ConstantStubs.php';
 include_once __DIR__ . '/sonosAccessDouble.php';
 
-/*
-Missing tests:
-    public function ApplyChanges() --> all variables created?!
-    public function GetConfigurationForm()
-    public function ReceiveData($JSONstring)
-    public function alexaResponse()
-    public function ChangeGroupVolume(int $increment)
-    public function ChangeVolume(int $increment)
-    public function DelegateGroupCoordinationTo(int $newGroupCoordinator, bool $rejoinGroup)
-    public function DeleteSleepTimer()
-    public function Next()
-    public function PlayFiles(string $files, string $volumeChange)
-    public function PlayFilesGrouping(string $instances, string $files, string $volumeChange)
-    public function Previous()
-    public function RampToVolume(string $rampType, int $volume)
-    public function SetAnalogInput(int $input_instance)
-    public function SetBalance(int $balance)
-    public function SetBass(int $bass)
-    public function SetCrossfade(bool $crossfade)
-    public function SetDefaultGroupVolume()
-    public function SetDefaultVolume()
-    public function SetDialogLevel(bool $dialogLevel)
-    public function SetGroup(int $groupCoordinator)
-    public function SetGroupVolume(int $volume)
-    public function SetHdmiInput(int $input_instance)
-    public function SetLoudness(bool $loudness)
-    public function SetMute(bool $mute)
-    public function SetMuteGroup(bool $mute)
-    public function SetNightMode(bool $nightMode)
-    public function SetPlaylist(string $name)
-    public function SetPlayMode(int $playMode)
-    public function SetRadio(string $radio)
-    public function SetSleepTimer(int $minutes)
-    public function SetSpdifInput(int $input_instance)
-    public function SetTransportURI(string $uri)
-    public function SetTreble(int $treble)
-    public function SetVolume(int $volume)
-    public function Stop()
-    public function updateStatus()
-    public function RequestAction($Ident, $Value)
-    public function getRINCON(string $ip)
-    public function getModel(string $ip)
- */
-
 class SonosTest extends TestCase
 {
     private $discoveryModulID = '{8EFB4FEB-32D6-CB96-EA58-32CD86260774}';
@@ -132,6 +88,45 @@ class SonosTest extends TestCase
         $this->assertEquals($players['member']['ID'], GetValueInteger(IPS_GetObjectIDByIdent('MemberOfGroup', $players['coordinator']['ID']))); // Member of group has changed
         $this->assertEquals(0, GetValueInteger(IPS_GetObjectIDByIdent('MemberOfGroup', $players['member']['ID']))); // Member of group has changed
         // asserts for changed variables, etc.
+    }
+
+    public function testChangeVolume()
+    {
+        $players = [
+            0   => [
+                'IP'             => '192.168.1.2',
+                'isCoordinator'  => true,
+                'vanished'       => false,
+                'GroupMember'    => [],
+                'coordinator'    => ''
+            ]
+        ];
+        $sonosDouble = new SonosAccessDouble();
+        $this->createPlayers($players, $sonosDouble);
+        SetValueInteger(IPS_GetVariableIDByName('Volume', $players[0]['ID']), 10);
+        $this->assertEquals(10, GetValueInteger(IPS_GetVariableIDByName('Volume', $players[0]['ID'])));
+
+        SNS_ChangeVolume($players[0]['ID'], 4);
+        $this->assertEquals(14, GetValueInteger(IPS_GetVariableIDByName('Volume', $players[0]['ID'])));
+
+        SNS_ChangeVolume($players[0]['ID'], 200);
+        $this->assertEquals(100, GetValueInteger(IPS_GetVariableIDByName('Volume', $players[0]['ID'])));
+
+        SNS_ChangeVolume($players[0]['ID'], -200);
+        $this->assertEquals(0, GetValueInteger(IPS_GetVariableIDByName('Volume', $players[0]['ID'])));
+
+        $sonosDouble->SetRaiseException(true);
+        $exceptionText = '';
+        try {
+            SNS_ChangeVolume($players[0]['ID'], 3);
+        } catch (Exception $e) {
+            $exceptionText = $e->getMessage();
+        }
+
+        $this->assertEquals('UnitTest Exception SetVolume', $exceptionText);
+        $this->assertEquals(0, GetValueInteger(IPS_GetVariableIDByName('Volume', $players[0]['ID'])));
+
+        $this->assertEquals(['SetVolume' => ['192.168.1.2' => 4]], $sonosDouble->GetCalls());
     }
 
     public function testPlay()
@@ -214,10 +209,11 @@ class SonosTest extends TestCase
         foreach ($players as &$player) {
             $player['ID'] = IPS_CreateInstance($this->playerModulID);
             IPS_SetProperty($player['ID'], 'IPAddress', $player['IP']);
-            IPS_SetProperty($player['ID'], 'DisableHiding', true);
-            IPS_SetProperty($player['ID'], 'SleeptimerControl', true);
-            IPS_SetProperty($player['ID'], 'PlayModeControl', true);
-            IPS_SetProperty($player['ID'], 'DetailedInformation', true);
+            if (isset($player['properties'])) {
+                foreach ($player['properties'] as $propertyName => $propertyValue) {
+                    IPS_SetProperty($player['ID'], $propertyName, $propertyValue);
+                }
+            }
             IPS_ApplyChanges($player['ID']);
         }
 

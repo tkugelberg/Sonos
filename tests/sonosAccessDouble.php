@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 class SonosAccessDouble
 {
+    private $raiseException = false;
     private $calls = [];
     private $return = [];
     private $IP = '';
@@ -16,6 +17,7 @@ class SonosAccessDouble
     public function BrowseContentDirectory($objectID = 'SQ:', $browseFlag = 'BrowseDirectChildren', $requestedCount = 100, $startingIndex = 0, $filter = '', $sortCriteria = ''): array
     {
         $this->addCall(__FUNCTION__);
+        return $this->getReturn(__FUNCTION__);
     }
 
     public function ClearQueue()
@@ -31,51 +33,67 @@ class SonosAccessDouble
     public function GetBass(): int
     {
         $this->addCall(__FUNCTION__);
+        return $this->getReturn(__FUNCTION__);
+    }
+
+    public function GetBatteryLevel(): int
+    {
+        $this->addCall(__FUNCTION__);
+        return $this->getReturn(__FUNCTION__);
     }
 
     public function GetCrossfade(): bool
     {
         $this->addCall(__FUNCTION__);
+        return $this->getReturn(__FUNCTION__);
     }
 
     public function GetDialogLevel(): bool
     {
         $this->addCall(__FUNCTION__);
+        return $this->getReturn(__FUNCTION__);
     }
 
     public function GetLoudness(): bool
     {
         $this->addCall(__FUNCTION__);
+        return $this->getReturn(__FUNCTION__);
     }
 
     public function GetMediaInfo(): array
     {
         $this->addCall(__FUNCTION__);
+        return $this->getReturn(__FUNCTION__);
     }
 
     public function GetMute(): bool
     {
         $this->addCall(__FUNCTION__);
+        return $this->getReturn(__FUNCTION__);
     }
 
     public function GetNightMode(): bool
     {
         $this->addCall(__FUNCTION__);
+        return $this->getReturn(__FUNCTION__);
     }
 
     public function GetOutputFixed(): bool
     {
         $this->addCall(__FUNCTION__);
+        return $this->getReturn(__FUNCTION__);
     }
 
     public function GetPositionInfo(): array
     {
         $this->addCall(__FUNCTION__);
+        return $this->getReturn(__FUNCTION__);
     }
 
     public function GetSleeptimer(): string
     {
         $this->addCall(__FUNCTION__);
+        return $this->getReturn(__FUNCTION__);
     }
 
     public function GetTransportInfo(): int
@@ -87,26 +105,31 @@ class SonosAccessDouble
     public function GetTransportSettings(): int
     {
         $this->addCall(__FUNCTION__);
+        return $this->getReturn(__FUNCTION__);
     }
 
     public function GetTreble(): int
     {
         $this->addCall(__FUNCTION__);
+        return $this->getReturn(__FUNCTION__);
     }
 
     public function GetVolume($channel = 'Master'): int
     {
         $this->addCall(__FUNCTION__);
+        return $this->getReturn(__FUNCTION__);
     }
 
     public function GetZoneGroupAttributes(): array
     {
         $this->addCall(__FUNCTION__);
+        return $this->getReturn(__FUNCTION__);
     }
 
     public function GetZoneGroupState(): string
     {
         $this->addCall(__FUNCTION__);
+        return $this->getReturn(__FUNCTION__);
     }
 
     public function Next()
@@ -217,6 +240,9 @@ class SonosAccessDouble
     public function SetVolume($volume, $channel = 'Master')
     {
         $this->addCall(__FUNCTION__);
+        if ($this->raiseException == true) {
+            throw new Exception('UnitTest Exception SetVolume');
+        }
     }
 
     public function Stop()
@@ -227,6 +253,13 @@ class SonosAccessDouble
     public function GetCalls(): array
     {
         return $this->calls;
+    }
+
+    // Test Double specific functions
+
+    public function SetRaiseException(bool $raiseException)
+    {
+        $this->raiseException = $raiseException;
     }
 
     public function SetResponse(array $response)
@@ -251,6 +284,7 @@ class SonosAccessDouble
         }
         return $return;
     }
+
     private function addCall(string $function)
     {
         if (!isset($this->calls[$function])) {

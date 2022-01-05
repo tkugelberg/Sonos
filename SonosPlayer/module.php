@@ -450,24 +450,24 @@ class SonosPlayer extends IPSModule
                 if ($this->ReadAttributeBoolean('Coordinator') != $input['data']['isCoordinator']) {
                     $this->WriteAttributeBoolean('Coordinator', $input['data']['isCoordinator']);
                     if (!$this->ReadPropertyBoolean('DisableHiding')) {
-                        @IPS_SetHidden($this->GetIDForIdent('nowPlaying'), $hidden);
-                        @IPS_SetHidden($this->GetIDForIdent('Radio'), $hidden);
-                        @IPS_SetHidden($this->GetIDForIdent('Playlist'), $hidden);
-                        @IPS_SetHidden($this->GetIDForIdent('PlayMode'), $hidden);
-                        @IPS_SetHidden($this->GetIDForIdent('Crossfade'), $hidden);
-                        @IPS_SetHidden($this->GetIDForIdent('Status'), $hidden);
-                        @IPS_SetHidden($this->GetIDForIdent('Sleeptimer'), $hidden);
-                        @IPS_SetHidden($this->GetIDForIdent('Details'), $hidden);
+                        $this->SetHidden('nowPlaying', $hidden);
+                        $this->SetHidden('Radio', $hidden);
+                        $this->SetHidden('Playlist', $hidden);
+                        $this->SetHidden('PlayMode', $hidden);
+                        $this->SetHidden('Crossfade', $hidden);
+                        $this->SetHidden('Status', $hidden);
+                        $this->SetHidden('Sleeptimer', $hidden);
+                        $this->SetHidden('Details', $hidden);
                     }
                 }
                 if ($this->ReadAttributeString('GroupMembers') != $groupMembers) {
                     $this->WriteAttributeString('GroupMembers', $groupMembers);
                     if (count($input['data']['GroupMember'])) {  // at least one member exists
-                        @IPS_SetHidden($this->GetIDForIdent('GroupVolume'), false);
-                        @IPS_SetHidden($this->GetIDForIdent('MemberOfGroup'), true);
+                        $this->SetHidden('GroupVolume', false);
+                        $this->SetHidden('MemberOfGroup', true);
                     } else {
-                        @IPS_SetHidden($this->GetIDForIdent('GroupVolume'), true);
-                        @IPS_SetHidden($this->GetIDForIdent('MemberOfGroup'), false);
+                        $this->SetHidden('GroupVolume', true);
+                        $this->SetHidden('MemberOfGroup', false);
                     }
                 }
                 break;
@@ -660,17 +660,17 @@ class SonosPlayer extends IPSModule
                 @IPS_SetVariableProfileAssociation('SONOS.Groups', $this->InstanceID, IPS_GetName($this->InstanceID), '', -1);
 
                 // Variablen anzeigen und verstecken.
-                @IPS_SetHidden($this->GetIDForIdent('GroupVolume'), false);
-                @IPS_SetHidden($this->GetIDForIdent('MemberOfGroup'), true);
+                $this->SetHidden('GroupVolume', false);
+                $this->SetHidden('MemberOfGroup', true);
                 if (!$this->ReadPropertyBoolean('DisableHiding')) {
-                    @IPS_SetHidden($this->GetIDForIdent('nowPlaying'), false);
-                    @IPS_SetHidden($this->GetIDForIdent('Radio'), false);
-                    @IPS_SetHidden($this->GetIDForIdent('Playlist'), false);
-                    @IPS_SetHidden($this->GetIDForIdent('PlayMode'), false);
-                    @IPS_SetHidden($this->GetIDForIdent('Crossfade'), false);
-                    @IPS_SetHidden($this->GetIDForIdent('Status'), false);
-                    @IPS_SetHidden($this->GetIDForIdent('Sleeptimer'), false);
-                    @IPS_SetHidden($this->GetIDForIdent('Details'), false);
+                    $this->SetHidden('nowPlaying', false);
+                    $this->SetHidden('Radio', false);
+                    $this->SetHidden('Playlist', false);
+                    $this->SetHidden('PlayMode', false);
+                    $this->SetHidden('Crossfade', false);
+                    $this->SetHidden('Status', false);
+                    $this->SetHidden('Sleeptimer', false);
+                    $this->SetHidden('Details', false);
                 }
                 break;
             case 'callFunction':
@@ -749,8 +749,8 @@ class SonosPlayer extends IPSModule
                 $this->WriteAttributeString('GroupMembers', implode(',', $currentMembers));
 
                 if (!count($currentMembers)) {
-                    IPS_SetHidden($this->GetIDForIdent('GroupVolume'), true);
-                    IPS_SetHidden($this->GetIDForIdent('MemberOfGroup'), false);
+                    $this->SetHidden('GroupVolume', true);
+                    $this->SetHidden('MemberOfGroup', false);
                 }
                 break;
             case 'addMember':
@@ -768,8 +768,8 @@ class SonosPlayer extends IPSModule
                 asort($currentMembers);
                 $this->WriteAttributeString('GroupMembers', implode(',', $currentMembers));
 
-                IPS_SetHidden($this->GetIDForIdent('GroupVolume'), false);
-                IPS_SetHidden($this->GetIDForIdent('MemberOfGroup'), true);
+                $this->SetHidden('GroupVolume', false);
+                $this->SetHidden('MemberOfGroup', true);
                 break;
             case 'setVariable':
                 $vid = @$this->GetIDForIdent($input['variableIdent']);
@@ -1205,17 +1205,17 @@ class SonosPlayer extends IPSModule
             $hidden = false;
         }
 
-        @IPS_SetHidden($this->GetIDForIdent('GroupVolume'), true);
-        @IPS_SetHidden($this->GetIDForIdent('MemberOfGroup'), false);
+        $this->SetHidden('GroupVolume', true);
+        $this->SetHidden('MemberOfGroup', false);
         if (!$this->ReadPropertyBoolean('DisableHiding')) {
-            @IPS_SetHidden($this->GetIDForIdent('nowPlaying'), $hidden);
-            @IPS_SetHidden($this->GetIDForIdent('Radio'), $hidden);
-            @IPS_SetHidden($this->GetIDForIdent('Playlist'), $hidden);
-            @IPS_SetHidden($this->GetIDForIdent('PlayMode'), $hidden);
-            @IPS_SetHidden($this->GetIDForIdent('Crossfade'), $hidden);
-            @IPS_SetHidden($this->GetIDForIdent('Status'), $hidden);
-            @IPS_SetHidden($this->GetIDForIdent('Sleeptimer'), $hidden);
-            @IPS_SetHidden($this->GetIDForIdent('Details'), $hidden);
+            $this->SetHidden('nowPlaying', $hidden);
+            $this->SetHidden('Radio', $hidden);
+            $this->SetHidden('Playlist', $hidden);
+            $this->SetHidden('PlayMode', $hidden);
+            $this->SetHidden('Crossfade', $hidden);
+            $this->SetHidden('Status', $hidden);
+            $this->SetHidden('Sleeptimer', $hidden);
+            $this->SetHidden('Details', $hidden);
         }
     } // END DelegateGroupCoordinationTo
 
@@ -1837,18 +1837,18 @@ class SonosPlayer extends IPSModule
         }
 
         if (!$this->ReadPropertyBoolean('DisableHiding')) {
-            @IPS_SetHidden($this->GetIDForIdent('nowPlaying'), $hidden);
-            @IPS_SetHidden($this->GetIDForIdent('Radio'), $hidden);
-            @IPS_SetHidden($this->GetIDForIdent('Playlist'), $hidden);
-            @IPS_SetHidden($this->GetIDForIdent('PlayMode'), $hidden);
-            @IPS_SetHidden($this->GetIDForIdent('Crossfade'), $hidden);
-            @IPS_SetHidden($this->GetIDForIdent('Status'), $hidden);
-            @IPS_SetHidden($this->GetIDForIdent('Sleeptimer'), $hidden);
-            @IPS_SetHidden($this->GetIDForIdent('Details'), $hidden);
+            $this->SetHidden('nowPlaying', $hidden);
+            $this->SetHidden('Radio', $hidden);
+            $this->SetHidden('Playlist', $hidden);
+            $this->SetHidden('PlayMode', $hidden);
+            $this->SetHidden('Crossfade', $hidden);
+            $this->SetHidden('Status', $hidden);
+            $this->SetHidden('Sleeptimer', $hidden);
+            $this->SetHidden('Details', $hidden);
         }
         // always hide GroupVolume, unhide executed on GroupCoordinator a few lines above
-        @IPS_SetHidden($this->GetIDForIdent('GroupVolume'), true);
-        @IPS_SetHidden($this->GetIDForIdent('MemberOfGroup'), false);
+        $this->SetHidden('GroupVolume', true);
+        $this->SetHidden('MemberOfGroup', false);
 
         $this->SendDebug(__FUNCTION__ . '->sonos', sprintf('SetAVTransportURI(%s)', $uri), 0);
         $sonos->SetAVTransportURI($uri);
@@ -2167,9 +2167,9 @@ class SonosPlayer extends IPSModule
         if ($this->ReadAttributeBoolean('OutputFixed') == false) {
             $sonos = $this->getSonosAccess();
 
-            SetValue($this->GetIDForIdent('Volume'), $volume);
             $this->SendDebug(__FUNCTION__ . '->sonos', sprintf('SetVolume(%d)', $volume), 0);
             $sonos->SetVolume($volume);
+            SetValue($this->GetIDForIdent('Volume'), $volume);
         }
     } // END SetVolume
 
@@ -2892,6 +2892,14 @@ class SonosPlayer extends IPSModule
         }
         return $foundStation['URL'];
     } // End getRadio
+
+    private function SetHidden(string $name, bool $hidden)
+    {
+        $ID = @$this->GetIDForIdent($name);
+        if ($ID) {
+            IPS_SetHidden($ID, $hidden);
+        }
+    }
 
     private function checkPlaylistAction()
     {

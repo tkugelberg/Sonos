@@ -1,13 +1,18 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<phpunit>
-    <php>
-        <const name="PHPUNIT_TESTSUITE" value="true"/>
-    </php>
-    <filter>
-        <whitelist processUncoveredFilesFromWhitelist="true">
-            <directory suffix=".php">../SonosDiscovery</directory>
-            <directory suffix=".php">../SonosPlayer</directory>
-            <directory suffix=".php">../SonosSplitter</directory>
-        </whitelist>
-    </filter>
+<phpunit xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="https://schema.phpunit.de/9.3/phpunit.xsd">
+  <coverage processUncoveredFiles="true">
+    <include>
+      <directory suffix=".php">../SonosDiscovery</directory>
+      <directory suffix=".php">../SonosPlayer</directory>
+      <directory suffix=".php">../SonosSplitter</directory>
+      <directory suffix=".php">../libs</directory>
+    </include>
+    <exclude>
+      <file>../SonosPlayer/getSonos.php</file>
+      <file>../libs/sonosAccess.php</file>
+    </exclude>
+  </coverage>
+  <php>
+    <const name="PHPUNIT_TESTSUITE" value="true"/>
+  </php>
 </phpunit>
