@@ -309,11 +309,13 @@ class SonosAccess
         if (isset($xml->LocalBatteryStatus->Data)) {
             foreach ($xml->LocalBatteryStatus->Data as $data) {
                 if ($data->attributes()['name'] == 'PowerSource') {
-                    $power_source = strval($data);
+                    $power_source = 0;  // setting to "unknown" not to produce errors
                     if ($data == 'BATTERY') {
                         $power_source = 1;
                     } elseif ($data == 'SONOS_CHARGING_RING') {
                         $power_source = 2;
+                    } elseif ($data == 'USB_POWER') {
+                        $power_source = 3;
                     }
                 }
             }
