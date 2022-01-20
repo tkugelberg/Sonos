@@ -2442,16 +2442,18 @@ class SonosPlayer extends IPSModule
                                 $playing = '<div><b>' . $positionInfo['streamContent'] . '</b></div><div>&nbsp;</div><div>' . $mediaInfo['title'] . '</div>';
                             } else {
                                 $stationID = '';
-                                if (isset($positionInfo['albumArtURI'])) {
+                                if (isset($positionInfo['albumArtURI']) && $positionInfo['albumArtURI'] != '') {
                                     $image = $positionInfo['albumArtURI'];
                                 }
                                 $playing = '';
-                                if (isset($positionInfo['title'])) {
+                                if (isset($positionInfo['streamContent']) && $positionInfo['streamContent'] != '') {
+                                    $playing = $playing . '<div><b>' . $positionInfo['streamContent'] . '</b></div>';
+                                } elseif (isset($positionInfo['title']) && $positionInfo['title'] != '') {
                                     $playing = $playing . '<div><b>' . $positionInfo['title'] . '</b></div>';
                                 }
-                                if (isset($positionInfo['artist'])) {
+                                if (isset($positionInfo['artist']) && $positionInfo['artist'] != '') {
                                     $playing = $playing . '<div>' . $positionInfo['artist'];
-                                    if (isset($mediaInfo['title'])) {
+                                    if (isset($mediaInfo['title']) && $mediaInfo['title'] != '') {
                                         $playing = $playing . ' - ' . $mediaInfo['title'] . '</div>';
                                     } else {
                                         $playing = $playing . '</div>';
