@@ -27,7 +27,7 @@
   - delivered radio stations were removed
   - radio stations can now be maintained individually in splitter instance
 - Variables for "Coordinator" and "Group Members" are now modeled as attributes
-- If confuguration was activated, a media object will be created, filled with the content of "Cover URL"
+- If configuration was activated, a media object will be created, filled with the content of "Cover URL"
 - translation was introduced
 - added the possibility to switch off the automatic hiding of variables
 - added debug messages
