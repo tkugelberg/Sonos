@@ -2302,7 +2302,9 @@ class SonosPlayer extends IPSModule
             if ($vidMemberOfGroup) {
                 $MemberOfGroup = GetValueInteger($vidMemberOfGroup);
             }
-
+            
+            $actuallyPlaying ='';
+                
             if ($MemberOfGroup) {
                 // If Sonos is member of a group, use values of Group Coordinator
                 $data = json_encode([
