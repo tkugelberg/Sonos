@@ -1,4 +1,7 @@
 # Changelog
+### Version 2.4
+- Add "Ray"
+
 ### Version 2.3
 - correct MediaFile Handling and cover determination
 - Add "USB Power" as power source
