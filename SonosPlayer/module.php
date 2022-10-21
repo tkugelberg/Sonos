@@ -151,7 +151,7 @@ class SonosPlayer extends IPSModule
 
         // NightMode
         if ($this->ReadPropertyBoolean('NightModeControl')) {
-            if ($Model == 'Playbar' || $Model == 'Playbase' || $Model == 'Beam' || $Model == 'Arc' || $Model == '') {
+            if ($Model == 'Playbar' || $Model == 'Playbase' || $Model == 'Beam' || $Model == 'Arc' || $Model == 'Ray' || $Model == '') {
                 if (!@$this->GetIDForIdent('NightMode')) {
                     $this->RegisterVariableBoolean('NightMode', $this->Translate('Night Mode'), 'SONOS.Switch', $positions['NightMode']);
                     $this->EnableAction('NightMode');
@@ -332,6 +332,7 @@ class SonosPlayer extends IPSModule
             ['caption' => 'Play:5',      'value' => 'Play:5'],
             ['caption' => 'Playbar',     'value' => 'Playbar'],
             ['caption' => 'Playbase',    'value' => 'Playbase'],
+            ['caption' => 'Ray',         'value' => 'Ray'],
             ['caption' => 'Roam',        'value' => 'Roam'],
             ['caption' => 'SYMFONISK',   'value' => 'SYMFONISK']
         ];
@@ -354,7 +355,7 @@ class SonosPlayer extends IPSModule
 
         // hide NightMode on unsupported devices
         $NightMode = $this->ReadPropertyBoolean('NightModeControl');
-        if ($Model == 'Playbar' || $Model == 'Playbase' || $Model == 'Beam' || $Model == 'Arc' || $NightMode === true) {
+        if ($Model == 'Playbar' || $Model == 'Playbase' || $Model == 'Beam' || $Model == 'Arc' || $Model == 'Ray' || $NightMode === true) {
             $showNightMode = true;
         } else {
             $showNightMode = false;
