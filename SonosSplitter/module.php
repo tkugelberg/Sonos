@@ -39,14 +39,6 @@ class SonosSplitter extends IPSModule
         parent::ApplyChanges();
 
         // create profiles
-        $this->RegisterProfileIntegerEx('SONOS.Status', 'Information', '', '', [
-            [0, $this->Translate('previous'),   '', -1],
-            [1, $this->Translate('play'),       '', -1],
-            [2, $this->Translate('pause'),      '', -1],
-            [3, $this->Translate('stop'),       '', -1],
-            [4, $this->Translate('next'),       '', -1],
-            [5, $this->Translate('transition'), '', -1]
-        ]);
         $this->RegisterProfileIntegerEx('SONOS.PlayMode', 'Information', '', '', [
             [0, $this->Translate('Normal'),             '', -1],
             [1, $this->Translate('Repeat all'),         '', -1],
@@ -64,15 +56,20 @@ class SonosSplitter extends IPSModule
         $this->RegisterProfileInteger('SONOS.Volume', 'Intensity', '', ' %', 0, 100, 1);
         $this->RegisterProfileInteger('SONOS.Tone', 'Intensity', '', ' %', -10, 10, 1);
         $this->RegisterProfileInteger('SONOS.Balance', 'Intensity', '', ' %', -100, 100, 1);
-        // to be deleted, once everyone got the change
-        if (IPS_VariableProfileExists('SONOS.Switch')) {
-            IPS_DeleteVariableProfile('SONOS.Switch');
-        }
 
         $this->RegisterProfileBool('SONOS.Switch', 'Information', '', '', [
             [false, $this->Translate('Off'), '', 0xFF0000],
             [true, $this->Translate('On'),  '', 0x00FF00]
         ]);
+
+        // to be deleted, once everyone got the change
+        if (IPS_VariableProfileExists('SONOS.Status')) {
+            IPS_DeleteVariableProfile('SONOS.Status');
+        }
+
+//        if (IPS_VariableProfileExists('SONOS.Volume')) {
+//            IPS_DeleteVariableProfile('SONOS.Volume');
+//        }
 
         // Radio Stations
         $radioStations = json_decode($this->ReadPropertyString('RadioStations'), true);

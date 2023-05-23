@@ -7,6 +7,13 @@ declare(strict_types=1);
 
 class SonosAccess
 {
+    const PREVIOUS = 0;
+    const STOP = 1;
+    const PLAY = 2;
+    const PAUSE = 3;
+    const NEXT = 4;
+    const TRANSITIONING = 5;
+
     public function __construct($address)
     {
         $this->address = $address;
@@ -349,13 +356,17 @@ class SonosAccess
 
         switch ($returnContent['CurrentTransportState']) {
           case 'PLAYING':
-            return 1;
+            // return 1;
+            return self::PLAY;
           case 'PAUSED_PLAYBACK':
-            return 2;
+            //return 2;
+            return self::PAUSE;
           case 'STOPPED':
-            return 3;
+            //return 3;
+            return self::STOP;
           case 'TRANSITIONING':
-            return 5;
+            // return 5;
+            return self::TRANSITIONING;
           default:
             throw new Exception('Unknown Transport State: ' . $returnContent['CurrentTransportState']);
         }
@@ -798,17 +809,36 @@ class SonosAccess
             $faultcode = $e->faultcode;
             if (isset($e->detail->UPnPError->errorCode)) {
                 $errorCode = $e->detail->UPnPError->errorCode;
-                throw new Exception('Error during Soap Call: ' . $faultstring . ' ' . $faultcode . ' ' . $errorCode . ' (' . $this->resoveErrorCode($path, $errorCode) . ')');
+                throw new Exception('Error during Soap Call: ' . $faultstring . ' ' . $faultcode . ' ' . $errorCode . ' (' . $this->resolveErrorCode($path, $errorCode) . ')');
             } else {
                 throw new Exception('Error during Soap Call: ' . $faultstring . ' ' . $faultcode);
             }
         }
     }
 
-    private function resoveErrorCode($path, $errorCode)
+    private function resolveErrorCode($path, $errorCode)
     {
         $errorList = [
             '/MediaRenderer/AVTransport/Control'      => [
+                '400' => 'ERROR_AV_UPNP_AVT_BAD_REQUEST',
+                '401' => 'ERROR_AV_UPNP_AVT_INVALID_ACTION',
+                '402' => 'ERROR_AV_UPNP_AVT_INVALID_ARGS',
+                '404' => 'ERROR_AV_UPNP_AVT_INVALID_VAR',
+                '412' => 'ERROR_AV_UPNP_AVT_PRECONDITION_FAILED',
+                '501' => 'ERROR_AV_UPNP_AVT_ACTION_FAILED',
+                '600' => 'ERROR_AV_UPNP_AVT_ARGUMENT_VALUE_INVALID',
+                '601' => 'ERROR_AV_UPNP_AVT_ARGUMENT_VALUE_OUT_OF_RANGE',
+                '602' => 'ERROR_AV_UPNP_AVT_OPTIONAL_ACTION_NOT_IMPLEMENTED',
+                '603' => 'ERROR_AV_UPNP_AVT_OUT_OF_MEMORY',
+                '604' => 'ERROR_AV_UPNP_AVT_HUMAN_INTERVENTION_REQUIRED',
+                '605' => 'ERROR_AV_UPNP_AVT_STRING_ARGUMENT_TOO_LONG',
+                '606' => 'ERROR_AV_UPNP_AVT_ACTION_NOT_AUTHORIZED',
+                '607' => 'ERROR_AV_UPNP_AVT_SIGNATURE_FAILURE',
+                '608' => 'ERROR_AV_UPNP_AVT_SIGNATURE_MISSING',
+                '609' => 'ERROR_AV_UPNP_AVT_NOT_ENCRYPTED',
+                '610' => 'ERROR_AV_UPNP_AVT_INVALID_SEQUENCE',
+                '611' => 'ERROR_AV_UPNP_AVT_INVALID_CONTROL_URL',
+                '612' => 'ERROR_AV_UPNP_AVT_NO_SUCH_SESSION',
                 '701' => 'ERROR_AV_UPNP_AVT_INVALID_TRANSITION',
                 '702' => 'ERROR_AV_UPNP_AVT_NO_CONTENTS',
                 '703' => 'ERROR_AV_UPNP_AVT_READ_ERROR',

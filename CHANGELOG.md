@@ -1,4 +1,8 @@
 # Changelog
+### Version 2.5
+- changes for visualization for media player
+- preparation for 7.0
+
 ### Version 2.4
 - Add "Ray"
 
