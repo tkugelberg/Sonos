@@ -88,6 +88,8 @@ class SonosPlayer extends IPSModule
         if (!@$this->GetIDForIdent('Status')) {
             $this->RegisterVariableInteger('Status', $this->Translate('Status'), '~PlaybackPreviousNext', $positions['Status']);
             $this->EnableAction('Status');
+        } else {
+            $this->MaintainVariable('Status', $this->Translate('Status'), 1, '~PlaybackPreviousNext', $positions['Status'], true);
         }
         if (!@$this->GetIDForIdent('Volume')) {
             // requires 6.4
