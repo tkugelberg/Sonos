@@ -26,6 +26,7 @@ class SonosTest extends TestCase
         parent::setUp();
 
         IPS_CreateVariableProfile('~HTMLBox', 3); // needed for Details
+        IPS_CreateVariableProfile('~PlaybackPreviousNext', 1); // needed for status
     }
 
     public function testIsCoordinator()
@@ -146,7 +147,7 @@ class SonosTest extends TestCase
         SNS_Play($players[0]['ID']);
 
         $this->assertEquals(['Play' => ['192.168.1.2' => 1]], $sonosDouble->GetCalls());
-        $this->assertEquals(1, GetValueInteger(IPS_GetVariableIDByName('Status', $players[0]['ID'])));
+        $this->assertEquals(2, GetValueInteger(IPS_GetVariableIDByName('Status', $players[0]['ID'])));
     }
 
     public function testPlayForward()
@@ -173,7 +174,7 @@ class SonosTest extends TestCase
         SNS_Play($players['member']['ID']);
 
         $this->assertEquals(['Play' => ['192.168.1.2' => 1]], $sonosDouble->GetCalls());
-        $this->assertEquals(1, GetValueInteger(IPS_GetVariableIDByName('Status', $players['coordinator']['ID'])));
+        $this->assertEquals(2, GetValueInteger(IPS_GetVariableIDByName('Status', $players['coordinator']['ID'])));
     }
 
     public function testPause()
@@ -191,16 +192,16 @@ class SonosTest extends TestCase
         $sonosDouble = new SonosAccessDouble();
         $this->createPlayers($players, $sonosDouble);
 
-        $sonosDouble->SetResponse(['GetTransportInfo' => [1, 2]]);
+        $sonosDouble->SetResponse(['GetTransportInfo' => [2, 3]]);
 
         SNS_Pause($players[0]['ID']);
 
         $this->assertEquals(['Pause' => ['192.168.1.2' => 1], 'GetTransportInfo' => ['192.168.1.2' => 1]], $sonosDouble->GetCalls());
-        $this->assertEquals(2, GetValueInteger(IPS_GetVariableIDByName('Status', $players[0]['ID'])));
+        $this->assertEquals(3, GetValueInteger(IPS_GetVariableIDByName('Status', $players[0]['ID'])));
 
         SNS_Pause($players[0]['ID']);
         $this->assertEquals(['Pause' => ['192.168.1.2' => 1], 'GetTransportInfo' => ['192.168.1.2' => 2]], $sonosDouble->GetCalls());
-        $this->assertEquals(2, GetValueInteger(IPS_GetVariableIDByName('Status', $players[0]['ID'])));
+        $this->assertEquals(3, GetValueInteger(IPS_GetVariableIDByName('Status', $players[0]['ID'])));
     }
 
     private function createPlayers(array &$players, object $sonosDouble)
