@@ -74,9 +74,10 @@ class SonosPlayer extends IPSModule
             $this->EnableAction('MemberOfGroup');
         }
         if (!@$this->GetIDForIdent('GroupVolume')) {
-//            $this->RegisterVariableInteger('GroupVolume', $this->Translate('Group volume'), '~Volume', $positions['GroupVolume']);
-            $this->RegisterVariableInteger('GroupVolume', $this->Translate('Group volume'), 'SONOS.Volume', $positions['GroupVolume']);
+            $this->RegisterVariableInteger('GroupVolume', $this->Translate('Group volume'), '~Volume', $positions['GroupVolume']);
             $this->EnableAction('GroupVolume');
+        }else{
+            $this->MaintainVariable('GroupVolume', $this->Translate('Group volume'), 1, '~Volume', $positions['GroupVolume'], true);
         }
         if (!@$this->GetIDForIdent('nowPlaying')) {
             $this->RegisterVariableString('nowPlaying', $this->Translate('now Playing'), '', $positions['nowPlaying']);
@@ -92,10 +93,10 @@ class SonosPlayer extends IPSModule
             $this->MaintainVariable('Status', $this->Translate('Status'), 1, '~PlaybackPreviousNext', $positions['Status'], true);
         }
         if (!@$this->GetIDForIdent('Volume')) {
-            // requires 6.4
-//            $this->RegisterVariableInteger('Volume', $this->Translate('Volume'), '~Volume', $positions['Volume']);
-            $this->RegisterVariableInteger('Volume', $this->Translate('Volume'), 'SONOS.Volume', $positions['Volume']);
+            $this->RegisterVariableInteger('Volume', $this->Translate('Volume'), '~Volume', $positions['Volume']);
             $this->EnableAction('Volume');
+        }else{
+            $this->MaintainVariable('Volume', $this->Translate('Volume'), 1, '~Volume', $positions['Volume'], true);
         }
         if (!@$this->GetIDForIdent('Playlist')) {
             $this->RegisterVariableInteger('Playlist', $this->Translate('Playlist'), 'SONOS.Playlist', $positions['Playlist']);
@@ -219,14 +220,14 @@ class SonosPlayer extends IPSModule
                 IPS_SetHidden($this->RegisterVariableString('ContentStream', $this->Translate('Content Stream'), '', $positions['ContentStream']), true);
             }
             if (!@$this->GetIDForIdent('Artist')) {
-                // requires 6.4
-//                $this->RegisterVariableString('Artist', $this->Translate('Artist'), '~Artist', $positions['Artist']);
-                $this->RegisterVariableString('Artist', $this->Translate('Artist'), '', $positions['Artist']);
+                $this->RegisterVariableString('Artist', $this->Translate('Artist'), '~Artist', $positions['Artist']);
+            }else{
+                $this->MaintainVariable('Artist', $this->Translate('Artist'), 3, '~Artist', $positions['Artist'], true);
             }
             if (!@$this->GetIDForIdent('Title')) {
-                // requires 6.4
-//                $this->RegisterVariableString('Title', $this->Translate('Title'), '~Song', $positions['Title']);
-                $this->RegisterVariableString('Title', $this->Translate('Title'), '', $positions['Title']);
+                $this->RegisterVariableString('Title', $this->Translate('Title'), '~Song', $positions['Title']);
+            }else{
+                $this->MaintainVariable('Title', $this->Translate('Title'), 3, '~Song', $positions['Title'], true);
             }
             if (!@$this->GetIDForIdent('Album')) {
                 IPS_SetHidden($this->RegisterVariableString('Album', $this->Translate('Album'), '', $positions['Album']), true);
@@ -1985,7 +1986,7 @@ class SonosPlayer extends IPSModule
             $this->SendDebug(__FUNCTION__ . '->sonos', 'BrowseContentDirectory(\'FV:2\', \'BrowseDirectChildren\', 999)', 0);
             foreach ((new SimpleXMLElement($sonos->BrowseContentDirectory('FV:2', 'BrowseDirectChildren', 999)['Result']))->item as $item) {
                 $this->SendDebug(__FUNCTION__ . ': Found Playlist', (string) $item->xpath('dc:title')[0], 0);
-                if (preg_replace($this->getPlaylistReplacementFrom(), $this->getPlaylistReplacementTo(), $item->xpath('dc:title')[0]) == $name) {
+                if (preg_replace($this->getPlaylistReplacementFrom(), $this->getPlaylistReplacementTo(), (string) $item->xpath('dc:title')[0]) == $name) {
                     $uri = (string) $item->res;
                     $meta = (string) $item->xpath('r:resMD')[0];
                     break;
@@ -1997,7 +1998,7 @@ class SonosPlayer extends IPSModule
             $this->SendDebug(__FUNCTION__ . '->sonos', 'BrowseContentDirectory(\'A:PLAYLISTS\', \'BrowseDirectChildren\', 999)', 0);
             foreach ((new SimpleXMLElement($sonos->BrowseContentDirectory('A:PLAYLISTS', 'BrowseDirectChildren', 999)['Result']))->container as $container) {
                 $this->SendDebug(__FUNCTION__ . ': Found Playlist', (string) $container->xpath('dc:title')[0], 0);
-                if (preg_replace($this->getPlaylistReplacementFrom(), $this->getPlaylistReplacementTo(), $container->xpath('dc:title')[0]) == $name) {
+                if (preg_replace($this->getPlaylistReplacementFrom(), $this->getPlaylistReplacementTo(), (string) $container->xpath('dc:title')[0]) == $name) {
                     $uri = (string) $container->res;
                     break;
                 }
@@ -2367,9 +2368,7 @@ class SonosPlayer extends IPSModule
                 }
             } else {
                 $status = $sonos->GetTransportInfo();
-                if ($status != SonosAccess::TRANSITIONING) {
-                    SetValueInteger($vidStatus, $status);
-                }
+                SetValueInteger($vidStatus, $status);
 
                 // Titelanzeige
                 $currentStation = 0;

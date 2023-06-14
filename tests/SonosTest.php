@@ -27,6 +27,9 @@ class SonosTest extends TestCase
 
         IPS_CreateVariableProfile('~HTMLBox', 3); // needed for Details
         IPS_CreateVariableProfile('~PlaybackPreviousNext', 1); // needed for status
+        IPS_CreateVariableProfile('~Volume', 1); // needed for Volume and Group Volume
+        IPS_CreateVariableProfile('~Song', 3); // needed for Title
+        IPS_CreateVariableProfile('~Artist', 3); // needed for Artist
     }
 
     public function testIsCoordinator()

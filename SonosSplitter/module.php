@@ -67,9 +67,9 @@ class SonosSplitter extends IPSModule
             IPS_DeleteVariableProfile('SONOS.Status');
         }
 
-//        if (IPS_VariableProfileExists('SONOS.Volume')) {
-//            IPS_DeleteVariableProfile('SONOS.Volume');
-//        }
+        if (IPS_VariableProfileExists('SONOS.Volume')) {
+            IPS_DeleteVariableProfile('SONOS.Volume');
+        }
 
         // Radio Stations
         $radioStations = json_decode($this->ReadPropertyString('RadioStations'), true);
@@ -555,7 +555,7 @@ class SonosSplitter extends IPSModule
                 $this->SendDebug(__FUNCTION__ . '->sonos', 'BrowseContentDirectory(\'A:PLAYLISTS\')', 0);
                 foreach ((new SimpleXMLElement($sonos->BrowseContentDirectory('A:PLAYLISTS')['Result']))->container as $container) {
                     $this->SendDebug(__FUNCTION__ . ': Found PlayList', (string) $container->xpath('dc:title')[0], 0);
-                    $Associations[] = [$Value++, (string) preg_replace($this->getPlaylistReplacementFrom(), $this->getPlaylistReplacementTo(), $container->xpath('dc:title')[0]), '', -1];
+                    $Associations[] = [$Value++, (string) preg_replace($this->getPlaylistReplacementFrom(), $this->getPlaylistReplacementTo(), (string) $container->xpath('dc:title')[0]), '', -1];
                     // associations only support up to 128 variables
                     if ($Value === 129) {
                         break;
@@ -568,7 +568,7 @@ class SonosSplitter extends IPSModule
                 $this->SendDebug(__FUNCTION__ . '->sonos', 'BrowseContentDirectory(\'FV:2\')', 0);
                 foreach ((new SimpleXMLElement($sonos->BrowseContentDirectory('FV:2')['Result']))->item as $item) {
                     $this->SendDebug(__FUNCTION__ . ': Found PlayList', (string) $item->xpath('dc:title')[0], 0);
-                    $Associations[] = [$Value++, (string) preg_replace($this->getPlaylistReplacementFrom(), $this->getPlaylistReplacementTo(), $item->xpath('dc:title')[0]), '', -1];
+                    $Associations[] = [$Value++, (string) preg_replace($this->getPlaylistReplacementFrom(), $this->getPlaylistReplacementTo(), (string) $item->xpath('dc:title')[0]), '', -1];
                     // associations only support up to 128 variables
                     if ($Value === 129) {
                         break;

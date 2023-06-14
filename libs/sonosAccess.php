@@ -12,7 +12,7 @@ class SonosAccess
     const PLAY = 2;
     const PAUSE = 3;
     const NEXT = 4;
-    const TRANSITIONING = 5;
+    const TRANSITIONING = -1;
 
     public function __construct($address)
     {
