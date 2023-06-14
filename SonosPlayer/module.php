@@ -76,7 +76,7 @@ class SonosPlayer extends IPSModule
         if (!@$this->GetIDForIdent('GroupVolume')) {
             $this->RegisterVariableInteger('GroupVolume', $this->Translate('Group volume'), '~Volume', $positions['GroupVolume']);
             $this->EnableAction('GroupVolume');
-        }else{
+        } else {
             $this->MaintainVariable('GroupVolume', $this->Translate('Group volume'), 1, '~Volume', $positions['GroupVolume'], true);
         }
         if (!@$this->GetIDForIdent('nowPlaying')) {
@@ -95,7 +95,7 @@ class SonosPlayer extends IPSModule
         if (!@$this->GetIDForIdent('Volume')) {
             $this->RegisterVariableInteger('Volume', $this->Translate('Volume'), '~Volume', $positions['Volume']);
             $this->EnableAction('Volume');
-        }else{
+        } else {
             $this->MaintainVariable('Volume', $this->Translate('Volume'), 1, '~Volume', $positions['Volume'], true);
         }
         if (!@$this->GetIDForIdent('Playlist')) {
@@ -221,12 +221,12 @@ class SonosPlayer extends IPSModule
             }
             if (!@$this->GetIDForIdent('Artist')) {
                 $this->RegisterVariableString('Artist', $this->Translate('Artist'), '~Artist', $positions['Artist']);
-            }else{
+            } else {
                 $this->MaintainVariable('Artist', $this->Translate('Artist'), 3, '~Artist', $positions['Artist'], true);
             }
             if (!@$this->GetIDForIdent('Title')) {
                 $this->RegisterVariableString('Title', $this->Translate('Title'), '~Song', $positions['Title']);
-            }else{
+            } else {
                 $this->MaintainVariable('Title', $this->Translate('Title'), 3, '~Song', $positions['Title'], true);
             }
             if (!@$this->GetIDForIdent('Album')) {
