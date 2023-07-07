@@ -141,14 +141,23 @@ Wenn die Instanz manuell angelegt wurde und die RINCON nicht bekannt ist, kann d
 Hier sollte das Modell des Players ausgewählt werden. Sofern die Insanz aus der Discovery Instanz angelegt wurde, ist dieser Wert automatisch gefüllt.  
 Mit dem Knopf "Modell auslesen" kann man diesen Wert aber auch auslesen, wenn "IP-Adresse/Host" mit dem richtigen Wert gefüllt ist.  
 Es ist eine Liste der aktuell bekannten Player in der Drop-Down Liste gepflegt, welche derzeit die folgenden Werte umfasst:
+  - Arc
+  - Amp
+  - Beam
   - Connect
   - Connect:Amp
+  - Move
+  - One
+  - One SL
   - Play:1
   - Play:3
   - Play:5
   - Playbar
   - Playbase
-  - SYMFONISK  
+  - Ray
+  - Roam
+  - SYMFONISK
+
   Wenn ein anderes Modell beim auslesen erkannt wird, wird es automatisch der Liste hinzugefügt. Falls dies der Fall ist, wäre es aber hilfreich, wenn ich dieses Modell genannt bekäme, um es hinzuzufügen.  
   Das Modell hat auswirkungen auf die angeotenen Features. So mann man z.B. die "Nachtmodus-Steuerung" nur für die Modelle "Playbar" und "Playbase" einschalten.  
 4. __Maximale Dauer bis zur Zeitüberschreitung des ping__  
@@ -215,11 +224,11 @@ Diese Variable enthält Informationen, in welchem Zustand sich die Sonos Instanz
 Falls die Instanz Mitglied einer Gruppe ist, wird die Variable versteckt (hidden) und mit dem Wert aus dem Gruppenkoordinator befüllt.
 Mögliche Werte sind:
   - 0 - Zurück
-  - 1 - Wiedergabe
-  - 2 - Pause
-  - 3 - Stop
+  - 1 - Stop
+  - 2 - Wiedergabe
+  - 3 - Pause
   - 4 - Vor
-  - 5 - Übergang
+  - -1 - Übergang
 
   0 bis 4 werden nur dazu genutzt um über das WebFront den Player zu steuern. 5 ist ein Wert der nur kurzfristig angenommen wird, wenn die Audioquelle gewechselt wird.
 - __Lautstärke__  
