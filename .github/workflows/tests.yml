@@ -14,7 +14,7 @@ jobs:
           submodules: true
 
     - name: Install latest PHPUnit
-      run: wget https://phar.phpunit.de/phpunit.phar
+      run: wget https://phar.phpunit.de/phpunit-10.5.20.phar
 
     - name: Run Tests
       run: phpdbg -qrr phpunit.phar tests/SonosTest.php --configuration tests/phpunit.xml
