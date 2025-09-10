@@ -1,4 +1,7 @@
 # Changelog
+### Version 2.7
+- set attribute 'Coordinator' to true, when instance is created
+
 ### Version 2.6
 - added Move 2, Roam 2, Era 100 and Era 300
 

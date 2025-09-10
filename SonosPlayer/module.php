@@ -39,7 +39,7 @@ class SonosPlayer extends IPSModule
         $this->RegisterPropertyBoolean('ForceOrder', false);
         $this->RegisterPropertyBoolean('DisableHiding', false);
 
-        $this->RegisterAttributeBoolean('Coordinator', false);
+        $this->RegisterAttributeBoolean('Coordinator', true);
         $this->RegisterAttributeString('GroupMembers', '');
         $this->RegisterAttributeBoolean('Vanished', false);
         $this->RegisterAttributeBoolean('OutputFixed', false);
