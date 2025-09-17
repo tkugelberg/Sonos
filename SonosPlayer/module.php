@@ -104,7 +104,7 @@ class SonosPlayer extends IPSModule
 
         $this->checkPlaylistAction();
 
-        if ($Model == 'Move' || $Model == 'Move 2' || $Model == 'Roam' || $Model == 'Roam 2') {
+        if ($Model == 'Move' || $Model == 'Move 2' || $Model == 'Roam' || $Model == 'Roam 2' || $Model == 'Roam SL') {
             if (!@$this->GetIDForIdent('Battery')) {
                 $this->RegisterVariableInteger('Battery', $this->Translate('Battery'), '~Battery.100', $positions['Battery']);
             }
@@ -348,6 +348,7 @@ class SonosPlayer extends IPSModule
             ['caption' => 'Ray',         'value' => 'Ray'],
             ['caption' => 'Roam',        'value' => 'Roam'],
             ['caption' => 'Roam 2',      'value' => 'Roam 2'],
+            ['caption' => 'Roam SL',     'value' => 'Roam SL'],
             ['caption' => 'SYMFONISK',   'value' => 'SYMFONISK']
         ];
 

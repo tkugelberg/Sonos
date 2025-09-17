@@ -1,4 +1,7 @@
 # Changelog
+### Version 2.8
+- "Roam SL" added
+
 ### Version 2.7
 - set attribute 'Coordinator' to true, when instance is created
 
