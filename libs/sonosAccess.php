@@ -279,12 +279,12 @@ class SonosAccess
         } else {
             $positionInfo['album'] = '';
         }
-
         if (isset($index['UPNP:ALBUMARTURI']) && isset($vals[$index['UPNP:ALBUMARTURI'][0]]['value'])) {
-            if (preg_match('/^https?:\/\/[\w,.,-,:]*\/\S*/', $vals[$index['UPNP:ALBUMARTURI'][0]]['value']) == 1) {
-                $positionInfo['albumArtURI'] = $vals[$index['UPNP:ALBUMARTURI'][0]]['value'];
+            $uri = trim($vals[$index['UPNP:ALBUMARTURI'][0]]['value']);
+            if (preg_match('/^https?:\/\//i', $uri) === 1) {
+                $positionInfo['albumArtURI'] = $uri;
             } else {
-                $positionInfo['albumArtURI'] = 'http://' . $this->address . ':1400' . $vals[$index['UPNP:ALBUMARTURI'][0]]['value'];
+                $positionInfo['albumArtURI'] = 'http://' . $this->address . ':1400' . $uri;
             }
         } else {
             $positionInfo['albumArtURI'] = '';

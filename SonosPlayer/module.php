@@ -12,6 +12,7 @@ class SonosPlayer extends IPSModule
     use VariableProfile;
     use CommonFunctions;
     use GetSonos;
+    const TRANSPARENT_PICTURE = 'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII=';
 
     public function Create()
     {
@@ -257,7 +258,7 @@ class SonosPlayer extends IPSModule
                 IPS_SetName($MediaID, $this->Translate('Cover'));
                 IPS_SetInfo($MediaID, $this->Translate('Cover'));
             }
-            IPS_SetMediaContent($MediaID, 'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII='); // transparent picture
+            IPS_SetMediaContent($MediaID, self::TRANSPARENT_PICTURE);
             IPS_SendMediaEvent($MediaID);
         } else {
             $this->removeVariable('Details');
@@ -836,6 +837,7 @@ class SonosPlayer extends IPSModule
                 $vidTitle = @$this->GetIDForIdent('Title');
                 $vidTrack = @$this->GetIDForIdent('Track');
                 $vidDetails = @$this->GetIDForIdent('Details');
+                $vidCover = @$this->GetIDForIdent('Cover');
 
                 if ($vidSleeptimer) {
                     $sleeptimer = @GetValueInteger($vidSleeptimer);
@@ -887,6 +889,11 @@ class SonosPlayer extends IPSModule
                 } else {
                     $details = '';
                 }
+                if ($vidCover) {
+                    $mediaID = $vidCover;
+                } else {
+                    $mediaID = -1;
+                }
 
                 $result = [
                     'instanceID'    => $this->InstanceID,
@@ -903,6 +910,7 @@ class SonosPlayer extends IPSModule
                     'Position'      => $position,
                     'Title'         => $title,
                     'Track'         => $track,
+                    'MediaID'       => $mediaID,
                     'Details'       => $details
                 ];
                  return json_encode($result);
@@ -2220,6 +2228,7 @@ class SonosPlayer extends IPSModule
         $vidNowPlaying = @$this->GetIDForIdent('nowPlaying');
         $vidDetails = @$this->GetIDForIdent('Details');
         $vidCoverURL = @$this->GetIDForIdent('CoverURL');
+        $vidCover = @$this->GetIDForIdent('Cover');
         $vidStationID = @$this->GetIDForIdent('StationID');
         $vidContentStream = @$this->GetIDForIdent('ContentStream');
         $vidArtist = @$this->GetIDForIdent('Artist');
@@ -2368,6 +2377,10 @@ class SonosPlayer extends IPSModule
                     if ($vidDetails) {
                         SetValueString($vidDetails, $coordinatorValues['Details']);
                     }
+                    if ($vidCover && $coordinatorValues['MediaID'] && IPS_MediaExists($vidCover)) {
+                        IPS_SetMediaContent($vidCover, IPS_GetMediaContent($coordinatorValues['MediaID']));
+                        IPS_SendMediaEvent($vidCover);
+                    }
                 } else {
                     $this->SendDebug(__FUNCTION__ . '->GetCoordinatorValues', 'No data returned', 0);
                 }
@@ -2441,6 +2454,8 @@ class SonosPlayer extends IPSModule
                 if ($vidDetails) {
                     $stationID = '';
                     if (isset($positionInfo)) {
+                        $this->SendDebug(__FUNCTION__ . '->GetRadioURL', 'positionInfo=' . print_r($positionInfo, true), 0);
+
                         // SPDIF and analog
                         if (strpos($mediaInfo['title'], 'RINCON_') === 0) {
                             $detailHTML = '';
@@ -2451,12 +2466,15 @@ class SonosPlayer extends IPSModule
                             if (!isset($image)) {
                                 $image = '';
                             }
+                            $this->SendDebug(__FUNCTION__ . '->GetRadioURL', 'stationID=' . $stationID, 0);
                             if ($stationID && $stationID[0] == 's') {
+                                /*
                                 if (@GetValueString($vidStationID) == $stationID) {
                                     $image = GetValueString($vidCoverURL);
                                 } else {
                                     $image = 'https://cdn-profiles.tunein.com/' . $stationID . '/images/logod.png?t=1';
                                 }
+                                 */
                                 $playing = '<div><b>' . $positionInfo['streamContent'] . '</b></div><div>&nbsp;</div><div>' . $mediaInfo['title'] . '</div>';
                             } else {
                                 $stationID = '';
@@ -2532,13 +2550,12 @@ class SonosPlayer extends IPSModule
                         } else {
                             if ($oldURL != '') {
                                 SetValueString($vidCoverURL, '');
-                                $imageContent = 'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII='; // transparent picture
+                                $imageContent = self::TRANSPARENT_PICTURE;
                             }
                         }
-                        $MediaID = @$this->GetIDForIdent('Cover');
-                        if ($MediaID && IPS_MediaExists($MediaID) && $imageContent != 'notSet') {
-                            IPS_SetMediaContent($MediaID, $imageContent);
-                            IPS_SendMediaEvent($MediaID);
+                        if ($vidCover && IPS_MediaExists($vidCover) && $imageContent != 'notSet') {
+                            IPS_SetMediaContent($vidCover, $imageContent);
+                            IPS_SendMediaEvent($vidCover);
                         }
                     }
                     SetValueString($vidStationID, $stationID);

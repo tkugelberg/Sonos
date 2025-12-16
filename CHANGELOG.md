@@ -1,4 +1,7 @@
 # Changelog
+### Version 2.9
+- Cover Fix from "bumaas"
+
 ### Version 2.8
 - "Roam SL" added
 
