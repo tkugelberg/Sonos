@@ -1,4 +1,7 @@
 # Changelog
+### Version 2.10
+- Fix by DrNiels for changed startup behaviour in 8.2
+
 ### Version 2.9
 - Cover Fix from "bumaas"
 
