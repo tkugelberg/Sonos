@@ -35,6 +35,7 @@ class SonosSplitter extends IPSModule
     public function ApplyChanges()
     {
         $this->RegisterMessage(0, IPS_KERNELSTARTED);
+        $this->RegisterMessage($this->InstanceID, FM_CHILDADDED);
         // Diese Zeile nicht löschen
         parent::ApplyChanges();
 
@@ -127,6 +128,7 @@ class SonosSplitter extends IPSModule
     {
         switch ($Message) {
           case IPS_KERNELSTARTED:
+          case FM_CHILD_ADDED:
             // Set Timer for update Status in all Player instances
             $this->SendDataToChildren(json_encode([
                 'DataID'         => '{36EA4430-7047-C11D-0854-43391B14E0D7}',
