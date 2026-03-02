@@ -70,7 +70,7 @@ class SonosDiscovery extends ipsmodule
                 ],
                 [
                     'moduleID'        => '{27B601A0-6EA4-89E3-27AD-2D902307BD8C}',
-                    'configuration'   => []
+                    'configuration'   => new stdClass() // configuration must be an object, not a list
                 ]
             ];
             $Values[] = $AddValue;
