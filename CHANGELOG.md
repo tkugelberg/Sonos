@@ -1,4 +1,7 @@
 # Changelog
+### Version 2.11
+- Fix by Bumaas "Skip restoring sources that cannot be set via UPnP"
+
 ### Version 2.10
 - Fix by DrNiels for changed startup behaviour in 8.2
 
