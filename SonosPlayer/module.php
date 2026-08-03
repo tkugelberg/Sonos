@@ -617,21 +617,27 @@ class SonosPlayer extends IPSModule
                     return; // player is not available, skip
                 }
 
-                $this->SendDebug(__FUNCTION__ . '->resetPlayGrouping->sonos', sprintf('SetAVTransportURI(%s,%s)', $Settings['mediaInfo']['CurrentURI'], $Settings['mediaInfo']['CurrentURIMetaData']), 0);
-                $sonos->SetAVTransportURI($Settings['mediaInfo']['CurrentURI'], $Settings['mediaInfo']['CurrentURIMetaData']);
-                if (@$Settings['mediaInfo']['Track'] > 1) {
-                    try {
-                        $this->SendDebug(__FUNCTION__ . '->resetPlayGrouping->sonos', sprintf('Seek(\'TRACK_NR\', %s)', $Settings['mediaInfo']['Track']), 0);
-                        $sonos->Seek('TRACK_NR', $Settings['mediaInfo']['Track']);
-                    } catch (Exception $e) {
+                // x-sonos-vli URIs (AirPlay/Spotify Connect sessions) are owned by the controlling app and cannot be set via UPnP (402 INVALID_ARGS)
+                $uriRestorable = strpos($Settings['mediaInfo']['CurrentURI'], 'x-sonos-vli:') !== 0;
+                if ($uriRestorable) {
+                    $this->SendDebug(__FUNCTION__ . '->resetPlayGrouping->sonos', sprintf('SetAVTransportURI(%s,%s)', $Settings['mediaInfo']['CurrentURI'], $Settings['mediaInfo']['CurrentURIMetaData']), 0);
+                    $sonos->SetAVTransportURI($Settings['mediaInfo']['CurrentURI'], $Settings['mediaInfo']['CurrentURIMetaData']);
+                    if (@$Settings['mediaInfo']['Track'] > 1) {
+                        try {
+                            $this->SendDebug(__FUNCTION__ . '->resetPlayGrouping->sonos', sprintf('Seek(\'TRACK_NR\', %s)', $Settings['mediaInfo']['Track']), 0);
+                            $sonos->Seek('TRACK_NR', $Settings['mediaInfo']['Track']);
+                        } catch (Exception $e) {
+                        }
                     }
-                }
-                if ($Settings['positionInfo']['TrackDuration'] != '0:00:00' && $Settings['positionInfo']['RelTime'] != 'NOT_IMPLEMENTED') {
-                    try {
-                        $this->SendDebug(__FUNCTION__ . '->resetPlayGrouping->sonos', sprintf('Seek(\'REL_TIME\', %s)', $Settings['positionInfo']['RelTime']), 0);
-                        $sonos->Seek('REL_TIME', $Settings['positionInfo']['RelTime']);
-                    } catch (Exception $e) {
+                    if ($Settings['positionInfo']['TrackDuration'] != '0:00:00' && $Settings['positionInfo']['RelTime'] != 'NOT_IMPLEMENTED') {
+                        try {
+                            $this->SendDebug(__FUNCTION__ . '->resetPlayGrouping->sonos', sprintf('Seek(\'REL_TIME\', %s)', $Settings['positionInfo']['RelTime']), 0);
+                            $sonos->Seek('REL_TIME', $Settings['positionInfo']['RelTime']);
+                        } catch (Exception $e) {
+                        }
                     }
+                } else {
+                    $this->SendDebug(__FUNCTION__ . '->resetPlayGrouping', sprintf('skip resetting to previous source (%s), it cannot be restored', $Settings['mediaInfo']['CurrentURI']), 0);
                 }
 
                 if ($this->ReadAttributeBoolean('OutputFixed') == false) {
@@ -645,7 +651,7 @@ class SonosPlayer extends IPSModule
                 }
 
                 // play again
-                if ($Settings['transportInfo'] == SonosAccess::PLAY) {
+                if ($uriRestorable && $Settings['transportInfo'] == SonosAccess::PLAY) {
                     try {
                         $this->SendDebug(__FUNCTION__ . '->resetPlayGrouping->sonos', 'Play()', 0);
                         $sonos->Play();
@@ -1444,22 +1450,28 @@ class SonosPlayer extends IPSModule
         }
 
         // reset to what was playing before
-        $this->SendDebug(__FUNCTION__, 'reset old settings', 0);
-        $this->SendDebug(__FUNCTION__ . '->sonos', sprintf('SetAVTransportURI(%s,%s)', $mediaInfo['CurrentURI'], $mediaInfo['CurrentURIMetaData']), 0);
-        $sonos->SetAVTransportURI($mediaInfo['CurrentURI'], $mediaInfo['CurrentURIMetaData']);
-        if ($positionInfo['TrackDuration'] != '0:00:00' && $positionInfo['Track'] > 1) {
-            try {
-                $this->SendDebug(__FUNCTION__ . '->sonos', sprintf('Seek(\'TRACK_NR\',%s)', $positionInfo['Track']), 0);
-                $sonos->Seek('TRACK_NR', $positionInfo['Track']);
-            } catch (Exception $e) {
+        // x-sonos-vli URIs (AirPlay/Spotify Connect sessions) are owned by the controlling app and cannot be set via UPnP (402 INVALID_ARGS)
+        $uriRestorable = strpos($mediaInfo['CurrentURI'], 'x-sonos-vli:') !== 0;
+        if ($uriRestorable) {
+            $this->SendDebug(__FUNCTION__, 'reset old settings', 0);
+            $this->SendDebug(__FUNCTION__ . '->sonos', sprintf('SetAVTransportURI(%s,%s)', $mediaInfo['CurrentURI'], $mediaInfo['CurrentURIMetaData']), 0);
+            $sonos->SetAVTransportURI($mediaInfo['CurrentURI'], $mediaInfo['CurrentURIMetaData']);
+            if ($positionInfo['TrackDuration'] != '0:00:00' && $positionInfo['Track'] > 1) {
+                try {
+                    $this->SendDebug(__FUNCTION__ . '->sonos', sprintf('Seek(\'TRACK_NR\',%s)', $positionInfo['Track']), 0);
+                    $sonos->Seek('TRACK_NR', $positionInfo['Track']);
+                } catch (Exception $e) {
+                }
             }
-        }
-        if ($positionInfo['TrackDuration'] != '0:00:00' && $positionInfo['RelTime'] != 'NOT_IMPLEMENTED') {
-            try {
-                $this->SendDebug(__FUNCTION__ . '->sonos', sprintf('Seek(\'REL_TIME\',%s)', $positionInfo['RelTime']), 0);
-                $sonos->Seek('REL_TIME', $positionInfo['RelTime']);
-            } catch (Exception $e) {
+            if ($positionInfo['TrackDuration'] != '0:00:00' && $positionInfo['RelTime'] != 'NOT_IMPLEMENTED') {
+                try {
+                    $this->SendDebug(__FUNCTION__ . '->sonos', sprintf('Seek(\'REL_TIME\',%s)', $positionInfo['RelTime']), 0);
+                    $sonos->Seek('REL_TIME', $positionInfo['RelTime']);
+                } catch (Exception $e) {
+                }
             }
+        } else {
+            $this->SendDebug(__FUNCTION__, sprintf('skip resetting to previous source (%s), it cannot be restored', $mediaInfo['CurrentURI']), 0);
         }
 
         if ($volumeChange != '0') {
@@ -1478,7 +1490,7 @@ class SonosPlayer extends IPSModule
         }
 
         // If it was playing before, play again
-        if ($transportInfo == SonosAccess::PLAY) {
+        if ($uriRestorable && $transportInfo == SonosAccess::PLAY) {
             $this->SendDebug(__FUNCTION__ . '->sonos', 'Play()', 0);
             $sonos->Play();
             $this->SendDebug(__FUNCTION__, 'waiting until it is really playing...', 0);
