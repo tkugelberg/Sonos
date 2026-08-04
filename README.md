@@ -212,9 +212,19 @@ Sie enthält die InstanzID des Gruppenkoordinators der die Instanz zugeordnet is
 Diese Variable wird durch die Funktion SNS_updateStatus() aktuell gehalten.  
 Sie enthält Informationen über das, was momentan gespielt wird.  
 Falls die Instanz Mitglied einer Gruppe ist, wird die Variable versteckt (hidden) und mit dem Wert aus dem Gruppenkoordinator befüllt.
-Wenn nicht kann sich der Wert auf 2 Arten zusammensetzen:
+Wenn nicht kann sich der Wert auf 3 Arten zusammensetzen:
   1. Wenn das Feld "StreamContent" gefüllt ist, wird dieser übernommen (z.B.: bei Radiosendern)
-  2. Ansonsten wird sie mit "<Titel>|<Artist>" gefüllt
+  2. Bei TV- und Line-In-Eingang wird der Name der Quelle eingetragen, da Sonos hier keine Titelinformationen liefert
+  3. Ansonsten wird sie mit "<Titel>|<Artist>" gefüllt (fehlt einer der beiden Werte, wird auch der Trenner weggelassen)
+- __Quelle__  
+Diese Variable enthält die Quelle, die der Player gerade abspielt, und wird von der Funktion SNS_updateStatus() aktualisiert.  
+Sie wird aus der aktuellen URI des Players ermittelt und ist damit auch dann korrekt, wenn gerade kein Ton läuft (z.B. Soundbar am TV-Eingang bei ausgeschaltetem Fernseher).  
+Falls die Instanz Mitglied einer Gruppe ist, wird der Wert aus dem Gruppenkoordinator befüllt.
+Mögliche Werte sind:
+  - 0 - Netzwerk (Titel, Playlisten, Radio, Streams)
+  - 1 - TV (optisch), also der SPDIF-Eingang einer Soundbar
+  - 2 - Line-In, der analoge Eingang
+  - 3 - App (AirPlay/Spotify Connect)
 - __Radio__  
 Diese Variable enthält den aktuell laufenden Radiosender, sofern er in der Liste im WebFront verfügbaren Radiosender auftaucht (siehe Konfiguration).  
 Eine Aktualisierung erfolgt durch die Funktion SNS_updateStatus().  
@@ -288,13 +298,16 @@ Diese Variable wird nur erstellt, wenn die Option "Detaillierte Informationen" a
 Sie enthält das Album des aktuell abgespielten Titels und wird von der Funktion SNS_updateStatus() aktualisiert.
 - __Titellänge__  
 Diese Variable wird nur erstellt, wenn die Option "Detaillierte Informationen" aktiviert ist.  
-Sie enthält die länge des aktuell abgespielten Titels und wird von der Funktion SNS_updateStatus() aktualisiert.
+Sie enthält die länge des aktuell abgespielten Titels und wird von der Funktion SNS_updateStatus() aktualisiert.  
+Liefert Sonos für die aktuelle Quelle keinen Wert (Antwort "NOT_IMPLEMENTED", z.B. am TV-Eingang), bleibt die Variable leer.
 - __Position__  
 Diese Variable wird nur erstellt, wenn die Option "Detaillierte Informationen" aktiviert ist.  
-Sie enthält die aktuelle Position in dem aktuell abgespielten Titels und wird von der Funktion SNS_updateStatus() aktualisiert.
+Sie enthält die aktuelle Position in dem aktuell abgespielten Titels und wird von der Funktion SNS_updateStatus() aktualisiert.  
+Liefert Sonos für die aktuelle Quelle keinen Wert (Antwort "NOT_IMPLEMENTED", z.B. am TV-Eingang), bleibt die Variable leer.
 - __Titel__  
 Diese Variable wird nur erstellt, wenn die Option "Detaillierte Informationen" aktiviert ist.  
-Sie enthält den Titel des aktuell abgespielten Titels und wird von der Funktion SNS_updateStatus() aktualisiert.
+Sie enthält den Titel des aktuell abgespielten Titels und wird von der Funktion SNS_updateStatus() aktualisiert.  
+Bei TV- und Line-In-Eingang liefert Sonos als Titel nur die interne RINCON-ID des Eingangs. Stattdessen wird hier der Name der Quelle eingetragen (siehe Variable "Quelle").
 - __Sender ID__  
 Diese Variable wird nur erstellt, wenn die Option "Detaillierte Informationen" aktiviert ist.  
 Sie enthält den die StationID aus TuneIn und wird von der Funktion SNS_updateStatus() aktualisiert.

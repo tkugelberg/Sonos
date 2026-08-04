@@ -1,4 +1,10 @@
 # Changelog
+### unreleased
+- New variable "Source" (profile SONOS.Source), telling whether the player plays network content, the TV input (optical), Line-In or an app session (AirPlay/Spotify Connect)
+- "Title" no longer contains the internal RINCON id on TV and Line-In input, but the name of the source
+- "Track Duration" and "Position" stay empty instead of containing the UPnP placeholder "NOT_IMPLEMENTED"
+- "now Playing" no longer contains the bare separator " | " when title and artist are empty
+
 ### Version 2.11
 - Fix by Bumaas "Skip restoring sources that cannot be set via UPnP"
 

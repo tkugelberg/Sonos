@@ -54,6 +54,12 @@ class SonosSplitter extends IPSModule
             [2, $this->Translate('Charging Ring'),      '', -1],
             [3, $this->Translate('USB Power'),          '', -1]
         ]);
+        $this->RegisterProfileIntegerEx('SONOS.Source', 'Information', '', '', [
+            [0, $this->Translate('Network'),                       '', -1],
+            [1, $this->Translate('TV (optical)'),                  '', -1],
+            [2, $this->Translate('Line-In'),                       '', -1],
+            [3, $this->Translate('App (AirPlay/Spotify Connect)'), '', -1]
+        ]);
         $this->RegisterProfileInteger('SONOS.Volume', 'Intensity', '', ' %', 0, 100, 1);
         $this->RegisterProfileInteger('SONOS.Tone', 'Intensity', '', ' %', -10, 10, 1);
         $this->RegisterProfileInteger('SONOS.Balance', 'Intensity', '', ' %', -100, 100, 1);
