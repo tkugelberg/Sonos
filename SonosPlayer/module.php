@@ -2380,7 +2380,7 @@ class SonosPlayer extends IPSModule
                     SetValueInteger($vidRadio, $coordinatorValues['Radio']);
                     SetValueInteger($vidGroupVolume, $coordinatorValues['GroupVolume']);
                     if ($vidSource) {
-                        SetValueInteger($vidSource, $coordinatorValues['Source']);
+                        SetValueInteger($vidSource, (int) @$coordinatorValues['Source']);
                     }
                     if ($vidSleeptimer) {
                         SetValueInteger($vidSleeptimer, $coordinatorValues['Sleeptimer']);
