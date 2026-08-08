@@ -14,6 +14,15 @@ class SonosPlayer extends IPSModule
     use GetSonos;
     const TRANSPARENT_PICTURE = 'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII=';
 
+    // Sonos reports the playing source in the current URI, see getSourceFromURI()
+    const SOURCE_NETWORK = 0;
+    const SOURCE_TV = 1;
+    const SOURCE_LINEIN = 2;
+    const SOURCE_APP = 3;
+
+    // Sonos answers with this placeholder for fields it does not fill, e.g. on SPDIF input
+    const UPNP_NOT_IMPLEMENTED = 'NOT_IMPLEMENTED';
+
     public function Create()
     {
         parent::Create();
@@ -82,6 +91,9 @@ class SonosPlayer extends IPSModule
         }
         if (!@$this->GetIDForIdent('nowPlaying')) {
             $this->RegisterVariableString('nowPlaying', $this->Translate('now Playing'), '', $positions['nowPlaying']);
+        }
+        if (!@$this->GetIDForIdent('Source')) {
+            $this->RegisterVariableInteger('Source', $this->Translate('Source'), 'SONOS.Source', $positions['Source']);
         }
         if (!@$this->GetIDForIdent('Radio')) {
             $this->RegisterVariableInteger('Radio', $this->Translate('Radio'), 'SONOS.Radio', $positions['Radio']);
@@ -900,6 +912,12 @@ class SonosPlayer extends IPSModule
                 } else {
                     $mediaID = -1;
                 }
+                $vidSource = @$this->GetIDForIdent('Source');
+                if ($vidSource) {
+                    $source = GetValueInteger($vidSource);
+                } else {
+                    $source = self::SOURCE_NETWORK;
+                }
 
                 $result = [
                     'instanceID'    => $this->InstanceID,
@@ -907,6 +925,7 @@ class SonosPlayer extends IPSModule
                     'nowPlaying'    => GetValueString(@$this->GetIDForIdent('nowPlaying')),
                     'Radio'         => GetValueInteger(@$this->GetIDForIdent('Radio')),
                     'GroupVolume'   => GetValueInteger(@$this->GetIDForIdent('GroupVolume')),
+                    'Source'        => $source,
                     'Sleeptimer'    => $sleeptimer,
                     'CoverURL'      => $coverURL,
                     'ContentStream' => $contentStram,
@@ -2254,6 +2273,7 @@ class SonosPlayer extends IPSModule
         $vidGroupVolume = @$this->GetIDForIdent('GroupVolume');
         $vidBattery = @$this->GetIDForIdent('Battery');
         $vidPowerSource = @$this->GetIDForIdent('PowerSource');
+        $vidSource = @$this->GetIDForIdent('Source');
 
         $AlbumArtHeight = $this->ReadAttributeInteger('AlbumArtHeight');
 
@@ -2359,6 +2379,9 @@ class SonosPlayer extends IPSModule
                     $actuallyPlaying = $coordinatorValues['nowPlaying'];
                     SetValueInteger($vidRadio, $coordinatorValues['Radio']);
                     SetValueInteger($vidGroupVolume, $coordinatorValues['GroupVolume']);
+                    if ($vidSource) {
+                        SetValueInteger($vidSource, (int) @$coordinatorValues['Source']);
+                    }
                     if ($vidSleeptimer) {
                         SetValueInteger($vidSleeptimer, $coordinatorValues['Sleeptimer']);
                     }
@@ -2400,6 +2423,19 @@ class SonosPlayer extends IPSModule
                 $status = $sonos->GetTransportInfo();
                 SetValueInteger($vidStatus, $status);
 
+                // The current URI names the playing source. It is also read while not playing,
+                // because a soundbar keeps its TV input selected while the TV is silent or off.
+                try {
+                    $mediaInfo = $sonos->GetMediaInfo();
+                } catch (Exception $e) {
+                    $this->SendDebug(__FUNCTION__ . '->GetMediaInfo', (string) $e->getMessage(), 0);
+                    $mediaInfo = ['CurrentURI' => '', 'title' => ''];
+                }
+                $source = $this->getSourceFromURI((string) @$mediaInfo['CurrentURI']);
+                if ($vidSource) {
+                    SetValueInteger($vidSource, $source);
+                }
+
                 // Titelanzeige
                 $currentStation = 0;
 
@@ -2408,12 +2444,21 @@ class SonosPlayer extends IPSModule
                     $actuallyPlaying = '';
                 } else {
                     $positionInfo = $sonos->GetPositionInfo();
-                    $mediaInfo = $sonos->GetMediaInfo();
 
                     if ($positionInfo['streamContent']) {
                         $actuallyPlaying = $positionInfo['streamContent'];
+                    } elseif ($this->isPhysicalInput($source)) {
+                        // TV and Line-In deliver no track information at all, name the source instead
+                        $actuallyPlaying = $this->getSourceName($source);
                     } else {
-                        $actuallyPlaying = $positionInfo['title'] . ' | ' . $positionInfo['artist'];
+                        $titleParts = [];
+                        if ($positionInfo['title'] != '') {
+                            $titleParts[] = $positionInfo['title'];
+                        }
+                        if ($positionInfo['artist'] != '') {
+                            $titleParts[] = $positionInfo['artist'];
+                        }
+                        $actuallyPlaying = implode(' | ', $titleParts);
                     }
 
                     // start find current Radio in VariableProfile
@@ -2423,7 +2468,7 @@ class SonosPlayer extends IPSModule
                         if (htmlspecialchars_decode($radioStation['URL']) == htmlspecialchars_decode($mediaInfo['CurrentURI'])) {
                             $image = $radioStation['imageURL'];
 
-                            $Associations = IPS_GetVariableProfile('SONOS.Radio')['Associations'];
+                            $Associations = $this->getProfileAssociations('SONOS.Radio');
                             foreach ($Associations as $key => $station) {
                                 if ($station['Name'] == $radioStation['name']) {
                                     $currentStation = $station['Value'];
@@ -2447,16 +2492,19 @@ class SonosPlayer extends IPSModule
                     SetValueString($vidAlbum, @$positionInfo['album']);
                 }
                 if ($vidTrackDuration) {
-                    SetValueString($vidTrackDuration, @$positionInfo['TrackDuration']);
+                    SetValueString($vidTrackDuration, $this->cleanUPnPValue(@$positionInfo['TrackDuration']));
                 }
                 if ($vidPosition) {
-                    SetValueString($vidPosition, @$positionInfo['RelTime']);
+                    SetValueString($vidPosition, $this->cleanUPnPValue(@$positionInfo['RelTime']));
                 }
                 if ($vidTrack) {
                     SetValueInteger($vidTrack, @$positionInfo['Track']);
                 }
                 if ($vidTitle) {
-                    if (@$positionInfo['title'] && @substr_compare($positionInfo['title'], 'stream', 0, 6)) {
+                    if ($this->isPhysicalInput($source)) {
+                        // Sonos reports the internal RINCON id as title here, which is no title at all
+                        SetValueString($vidTitle, $this->getSourceName($source));
+                    } elseif (@$positionInfo['title'] && @substr_compare($positionInfo['title'], 'stream', 0, 6)) {
                         SetValueString($vidTitle, @$positionInfo['title']);
                     } else {
                         SetValueString($vidTitle, @$mediaInfo['title']);
@@ -2469,7 +2517,7 @@ class SonosPlayer extends IPSModule
                         $this->SendDebug(__FUNCTION__ . '->GetRadioURL', 'positionInfo=' . print_r($positionInfo, true), 0);
 
                         // SPDIF and analog
-                        if (strpos($mediaInfo['title'], 'RINCON_') === 0) {
+                        if ($this->isPhysicalInput($source)) {
                             $detailHTML = '';
                         // Radio or stream(?)
                         } elseif ($mediaInfo['title']) {
@@ -2681,14 +2729,22 @@ class SonosPlayer extends IPSModule
                 $this->SetPlayMode($Value);
                 break;
             case 'Playlist':
-                $this->SetPlaylist(IPS_GetVariableProfile('SONOS.Playlist')['Associations'][$Value - 1]['Name']);
+                $Associations = $this->getProfileAssociations('SONOS.Playlist');
+                if (!isset($Associations[$Value - 1])) {
+                    throw new Exception(sprintf($this->Translate('Playlist %d is not available in profile %s'), $Value, 'SONOS.Playlist'));
+                }
+                $this->SetPlaylist($Associations[$Value - 1]['Name']);
                 SetValue($this->GetIDForIdent($Ident), $Value);
                 $this->Play();
                 sleep(1);
                 SetValue($this->GetIDForIdent($Ident), 0);
                 break;
             case 'Radio':
-                $this->SetRadio(IPS_GetVariableProfile('SONOS.Radio')['Associations'][$Value - 1]['Name']);
+                $Associations = $this->getProfileAssociations('SONOS.Radio');
+                if (!isset($Associations[$Value - 1])) {
+                    throw new Exception(sprintf($this->Translate('Radio station %d is not available in profile %s'), $Value, 'SONOS.Radio'));
+                }
+                $this->SetRadio($Associations[$Value - 1]['Name']);
                 SetValue($this->GetIDForIdent($Ident), $Value);
                 $this->Play();
                 break;
@@ -2950,9 +3006,24 @@ class SonosPlayer extends IPSModule
         }
     }
 
+    /**
+     * The SONOS.* profiles belong to the splitter. If one of them is missing - splitter not
+     * applied yet, or the profile was deleted - IPS_GetVariableProfile() returns false and
+     * reading ['Associations'] off it aborts whatever the player was doing. Return an empty
+     * association list instead so the player stays usable.
+     */
+    private function getProfileAssociations(string $profileName): array
+    {
+        if (!IPS_VariableProfileExists($profileName)) {
+            $this->SendDebug(__FUNCTION__, sprintf('Profile "%s" does not exist, apply the Sonos splitter instance', $profileName), 0);
+            return [];
+        }
+        return IPS_GetVariableProfile($profileName)['Associations'];
+    }
+
     private function checkPlaylistAction()
     {
-        $Associations = IPS_GetVariableProfile('SONOS.Playlist')['Associations'];
+        $Associations = $this->getProfileAssociations('SONOS.Playlist');
         if (isset($Associations[0])) {
             if ($Associations[0]['Value'] == 0) {
                 $this->DisableAction('Playlist');
@@ -2962,6 +3033,50 @@ class SonosPlayer extends IPSModule
         } else {
             $this->DisableAction('Playlist');
         }
+    }
+
+    private function getSourceFromURI(string $currentURI): int
+    {
+        // the URI schemes are the same ones SetSpdifInput() and SetLineIn() write
+        if (strpos($currentURI, 'x-sonos-htastream:') === 0) {
+            return self::SOURCE_TV;
+        }
+        if (strpos($currentURI, 'x-rincon-stream:') === 0) {
+            return self::SOURCE_LINEIN;
+        }
+        if (strpos($currentURI, 'x-sonos-vli:') === 0) {
+            // AirPlay or Spotify Connect session, owned by the controlling app
+            return self::SOURCE_APP;
+        }
+        return self::SOURCE_NETWORK;
+    }
+
+    // TV and Line-In deliver no track metadata, Sonos only answers with the RINCON id of the input
+    private function isPhysicalInput(int $source): bool
+    {
+        return $source == self::SOURCE_TV || $source == self::SOURCE_LINEIN;
+    }
+
+    private function getSourceName(int $source): string
+    {
+        switch ($source) {
+            case self::SOURCE_TV:
+                return $this->Translate('TV (optical)');
+            case self::SOURCE_LINEIN:
+                return $this->Translate('Line-In');
+            case self::SOURCE_APP:
+                return $this->Translate('App (AirPlay/Spotify Connect)');
+            default:
+                return '';
+        }
+    }
+
+    private function cleanUPnPValue($value): string
+    {
+        if ((string) $value == self::UPNP_NOT_IMPLEMENTED) {
+            return '';
+        }
+        return (string) $value;
     }
 
     private function getPositions(): array
@@ -2982,6 +3097,7 @@ class SonosPlayer extends IPSModule
             'StationID'       => 28,
             'nowPlaying'      => 29,
             'Track'           => 30,
+            'Source'          => 31,
             'Radio'           => 40,
             'Playlist'        => 41,
             'Status'          => 49,

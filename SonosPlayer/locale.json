@@ -33,6 +33,10 @@
 			"Track Duration": "Titellänge",
 			"Position": "Position",
 			"Station ID": "Sender ID",
+			"Source": "Quelle",
+			"TV (optical)": "TV (optisch)",
+			"Line-In": "Line-In",
+			"App (AirPlay/Spotify Connect)": "App (AirPlay/Spotify Connect)",
 			"IP-Address/Host": "IP-Adresse/Host",
 			"RINCON": "RINCON",
 			"Model": "Modell",
@@ -68,7 +72,9 @@
 			"Night Mode not supported on model %s": "Nachtmodus wird auf dem Modell %s nicht unterstützt",
 			"Could not connect to %s": "Keine Verbindung zu %s",
 			"RINCON could not be read from %s": "RINCON konnte bei %s nicht ausgelesen werden",
-			"Model could not be read from %s": "Modell konnte bei %s nicht ausgelesen werden"
+			"Model could not be read from %s": "Modell konnte bei %s nicht ausgelesen werden",
+			"Playlist %d is not available in profile %s": "Die Playlist %d ist im Profil %s nicht vorhanden",
+			"Radio station %d is not available in profile %s": "Der Radiosender %d ist im Profil %s nicht vorhanden"
 		}
 	}
 }
