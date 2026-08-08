@@ -105,6 +105,14 @@ class SonosSplitter extends IPSModule
             $this->RegisterProfileIntegerEx('SONOS.Groups', 'Network', '', '', [[0, $this->Translate('none'), '', -1]]);
         }
 
+        // SONOS.Playlist is only created by UpdatePlaylists(), and the comparison above stops
+        // calling it once the import has run. Recreate the placeholder profile here so a player
+        // instance never has to deal with a missing one. Deliberately without UpdatePlaylists():
+        // that one throws when no player is reachable, which would break ApplyChanges.
+        if (!IPS_VariableProfileExists('SONOS.Playlist')) {
+            $this->RegisterProfileIntegerEx('SONOS.Playlist', 'Database', '', '', [[0, $this->Translate('no playlist available'), '', -1]]);
+        }
+
         $this->SetTimerInterval('Sonos Update Grouping', $this->ReadPropertyInteger('UpdateGroupingFrequency') * 1000);
 
         // Send different propeties to player instances, in case IPS is already started

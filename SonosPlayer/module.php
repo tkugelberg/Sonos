@@ -2468,7 +2468,7 @@ class SonosPlayer extends IPSModule
                         if (htmlspecialchars_decode($radioStation['URL']) == htmlspecialchars_decode($mediaInfo['CurrentURI'])) {
                             $image = $radioStation['imageURL'];
 
-                            $Associations = IPS_GetVariableProfile('SONOS.Radio')['Associations'];
+                            $Associations = $this->getProfileAssociations('SONOS.Radio');
                             foreach ($Associations as $key => $station) {
                                 if ($station['Name'] == $radioStation['name']) {
                                     $currentStation = $station['Value'];
@@ -2729,14 +2729,22 @@ class SonosPlayer extends IPSModule
                 $this->SetPlayMode($Value);
                 break;
             case 'Playlist':
-                $this->SetPlaylist(IPS_GetVariableProfile('SONOS.Playlist')['Associations'][$Value - 1]['Name']);
+                $Associations = $this->getProfileAssociations('SONOS.Playlist');
+                if (!isset($Associations[$Value - 1])) {
+                    throw new Exception(sprintf($this->Translate('Playlist %d is not available in profile %s'), $Value, 'SONOS.Playlist'));
+                }
+                $this->SetPlaylist($Associations[$Value - 1]['Name']);
                 SetValue($this->GetIDForIdent($Ident), $Value);
                 $this->Play();
                 sleep(1);
                 SetValue($this->GetIDForIdent($Ident), 0);
                 break;
             case 'Radio':
-                $this->SetRadio(IPS_GetVariableProfile('SONOS.Radio')['Associations'][$Value - 1]['Name']);
+                $Associations = $this->getProfileAssociations('SONOS.Radio');
+                if (!isset($Associations[$Value - 1])) {
+                    throw new Exception(sprintf($this->Translate('Radio station %d is not available in profile %s'), $Value, 'SONOS.Radio'));
+                }
+                $this->SetRadio($Associations[$Value - 1]['Name']);
                 SetValue($this->GetIDForIdent($Ident), $Value);
                 $this->Play();
                 break;
@@ -2998,9 +3006,24 @@ class SonosPlayer extends IPSModule
         }
     }
 
+    /**
+     * The SONOS.* profiles belong to the splitter. If one of them is missing - splitter not
+     * applied yet, or the profile was deleted - IPS_GetVariableProfile() returns false and
+     * reading ['Associations'] off it aborts whatever the player was doing. Return an empty
+     * association list instead so the player stays usable.
+     */
+    private function getProfileAssociations(string $profileName): array
+    {
+        if (!IPS_VariableProfileExists($profileName)) {
+            $this->SendDebug(__FUNCTION__, sprintf('Profile "%s" does not exist, apply the Sonos splitter instance', $profileName), 0);
+            return [];
+        }
+        return IPS_GetVariableProfile($profileName)['Associations'];
+    }
+
     private function checkPlaylistAction()
     {
-        $Associations = IPS_GetVariableProfile('SONOS.Playlist')['Associations'];
+        $Associations = $this->getProfileAssociations('SONOS.Playlist');
         if (isset($Associations[0])) {
             if ($Associations[0]['Value'] == 0) {
                 $this->DisableAction('Playlist');
