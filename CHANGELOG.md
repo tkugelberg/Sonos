@@ -1,4 +1,7 @@
 # Changelog
+### Version 2.12
+- Fix by Bumaas "Set the status only after the player accepted Play, Pause or Stop"
+- 
 ### Version 2.11
 - Fix by Bumaas "Skip restoring sources that cannot be set via UPnP"
 
