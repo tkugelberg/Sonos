@@ -140,11 +140,17 @@ class SonosAccessDouble
     public function Pause()
     {
         $this->addCall(__FUNCTION__);
+        if ($this->raiseException == true) {
+            throw new Exception('UnitTest Exception Pause');
+        }
     }
 
     public function Play()
     {
         $this->addCall(__FUNCTION__);
+        if ($this->raiseException == true) {
+            throw new Exception('UnitTest Exception Play');
+        }
     }
 
     public function Previous()
@@ -248,6 +254,9 @@ class SonosAccessDouble
     public function Stop()
     {
         $this->addCall(__FUNCTION__);
+        if ($this->raiseException == true) {
+            throw new Exception('UnitTest Exception Stop');
+        }
     }
 
     public function GetCalls(): array
