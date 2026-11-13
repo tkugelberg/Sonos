@@ -1324,9 +1324,10 @@ class SonosPlayer extends IPSModule
         if ($targetInstance === $this->InstanceID) {
             $sonos = $this->getSonosAccess();
 
-            SetValue($this->GetIDForIdent('Status'), SonosAccess::PLAY);
             $this->SendDebug(__FUNCTION__ . '->sonos', 'Play()', 0);
             $sonos->Play();
+            // set the status only after the player accepted the command (an empty queue is rejected with UPnP error 701)
+            SetValue($this->GetIDForIdent('Status'), SonosAccess::PLAY);
         } else {
             $data = json_encode([
                 'DataID'         => '{731D7808-F7C4-FA98-2132-0FAB19A802C1}',
@@ -2815,12 +2816,12 @@ class SonosPlayer extends IPSModule
         if ($targetInstance === $this->InstanceID) {
             $sonos = $this->getSonosAccess();
 
-            SetValue($this->GetIDForIdent('Status'), SonosAccess::PAUSE);
             $this->SendDebug(__FUNCTION__ . '->sonos', 'GetTransportInfo()', 0);
             if ($sonos->GetTransportInfo() == SonosAccess::PLAY) {
                 $this->SendDebug(__FUNCTION__ . '->sonos', 'Pause()', 0);
                 $sonos->Pause();
             }
+            SetValue($this->GetIDForIdent('Status'), SonosAccess::PAUSE);
         } elseif ($forward) {
             $data = json_encode([
                 'DataID'         => '{731D7808-F7C4-FA98-2132-0FAB19A802C1}',
@@ -2841,12 +2842,12 @@ class SonosPlayer extends IPSModule
         if ($targetInstance === $this->InstanceID) {
             $sonos = $this->getSonosAccess();
 
-            SetValue($this->GetIDForIdent('Status'), SonosAccess::STOP);
             $this->SendDebug(__FUNCTION__ . '->sonos', 'GetTransportInfo()', 0);
             if ($sonos->GetTransportInfo() == SonosAccess::PLAY) {
                 $this->SendDebug(__FUNCTION__ . '->sonos', 'Stop()', 0);
                 $sonos->Stop();
             }
+            SetValue($this->GetIDForIdent('Status'), SonosAccess::STOP);
         } elseif ($forward) {
             $data = json_encode([
                 'DataID'         => '{731D7808-F7C4-FA98-2132-0FAB19A802C1}',

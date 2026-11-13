@@ -207,6 +207,60 @@ class SonosTest extends TestCase
         $this->assertEquals(3, GetValueInteger(IPS_GetVariableIDByName('Status', $players[0]['ID'])));
     }
 
+    public function testStatusOnlyAfterAcceptedCommand()
+    {
+        $players = [
+            0   => [
+                'IP'             => '192.168.1.2',
+                'isCoordinator'  => true,
+                'vanished'       => false,
+                'GroupMember'    => [],
+                'coordinator'    => ''
+            ]
+        ];
+        $sonosDouble = new SonosAccessDouble();
+        $this->createPlayers($players, $sonosDouble);
+        $status = IPS_GetVariableIDByName('Status', $players[0]['ID']);
+
+        // accepted commands set the status
+        SetValueInteger($status, SonosAccess::STOP);
+        $this->assertEquals('', $this->exceptionTextOf(static fn () => SNS_Play($players[0]['ID'])));
+        $this->assertEquals(SonosAccess::PLAY, GetValueInteger($status));
+
+        $sonosDouble->SetResponse(['GetTransportInfo' => [SonosAccess::PLAY]]);
+        $this->assertEquals('', $this->exceptionTextOf(static fn () => SNS_Pause($players[0]['ID'])));
+        $this->assertEquals(SonosAccess::PAUSE, GetValueInteger($status));
+
+        $sonosDouble->SetResponse(['GetTransportInfo' => [SonosAccess::PLAY]]);
+        $this->assertEquals('', $this->exceptionTextOf(static fn () => SNS_Stop($players[0]['ID'])));
+        $this->assertEquals(SonosAccess::STOP, GetValueInteger($status));
+
+        // a command the player rejects (e.g. Play with an empty queue: UPnP error 701) leaves the status untouched
+        $sonosDouble->SetRaiseException(true);
+
+        $this->assertEquals('UnitTest Exception Play', $this->exceptionTextOf(static fn () => SNS_Play($players[0]['ID'])));
+        $this->assertEquals(SonosAccess::STOP, GetValueInteger($status));
+
+        SetValueInteger($status, SonosAccess::PLAY);
+        $sonosDouble->SetResponse(['GetTransportInfo' => [SonosAccess::PLAY]]);
+        $this->assertEquals('UnitTest Exception Pause', $this->exceptionTextOf(static fn () => SNS_Pause($players[0]['ID'])));
+        $this->assertEquals(SonosAccess::PLAY, GetValueInteger($status));
+
+        $sonosDouble->SetResponse(['GetTransportInfo' => [SonosAccess::PLAY]]);
+        $this->assertEquals('UnitTest Exception Stop', $this->exceptionTextOf(static fn () => SNS_Stop($players[0]['ID'])));
+        $this->assertEquals(SonosAccess::PLAY, GetValueInteger($status));
+    }
+
+    private function exceptionTextOf(callable $command): string
+    {
+        try {
+            $command();
+        } catch (Exception $e) {
+            return $e->getMessage();
+        }
+        return '';
+    }
+
     private function createPlayers(array &$players, object $sonosDouble)
     {
         // create players
